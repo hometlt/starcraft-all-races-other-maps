@@ -1,0 +1,1007 @@
+// UserInt 1: OrderStep
+// UserInt 2: InitTrigger
+// UserInt 7, 9 : chat
+// UserInt 8 : Change commander
+// UserInt 10 : Restart recognize.
+// UserInt 11: PA Function
+// UserInt 6: Store EnemyID.
+// UserInt 5: Store ChokePoint
+
+string c_GT_Scout = "GTScoutUnit";
+string c_GT_PointE1 = "GTPointE1";
+
+// Prototypes used in functions
+
+
+
+
+
+
+bool GTEvadeSplash(bool checkConds, bool doActions) {
+	order ord;
+	unit u = EventUnitTarget();
+	unit u1;
+	point p = UnitGetPosition(u);
+	int player = UnitGetOwner(u);
+	int count;
+	unitgroup group = UnitGroup(null, player, RegionCircle(p, 2.5), null, 0);
+	if (UnitGetType(EventUnit()) != c_TU_SiegeTankSieged) {
+		return false;
+	}
+
+	if (!doActions) {
+		return true;
+	}
+
+	group = UnitGroupFilterPlane(group, c_planeGround, 0);
+
+	count = UnitGroupCount(group, c_unitCountAlive);
+	while (count != 0) {
+		u1 = UnitGroupUnit(group, count);
+		count = count - 1;
+
+		ord = AICreateOrder(player, c_AB_Move, 0);
+		OrderSetTargetPoint(ord, 		PointWithOffsetPolar(p, 2.5, AngleBetweenPoints(p, UnitGetPosition(u1))));
+
+		AICast(u1, ord, c_noMarker, c_castRetreat);
+	}
+	return true;
+}
+
+bool GTUnitIsDamage(bool checkConds, bool doActions) {
+	unit u = EventUnit();
+	point p = UnitGetPosition(u);
+	int player = UnitGetOwner(u);
+	order ord;
+	if (!doActions) {
+		return true;
+	}
+
+	UnitGroupLoopBegin(AIFindUnits(player, null, p, 2, 0));
+	while (!UnitGroupLoopDone()) {
+		ord = AICreateOrder(player, c_AB_Move, 0);
+		OrderSetTargetPoint(ord, PointWithOffsetPolar(p, 2, AngleBetweenPoints(p, UnitGetPosition(UnitGroupLoopCurrent()))));
+		AICast(UnitGroupLoopCurrent(), ord, c_noMarker, c_castRetreat);
+		UnitGroupLoopStep();
+	}
+	UnitGroupLoopEnd();
+	return true;
+}
+
+// This function should be removed, there is already a cancel function !
+bool GTBuildIsDamage(bool checkConds, bool doActions) {
+	order ord;
+	unit u = EventUnit();
+	if (!doActions) {
+		return true;
+	}
+	if (UnitGetPropertyInt(u, c_unitPropLife, c_unitPropCurrent) > 11) {
+		return false;
+	}
+	ord = AICreateOrder(UnitGetOwner(u), "BuildInProgress", 0);
+	if (!UnitOrderIsValid(u, ord)) {
+		return false;
+	}
+	AICast(u, ord, c_noMarker, c_castHold);
+	return true;
+}
+
+bool GTUnitIsEnter(bool checkConds, bool doActions) {
+	if (checkConds) {
+		if (AIGetTownLocation(UnitGetOwner(EventUnit()), 0) != null) {
+			return false;
+		}
+		if (UnitGetType(EventUnit()) == c_ZU_Overlord || UnitGetType(EventUnit()) == c_TU_SCV || UnitGetType(EventUnit()) == c_ZU_Drone || UnitGetType(EventUnit()) == c_PU_Probe) {
+			return false;
+		}
+		if (!g_walling) {
+			return false;
+		}
+		if (GTime() > 300) {
+			return false;
+		}
+	}
+	UnitKill(EventUnit());
+	UIClearMessages(PlayerGroupActive(), c_messageAreaDebug);
+	DebugAI("You can't pass the Wall.");
+	DebugAI(" Wait for " + FixedToString((300 - GTime()) / 60, 0) + ":" + GifS(ModF(300 - GTime(), 60) >= 10, FixedToString(ModF(300 - GTime(), 60), 0), "0" + FixedToString(ModF(300 - GTime(), 60), 0)) + " minutes.");
+	return true;
+}
+bool GTUnitIsEnter2(bool checkConds, bool doActions) {
+	if (AIGetTownLocation(UnitGetOwner(EventUnit()), 0) != null) {
+		return false;
+	}
+	if (UnitGetType(EventUnit()) == c_ZU_Overlord || UnitGetType(EventUnit()) == c_TU_SCV || UnitGetType(EventUnit()) == c_ZU_Drone || UnitGetType(EventUnit()) == c_PU_Probe) {
+		return false;
+	}
+	if (!g_walling) {
+		return false;
+	}
+	if (GTime() > 300) {
+		return false;
+	}
+	UnitKill(EventUnit());
+	UIClearMessages(PlayerGroupActive(), c_messageAreaDebug);
+	DebugAI("You can't build in AI base.");
+	DebugAI(" Wait for " + FixedToString((300 - GTime()) / 60, 0) + ":" + GifS(ModF(300 - GTime(), 60) >= 10, FixedToString(ModF(300 - GTime(), 60), 0), "0" + FixedToString(ModF(300 - GTime(), 60), 0)) + " minutes.");
+	return true;
+}
+
+bool GTUnitHealth(bool checkConds, bool doActions) {
+	if (checkConds) {
+		if (EventUnitPropertyChangeFixed() <= 0) {
+			return false;
+		}
+	}
+
+	AICast(EventUnit(), Order(AbilityCommand("stop", 0)), c_noMarker, c_castHold);
+	return true;
+
+}
+trigger GTSplashEvade = TriggerCreate("GTEvadeSplash");
+trigger GTUnitDamage = TriggerCreate("GTUnitIsDamage");
+trigger GTBuildDamage = TriggerCreate("GTBuildIsDamage");
+trigger GTUnitEnter = TriggerCreate("GTUnitIsEnter");
+trigger GTUnitEnter2 = TriggerCreate("GTUnitIsEnter2");
+trigger GTUnitChangeHealth = TriggerCreate("GTUnitHealth");
+
+void GTWaveMerge(int player, int a, int b) {
+	wave waveA = AIWaveGet(player, a);
+	wave waveB = AIWaveGet(player, b);
+	unitgroup Group;
+	unit u;
+	if ((PlayerRace(player) == "Prot" && AIUnitGroupStrength(AIWaveGetUnits(waveB)) >= 800) || AIUnitGroupStrength(AIWaveGetUnits(waveB)) >= 500) {
+		AIWaveMerge(player, a, b);
+		return;
+	}
+	while (AIWaveUnitCount(waveA) > 0) {
+		Group = AIWaveGetUnits(waveA);
+		u = UnitGroupUnit(Group, 1);
+		AIWaveAddUnit(waveB, u);
+	}
+	return;
+}
+
+
+
+void GTWaveMergeTeamPlay(int player, wave waveA, wave waveB) {
+	// wave waveA = AIWaveGet(player, a);
+	// wave waveB = AIWaveGet(player, b);
+	unitgroup saveGrp;
+
+	unitgroup Group;
+	unit u;
+    int index = 1;
+    Group = AIWaveGetUnits(waveA);
+    saveGrp = UnitGroupCopy(Group);
+    DebugAI("before :" + IntToString(AIWaveUnitCount(waveA)));
+	while (index <= AIWaveUnitCount(waveA)) {
+		u = UnitGroupUnit(Group, index);
+		AIWaveAddUnit(waveB, u);
+        index += 1;
+	}
+    DebugAI("after :" + IntToString(AIWaveUnitCount(waveA)));
+	return;
+}
+
+void GTWaveSplitTeamPlay(int player, wave waveA, wave waveB) {
+	// wave waveA = AIWaveGet(player, a);
+	// wave waveB = AIWaveGet(player, b);
+	unitgroup saveGrp;
+
+	unitgroup Group;
+	unit u;
+    int index = 1;
+
+    Group = saveGrp;
+    while (index <= UnitGroupCount(Group, c_unitCountAlive)) {
+		u = UnitGroupUnit(Group, index);
+		AIWaveAddUnit(waveA, u);
+        index += 1;
+	}
+	return;
+}
+
+int GTUnitRange(unit u) {
+	int player = UnitGetOwner(u);
+	return MaxI(CatalogFieldValueGetAsInt(c_gameCatalogWeapon, UnitWeaponGet(u, 2), "Range", player), CatalogFieldValueGetAsInt(c_gameCatalogWeapon, UnitWeaponGet(u, 1), "Range", player));
+}
+
+void GTHitRunAir(int player, unit aiUnit, unitgroup scanGroup) {
+
+	order ord;
+	unitgroup enemyGroup;
+	point p0 = UnitGroupCenterOfGroup(UnitGroup(UnitGetType(aiUnit), player, RegionCircle(UnitGetPosition(aiUnit), 10), UnitFilter(0, 0, (1 << c_targetFilterStructure), (1 << c_targetFilterWorker)), 0));
+	point p1 = UnitGetPosition(aiUnit);
+	point p2;
+	point p3;
+	unit u;
+	fixed k = UnitWeaponSpeedMultiplier(aiUnit, 1) * UnitWeaponPeriod(aiUnit, 1) * UnitGetPropertyFixed(aiUnit, c_unitPropMovementSpeed, c_unitPropCurrent) / 26;
+	if (AIEvalTacticalData(aiUnit, null)) {
+		return;
+	}
+
+	enemyGroup = UnitGroupFilterThreat(scanGroup, aiUnit, null, 0);
+	enemyGroup = UnitGroupFilterPlane(enemyGroup, c_planeAir, 0);
+
+	u = UnitGroupNearestUnit(enemyGroup, p0);
+	if (u == null) {
+		return;
+	}
+	p2 = UnitGetPosition(u);
+
+	if (AIUnitIsInCombat(aiUnit)
+	//&& AbsF(UnitGetFacing(u) - UnitGetFacing(aiUnit)) > 160
+			&& DistanceBetweenPoints(p1, p2) <= GTUnitRange(aiUnit) && GTUnitRange(aiUnit) >= GTUnitRange(u) && (UnitGetPropertyFixed(aiUnit, c_unitPropMovementSpeed, c_unitPropCurrent) >= UnitGetPropertyFixed(u, c_unitPropMovementSpeed, c_unitPropCurrent) || UnitGetPropertyInt(aiUnit, c_unitPropVitalityPercent, c_unitPropCurrent) < 50)) {
+
+		ord = AICreateOrder(player, c_AB_Move, 0);
+		p3 = PointWithOffsetPolar(p1, k, AngleBetweenPoints(p2, p0) + 15);
+		OrderSetTargetPoint(ord, p3);
+		if (ord != null) {
+			AICast(aiUnit, ord, c_noMarker, c_castHold);
+			return;
+		}
+	}
+	return;
+}
+
+////old micro
+bool GTRunAttack(int player, unit aiUnit, unitgroup scanGroup);
+
+//
+//// returns true if there is something to focus or doing a micro move
+bool GTHitRunGround(int player, unit aiUnit, unitgroup scanGroup) {
+	wave defWave = AIWaveGet(player, c_waveStateDefend);
+	string pRace = PlayerRace(player);
+	int lastAttack;
+	int cnt;
+	order ord;
+	aifilter lowHPfilter = AIFilter(player);
+	unitgroup enemyGroup;
+	unitgroup nearTower;
+	unit nearestTower;
+	string RaceTower;
+	point p0 = UnitGroupCenterOfGroup(UnitGroup(UnitGetType(aiUnit), player, RegionCircle(UnitGetPosition(aiUnit), 10), null, 0));
+	point p1 = UnitGetPosition(aiUnit);
+	point p2;
+	point p3;
+	unit u;
+
+	fixed k = MinF(UnitWeaponSpeedMultiplier(aiUnit, 1) * UnitWeaponPeriod(aiUnit, 1) * UnitGetPropertyFixed(aiUnit, c_unitPropMovementSpeed, c_unitPropCurrent) / 26, 5);
+
+
+
+	if (UnitGetType(aiUnit) == c_TU_SiegeTank) {
+		k = 2.34;
+	}
+
+	if (AIEvalTacticalData(aiUnit, null)) {
+		return true;
+	}
+
+	enemyGroup = UnitGroupFilterRegion(scanGroup, RegionCircle(p1, GTUnitRange(aiUnit)), 0);
+	enemyGroup = UnitGroupFilterThreat(enemyGroup, aiUnit, null, 0);
+	enemyGroup = UnitGroupFilterPlane(enemyGroup, c_planeGround, 0);
+	enemyGroup = UnitGroupFilter(null, c_playerAny, enemyGroup, UnitFilterStr("-;Structure"), 0);
+
+	if (UnitGroupCount(enemyGroup, c_unitCountAlive) == 0) {
+		return false;
+	}
+	if (UnitGroupCount(enemyGroup, c_unitCountAlive) < 5 && UnitGetType(aiUnit) == c_PU_Colossus) {
+		return false;
+	}
+	u = UnitGroupNearestUnit(enemyGroup, p0);
+	p2 = UnitGetPosition(u);
+
+	if (AIWaveState(AIWaveGet(player, c_waveAttack)) != c_waveStateAttack && pRace != "Zerg") {
+		if (pRace == "Prot") {
+			RaceTower = c_PB_PhotonCannon;
+		}
+		else { // terran
+			RaceTower = c_TB_Bunker;
+		}
+		nearTower = UnitGroup(RaceTower, player, RegionCircle(UnitGetPosition(aiUnit), 15), UnitFilterStr("-;UnderConstruction"), 0);
+		cnt = UnitGroupCount(nearTower, c_unitCountAlive);
+
+		if (cnt > 0) {
+			nearestTower = UnitGroupNearestUnit(nearTower, p1);
+			p2 = UnitGetPosition(nearestTower);
+			k = DistanceBetweenPoints(p1, p2);
+			if (k > 5) {
+				p3 = PointWithOffsetPolar(p1, 0.5*DistanceBetweenPoints(p1, p2), AngleBetweenPoints(p1, p2));
+				ord = AICreateOrder(player, c_AB_Move, 0);
+				OrderSetTargetPoint(ord, p3);
+				if (ord != null) {
+					//AICast(aiUnit, ord, c_noMarker, c_castRetreat);
+					//DebugAIObs("Tower retreat");
+					AIWaveSetType(defWave, c_waveStateDefend, AIWaveTargetGuardHomeUnit(nearestTower));
+					return true;
+				}
+			}
+		}
+	}
+
+	// p1 = Units Pos
+	// p2 = nearest unit pos
+
+	if (UnitGetType(aiUnit) == c_PU_Stalker) {
+		lastAttack = AILastAttack (aiUnit);
+		if (lastAttack <= 0) {
+			lastAttack = 0;
+		}
+		else {
+			lastAttack = FixedToInt(GTime()) - lastAttack;
+		}
+	}
+
+	if ((AIUnitIsInCombat(aiUnit) && DistanceBetweenPoints(p1, p2) <= GTUnitRange(aiUnit) && GTUnitRange(aiUnit) > GTUnitRange(u) + 0.5 && UnitGetType(aiUnit) != c_PU_Stalker)
+	|| (UnitGetType(aiUnit) == c_PU_Stalker && GTUnitRange(aiUnit) >= GTUnitRange(u) && DistanceBetweenPoints(p1, p2) <= GTUnitRange(aiUnit) && lastAttack > 0 && lastAttack < 10) ) {	//UnitGetType(u) == c_PU_Zealot
+		//&& AbsF(UnitGetFacing(u) - UnitGetFacing(aiUnit)) > 160
+		if ( UnitGetPropertyFixed(aiUnit, c_unitPropMovementSpeed, c_unitPropCurrent) >= UnitGetPropertyFixed(u, c_unitPropMovementSpeed, c_unitPropCurrent)
+		|| (UnitGetType(aiUnit) == c_PU_Colossus)
+		|| (UnitGetType(aiUnit) == c_TU_Hellion)
+		|| (UnitGetPropertyInt(aiUnit, c_unitPropVitalityPercent, c_unitPropCurrent) < 55 && UnitGetPropertyFixed(aiUnit, c_unitPropMovementSpeed, c_unitPropCurrent) + 0.6 >= UnitGetPropertyFixed(u, c_unitPropMovementSpeed, c_unitPropCurrent))
+		|| (UnitTestPlane(aiUnit, c_planeAir) && UnitGetPropertyInt(aiUnit, c_unitPropVitalityPercent, c_unitPropCurrent) < 55)
+		|| (UnitGetType(aiUnit) == c_TU_Marine && UnitGetType(u) == c_ZU_Baneling)) {
+			ord = AICreateOrder(player, c_AB_Move, 0);
+			// For Baneling, use old micro
+			if (UnitGetType(u) == c_ZU_Baneling) {
+				AICastFlee(aiUnit, u, GTUnitRange(aiUnit), c_noMarker);
+				return true;
+			}
+			// For other unit using new micro.
+			else {
+				p3 = PointWithOffsetPolar(p1, k, AngleBetweenPoints(p2, p0) + 10);
+				if (UnitTestPlane(aiUnit, c_planeGround)) {
+					if (!AIPlacementNearbyFindTest(player, PointWithOffsetPolar(p1, k + 2, AngleBetweenPoints(p2, p0) + 10), 0, UnitGetType(aiUnit))) {
+						p3 = PointWithOffsetPolar(p1, k, AngleBetweenPoints(p2, p0) + GifI(RandomInt(0, 1) == 1, 1, -1) * 90);
+					}
+				}
+			}
+			OrderSetTargetPoint(ord, p3);
+			if (ord != null) {
+				AICast(aiUnit, ord, c_noMarker, c_castRetreat);
+				return true;
+			}
+		}
+	}
+
+	AISetFilterLifePercent (lowHPfilter, 0, 0.4);
+	enemyGroup = AIGetFilterGroup(lowHPfilter, enemyGroup);
+
+
+	ord = AICreateOrder(player, "attack", 0);
+	ord = AIUnitGroupGetValidOrder(enemyGroup, ord, aiUnit, c_forwards);
+	if (ord != null) {
+		AICast(aiUnit, ord, c_noMarker, c_castHold);
+	}
+
+	return false;
+}
+
+// if this function causes the Unit to do something it returns true
+bool GTHitRunGroundWithArmorFocus(int player, unit aiUnit, unitgroup scanGroup, string ArmorTypeString) {
+	order ord;
+	unitgroup enemyGroup;
+	unitfilter armorFilter;
+	point aiUnitPos = UnitGetPosition(aiUnit);
+	point enemyUnitPos;
+	unit nearestEnemy;
+
+	// first just use the normal unit micro thing !
+	if (GTHitRunGround(player, aiUnit, scanGroup) == true) {
+		return true;
+	}
+	// setup filter
+	armorFilter = UnitFilterStr(ArmorTypeString);
+
+	enemyGroup = UnitGroupFilterThreat(scanGroup, aiUnit, null, 0);
+	enemyGroup = UnitGroupFilterPlane(enemyGroup, c_planeGround, 0);
+	enemyGroup = UnitGroupFilter(null, c_playerAny, enemyGroup, armorFilter, 0);
+
+	// if enemygroup is empty return
+	if (UnitGroupCount(enemyGroup, c_unitCountAlive) == 0) {
+		return false;
+	}
+
+	// detect nearest unit with that armor type
+	nearestEnemy = UnitGroupNearestUnit(enemyGroup, aiUnitPos);
+	enemyUnitPos = UnitGetPosition(nearestEnemy);
+
+	// try to attack it and maybe walk +1 range but not more !
+	if (DistanceBetweenPoints(aiUnitPos, enemyUnitPos) <= GTUnitRange(aiUnit) + 1) {
+		ord = AICreateOrder(player, c_AB_Attack, 0);
+		OrderSetTargetUnit(ord, nearestEnemy);
+		if (UnitOrderIsValid(aiUnit, ord)) {
+			AICast(aiUnit, ord, c_noMarker, c_castHold);
+			return true;
+		}
+	}
+	return false;
+}
+
+void GTRunForLife(int player, unit aiUnit, unitgroup scanGroup) {
+	unitgroup enemyGroup = UnitGroupFilterThreat(scanGroup, aiUnit, null, 0);
+	point p1 = UnitGetPosition(aiUnit);
+	unit u = UnitGroupNearestUnit(enemyGroup, p1);
+	int d;
+	if (UnitGetType(aiUnit) == c_ZU_Overlord) {
+		d = 15;
+	}
+	else {
+		d = 7;
+	}
+		    if (DistanceBetweenPoints(p1, UnitGetPosition(u)) > d){
+		    	return;
+		    }
+	AICastFlee(aiUnit, u, d, c_noMarker);
+	return;
+}
+
+int GTCostM(string type) {
+	if (type == c_TB_OrbitalCommand) {
+		return 150;
+	}
+	else if (type == c_TB_PlanetaryFortress) {
+		return 150;
+	}
+	else if (type == c_ZB_Lair || type == c_ZB_Lair_Alias) {
+		return 150;
+	}
+	else if (type == c_ZB_Hive) {
+		return 200;
+	}
+	else if (type == c_ZB_RoachWarren) {
+		return 150;
+	}
+	else if (type == c_ZB_SpawningPool) {
+			return 200;
+		}
+	else if (type == c_ZB_GreaterSpire) {
+		return 100;
+	}
+	else if (type == c_ZU_Baneling) {
+		return 25;
+	}
+	else if (type == c_ZU_BroodLord) {
+		return 150;
+	}
+	else if (type == c_PU_Archon) {
+		return 0;
+	}
+	else if (type == c_PB_RoboticsFacility) {
+		return 200;
+	}
+	else if (type == c_TB_Factory) {
+		return 150;
+	}
+	else if (type == c_TB_FusionCore) {
+		return 150;
+	}
+	else if (type == c_TU_Ghost) {
+		return 150;
+	}
+	else {
+		return UnitTypeGetCost(type, 0);
+	}
+}
+
+int GTCostG(string type) {
+	if (type == c_TB_OrbitalCommand) {
+		return 0;
+	}
+	else if (type == c_TB_PlanetaryFortress) {
+		return 150;
+	}
+	else if (type == c_ZB_Lair || type == c_ZB_Lair_Alias) {
+		return 100;
+	}
+	else if (type == c_ZB_Hive) {
+		return 150;
+	}
+	else if (type == c_ZB_RoachWarren) {
+		return 0;
+	}
+	else if (type == c_ZB_GreaterSpire) {
+		return 150;
+	}
+	else if (type == c_ZU_Baneling) {
+		return 25;
+	}
+	else if (type == c_ZU_BroodLord) {
+		return 100;
+	}
+	else if (type == c_PU_Archon) {
+		return 0;
+	}
+	else if (type == c_PB_RoboticsFacility) {
+		return 100;
+	}
+	else if (type == c_TU_Ghost) {
+		return 150;
+	}
+	else if (type == c_TB_FusionCore) {
+		return 150;
+	}
+	else if (type == c_TB_BarracksTechLab) {
+		return 25;
+	}
+	else {
+		return UnitTypeGetCost(type, 1);
+	}
+}
+//------------------------------------------------
+// Identify Enemy
+//----------------------------------------------
+int GTNumE(int player) {
+	return AIGetNumEnemies(player);
+
+}
+
+int GTNumA(int player) {
+	return AIGetNumAllies(player) + 1;
+}
+
+int GTEnemyID(int player) {
+	playergroup group;
+	int i;
+	int k;
+	int d;
+	int e;
+
+		group = PlayerGroupActive();
+		while (i <= 15) {
+			i = i + 1;
+			if (PlayerGroupPlayer(group, i) == player) {
+				continue;
+			}
+			if (PlayerGetAlliance(player, c_allianceIdDefeat, PlayerGroupPlayer(group, i))) {
+				continue;
+			}
+			if (PlayerRace(PlayerGroupPlayer(group, i)) != null) {
+				d = AIPathingCostMap(PlayerStartLocation(player), PlayerStartLocation(PlayerGroupPlayer(group, i)));
+				if (e == 0) {
+					e = d;
+					k = PlayerGroupPlayer(group, i);
+				}
+				else if (d < e) {
+					e = d;
+					k = PlayerGroupPlayer(group, i);
+				}
+			}
+			else {
+				break;
+			}
+		}
+		GTableSetInt(player, "GTEnemyID", k);
+		AISetUserInt(player, 6, PlayerGroupCount(PlayerGroupActive()));
+		return GTableGetInt(player, "GTEnemyID");
+
+}
+
+string GTEnemyRace(int player) {
+	return PlayerRace(GTEnemyID(player));
+}
+
+bool GTCanAttackAir(string unittype) {
+	if (unittype == c_PU_Sentry || unittype == c_PU_Stalker || unittype == c_TU_Marine || unittype == c_TU_Thor || unittype == c_ZU_Hydralisk || unittype == c_PU_Tempest || unittype == c_PU_VoidRay || unittype == c_PU_Mothership || unittype == c_PU_Phoenix || unittype == c_TU_Battlecruiser || unittype == c_TU_Viking_Alias || unittype == c_ZU_Mutalisk || unittype == c_ZU_Corruptor) {
+		return true;
+	}
+	return false;
+}
+
+string GTWorker(int player) {
+	if (PlayerRace(player) == "Zerg") {
+		return c_ZU_Drone;
+	}
+	else if (PlayerRace(player) == "Terr") {
+		return c_TU_SCV;
+	}
+	else {
+		return c_PU_Probe;
+	}
+}
+
+string GTBase(int player) {
+	if (PlayerRace(player) == "Zerg") {
+		return c_ZB_Hatchery_Alias;
+	}
+	else if (PlayerRace(player) == "Terr") {
+		return c_TB_CommandCenter_Alias;
+	}
+	else {
+		return c_PB_Nexus;
+	}
+}
+// For UnitType in UnitGroup condition.
+string GTBase2(int player) {
+	if (PlayerRace(player) == "Zerg") {
+		return c_ZB_Hatchery;
+	}
+	else if (PlayerRace(player) == "Terr") {
+		return c_TB_CommandCenter;
+	}
+	else {
+		return c_PB_Nexus;
+	}
+}
+
+string GTGasGenerator(int player) {
+	if (PlayerRace(player) == "Terr") {
+		return c_TB_Refinery;
+	}
+	else if (PlayerRace(player) == "Zerg") {
+		return c_ZB_Extractor;
+	}
+	else {
+		return c_PB_Assimilator;
+	}
+}
+
+string GTSupplyGenerator(int player) {
+	if (PlayerRace(player) == "Terr") {
+		return c_TB_SupplyDepot_Alias;
+	}
+	else if (PlayerRace(player) == "Zerg") {
+		return c_ZU_Overlord_Alias;
+	}
+	else {
+		return c_PB_Pylon;
+	}
+}
+
+//---------------------------------------------------------------------------------------------
+// AIGetTotalTowns
+//--------------------------------------------------------------------------------------------------
+
+int GTTowns(int player) {
+	int a = 0;
+	int b = 0;
+
+	while (a != 8) {
+		if (AIGetTownState(player, a) == c_townStateEstablished) {
+			b = b + 1;
+		}
+		a = a + 1;
+	}
+	return b;
+}
+
+int GTMineralsTown(int player) {
+	int a = 0;
+	int b = 0;
+	unitgroup Minerals;
+	point p;
+
+	while (a != 8) {
+		if (AIGetTownState(player, a) == c_townStateEstablished) {
+			p = AIGetTownLocation(player, a);
+			Minerals = AIFindUnits(0, c_NU_Minerals, p, 8, c_noMaxCount);
+			if (UnitGroupCount(Minerals, c_unitCountAll) == 0) {
+				Minerals = AIFindUnits(0, c_NU_HighYieldMinerals, p, 8, c_noMaxCount);
+			}
+			b = b + UnitGroupCount(Minerals, c_unitCountAll);
+		}
+		a = a + 1;
+	}
+
+	return b;
+}
+
+int GTNumGas(int player) {
+	return AITechCount(player, GTGasGenerator(player), c_techCountCompleteOnly);
+}
+
+int GTNumWorker(int player) {
+	return AITechCount(player, GTWorker(player), c_techCountCompleteOnly);
+}
+
+//--------------------------------------------------------
+// Techlevel by Darkzero
+//-----------------------------------------------------
+bool GTTechDone(int player, string alias) {
+	if (AITechCount(player, alias, c_techCountCompleteOnly) >= 1) {
+		return true;
+	}
+	return false;
+}
+
+int GTCount(int player, string alias) {
+	return AITechCount(player, alias, c_techCountCompleteOnly);
+}
+
+int GTCountI(int player, string alias) {
+	return AITechCount(player, alias, c_techCountInProgressOnly);
+}
+
+int GTCountI2(int player, string alias) {
+	return AITechCount(player, alias, c_techCountInProgressOrBetter);
+}
+
+int GTCountE(int player, string alias) {
+	return AIKnownUnitCount(player, GTEnemyID(player), alias);
+}
+
+int GTCountE2(int player, string alias) {
+	if (gtFFA == true) {
+		return AIKnownUnitCount(player, GTEnemyID(player), alias);
+	}
+	return AIKnownUnitCount(player, c_allEnemies, alias) / GTNumA(player);
+}
+
+int GTCountEI(int player, string alias) {
+	return GTCountI2(GTEnemyID(player), alias);
+}
+
+int GTGetTech(int player, string st_1, string st_2, string st_3, string st_4, string st_5, string st_6, string st_7, string st_8) {
+	if (GTTechDone(player, st_1)) {
+		if (GTTechDone(player, st_2)) {
+			if (GTTechDone(player, st_3)) {
+				if (GTTechDone(player, st_4)) {
+					if (GTTechDone(player, st_5)) {
+						if (GTTechDone(player, st_6)) {
+							if (GTTechDone(player, st_7)) {
+								if (GTTechDone(player, st_8)) {
+									return 8;
+								}
+								return 7;
+							}
+							return 6;
+						}
+						return 5;
+					}
+					return 4;
+				}
+				return 3;
+			}
+			return 2;
+		}
+		return 1;
+	}
+	return 0;
+}
+
+//------------------------------------------------
+// Count building & unit
+//----------------------------------------------
+
+bool GTFinishA(int player, string alias, int count) {
+
+	if (MaxI(AITechCount(player, alias, c_techCountCompleteOnly), TechTreeUpgradeCount(player, alias, c_techCountCompleteOnly)) >= count) {
+		//	DebugAI(alias + " " + IntToString(count));
+		return true;
+	}
+
+	return false;
+}
+
+bool GTFinishT(int player, int town, string alias, int count) {
+	if (AIGetBuildingCountInTown(player, town, alias, c_techCountCompleteOnly) >= count) {
+		return true;
+	}
+	return false;
+}
+bool GTFinishIT(int player, int town, string alias, int count) {
+	if (AIGetBuildingCountInTown(player, town, alias, c_techCountInProgressOrBetter) >= count) {
+		return true;
+	}
+	return false;
+}
+bool GTFinishIA(int player, string alias, int count) {
+	if (MaxI(AITechCount(player, alias, c_techCountInProgressOrBetter), TechTreeUpgradeCount(player, alias, c_techCountInProgressOrBetter)) >= count) {
+		return true;
+	}
+	return false;
+}
+//--------------------------
+//Unit Group
+//----------------------
+unit GTTargetUnit(unit u) {
+	return OrderGetTargetUnit(UnitOrder(u, 0));
+}
+
+unitgroup GTUnitType(int player, string type) {
+	unitgroup groupall;
+	groupall = UnitGroup(type, player, RegionEntireMap(), null, 0);
+	return groupall;
+}
+
+unitgroup GTGroupWorker(int player) {
+	string Worker;
+	return GTUnitType(player, GTWorker(player));
+}
+
+// A unit is a cargo if it has 1 or more slots
+bool GTUnitIsCargo(unit u) {
+	return UnitCargoValue(u, 1) > 0;
+}
+
+// A cargo is full if it has no remaining slots
+int GTUnitCargoUsedSlots(unit u) {
+	return UnitCargoValue(u, 0);
+}
+
+string GTUnitOrUpgradeGetParrentBuilding(int player, string UnitOrUpgrade) {
+	if (UnitOrUpgrade == c_PU_Mothership || UnitOrUpgrade == c_PU_Probe) {
+		return c_PB_Nexus;
+	}
+	else if (UnitOrUpgrade == c_PU_Tempest || UnitOrUpgrade == c_PU_Phoenix || UnitOrUpgrade == c_PU_VoidRay) {
+		return c_PB_Stargate;
+	}
+	else if (UnitOrUpgrade == c_PU_Colossus || UnitOrUpgrade == c_PU_Observer || UnitOrUpgrade == c_PU_Immortal || UnitOrUpgrade == c_PU_WarpPrism) {
+		return c_PB_RoboticsFacility;
+	}
+	else if (UnitOrUpgrade == c_PR_WarpGateResearch || UnitOrUpgrade == c_PR_SentryHallucination || UnitOrUpgrade == c_PR_AirArmor1 || UnitOrUpgrade == c_PR_AirArmor2 || UnitOrUpgrade == c_PR_AirArmor3 || UnitOrUpgrade == c_PR_AirWeapons1 || UnitOrUpgrade == c_PR_AirWeapons2 || UnitOrUpgrade == c_PR_AirWeapons3) {
+		return c_PB_CyberneticsCore;
+	}
+	else if (UnitOrUpgrade == c_PU_Zealot || UnitOrUpgrade == c_PU_Stalker || UnitOrUpgrade == c_PU_Sentry || UnitOrUpgrade == c_PU_HighTemplar || UnitOrUpgrade == c_PU_DarkTemplar) {
+		if (AITechCount(player, c_PR_WarpGateResearch, c_techCountInProgressOrBetter) == 0) {
+			return c_PB_Gateway;
+		}
+		else {
+			return null;
+		}
+	}
+	else if (UnitOrUpgrade == c_PR_HighTemplarPsiStorm) { // no c_PR_HighTemplarEnergy ingame
+		return c_PB_TemplarArchives;
+	}
+	else if (UnitOrUpgrade == c_PR_ZealotCharge || UnitOrUpgrade == c_PR_StalkerBlink) {
+		return c_PB_TwilightCouncil;
+	}
+	else if (UnitOrUpgrade == c_PR_ObserverSpeed || UnitOrUpgrade == c_PR_WarpPrismSpeed || UnitOrUpgrade == c_PR_ColossusRange) {
+		return c_PB_RoboticsBay;
+	}
+	else if (UnitOrUpgrade == c_PR_GroundArmor1 || UnitOrUpgrade == c_PR_GroundArmor2 || UnitOrUpgrade == c_PR_GroundArmor3 || UnitOrUpgrade == c_PR_GroundWeapons1 || UnitOrUpgrade == c_PR_GroundWeapons2 || UnitOrUpgrade == c_PR_GroundWeapons3 || UnitOrUpgrade == c_PR_Shields1 || UnitOrUpgrade == c_PR_Shields2 || UnitOrUpgrade == c_PR_Shields3) {
+		return c_PB_Forge;
+	}
+	else if (UnitOrUpgrade == c_PR_VoidRaySpeed || UnitOrUpgrade == c_PR_CarrierLaunch) {
+		return c_PB_FleetBeacon;
+	}
+	else if (UnitOrUpgrade == c_PB_WarpGate) {
+		return c_PB_WarpGate;
+	}
+	else {
+		DebugAI("Unknown Unit or Upgrade: " + UnitOrUpgrade);
+	}
+	return null;
+}
+
+order GTAttackOrder(int player, unit aiUnit, unitgroup scanGroup){
+	order ord;
+	fixed damage;
+	aifilter filter;
+
+	ord = AICreateOrder(player, "attack", 0);
+
+	if (!UnitOrderIsValid(aiUnit, ord)) {
+		return null;
+	}
+
+	filter = AIFilter(player);
+	AISetFilterAlliance(filter, c_playerGroupEnemy);
+	AISetFilterBits(filter, UnitFilterStr(AIAbilityStr(player, c_AB_Attack, c_fieldTargetFiltersAB)));
+	AISetFilterBits(filter, UnitFilterStr("-;Structure,Air"));
+	if (UnitGetType(aiUnit) == c_ZU_Queen)	{AISetFilterRange(filter, aiUnit, 7);}
+	else
+	{AISetFilterRange(filter, aiUnit, 6);}
+	AISetFilterCanAttackAlly(filter, true, true);
+	AISetFilterLifePercent (filter, 0, 0.2);
+	scanGroup = AIGetFilterGroup(filter, scanGroup);
+	return AIUnitGroupGetValidOrder(scanGroup, ord, aiUnit, c_backwards);
+}
+
+bool GTRunAttack(int player, unit aiUnit, unitgroup scanGroup) {
+	order ord;
+	wave w;
+	wave w1;
+	unit selunit;
+	unitgroup Group;
+	unitgroup Group1;
+	unitgroup Group2;
+	fixed damage;
+	aifilter filter;
+	aifilter filter1;
+	aifilter filter2;
+	int eval;
+	int size;
+	int size1;
+	int size2;
+	int testPlayerId = GTEnemyID(player);
+	point point1;
+	string type;
+
+	w = AIUnitGetWave(aiUnit);
+	eval = AIWaveEvalRatio(w, 2);
+	w1 = AIWaveGet(player, c_waveAttack);
+	Group1 = AIWaveGetUnits(w);
+	filter = AIFilter(player);
+	filter1 = AIFilter(player);
+	filter2 = AIFilter(player);
+	AISetFilterAlliance(filter2, c_playerGroupEnemy);
+	AISetFilterAlliance(filter1, c_playerGroupAlly);
+	//AISetFilterBits(filter, UnitFilterStr(AIAbilityStr(player, c_AB_Attack, c_fieldTargetFiltersAB)));
+	AISetFilterRange(filter, aiUnit, 2);
+	AISetFilterRange(filter2, aiUnit, 6);
+	AISetFilterRange(filter1, aiUnit, 10);
+	AISetFilterCanAttackAlly(filter, true, true);
+	AISetFilterCanAttackAlly(filter1, true, true);
+	AISetFilterCanAttackAlly(filter2, true, true);
+	//AISetFilterLifePercent (filter, 0, 0.4);
+	//make sure it can play
+	type = UnitGetType(aiUnit);
+	if (type != c_TU_Marine && type != c_TU_Marauder && type != c_TU_Reaper && type != c_TU_Ghost && type != c_TU_Hellion && type != c_TU_Viking && type != c_TU_Banshee &&
+
+	type != c_PU_Stalker && type != c_PU_Tempest && type != c_PU_Sentry &&
+
+	type != c_ZU_Queen && type != c_ZU_Mutalisk && type != c_ZU_Hydralisk && type != c_ZU_Roach) {
+		return false;
+	}
+
+	Group = AIGetFilterGroup(filter, scanGroup);
+	Group1 = AIGetFilterGroup(filter1, Group1);
+	Group2 = AIGetFilterGroup(filter2, scanGroup);
+	//ruguo tamen you yuancheng budui
+	if (UnitGroupCount(Group2, c_unitCountAlive) > 0) {
+		size1 = UnitGroupCount(Group2, c_unitCountAlive);
+		size2 = size1;
+		while (size1 > 0) {
+			type = null;
+			selunit = UnitGroupUnit(Group2, size1);
+			type = UnitGetType(selunit);
+			if (type == "Zealot" || type == "Zergling" || type == "SCV" || type == "Probe" || type == "Drone" || type == "Baneling" || type == "DarkTemplar" || type == "Archon" || type == "Roach" || type == "Ultralisk") {
+				size2 = size2 - 1;
+			}
+			size1 = size1 - 1;
+		}
+
+		if ((UnitGroupCount(Group2, c_unitCountAlive) - size2) < size2 * 4) {
+			return false;
+		}
+	}
+
+	if (UnitGroupCount(Group, c_unitCountAlive) > 0) // && eval < 90
+	{
+		if (FixedToInt(AIUnitGroupStrength(Group1)) > FixedToInt(AIUnitGroupStrength(Group)) * 5 && UnitGetPropertyInt(aiUnit, c_unitPropLifePercent, c_unitPropCurrent) > 30 && UnitGroupCount(Group1, c_unitCountAlive) > 5 || UnitGroupCount(Group1, c_unitCountAlive) > 15) {
+			ord = GTAttackOrder(player, aiUnit, scanGroup);
+			if (ord != null) {
+				AICast(aiUnit, ord, c_noMarker, c_castHold);
+				return false;
+			}
+		}
+
+		size = UnitGroupCount(Group, c_unitCountAlive);
+		while (size > 0) {
+			selunit = UnitGroupUnit(Group, size);
+			if (selunit) {
+				type = UnitGetType(selunit);
+				break;
+			}
+			size = size - 1;
+		}
+		//TriggerDebugOutput(1, StringToText("size = " + type ), true);
+		if ((type == "Zealot" && AIKnownUnitCount(player, testPlayerId, c_PR_ZealotCharge) == 0) || (type == "Zergling" && AIKnownUnitCount(player, testPlayerId, c_ZR_ZerglingSpeed) == 0) || type == "SCV" || type == "Probe" || type == "Drone" || type == "Baneling" || type == "DarkTemplar" || type == "Archon" || type == "Roach" || type == "Ultralisk") {
+			point1 = AIRandomSpawnPoint(player, RegionCircle(UnitGetPosition(aiUnit), IntToFixed(4)), IntToFixed(4), IntToFixed(8), IntToFixed(1));
+
+			if (!point1) {
+				point1 = UnitGetPosition(aiUnit);
+			}
+			ord = AICreateOrder(player, "move", 0);
+			if (UnitGroupCount(Group1, c_unitCountAlive) < 2) {
+				// OrderSetTargetPoint(ord, AIPlacementNearbyFindTest(player,point1, 20, c_TB_CommandCenter));
+				OrderSetTargetPoint(ord, point1);
+				AICast(aiUnit, ord, c_noMarker, c_castHold);
+				//AIWaveAddUnit(AIWaveGet(player, c_waveHome), aiUnit);
+				return true;//AIGetTownLocation(player,0)
+			}
+			else {
+				//   OrderSetTargetPoint(ord, AIPlacementNearbyFindTest(player,point1, 20, c_TB_CommandCenter));}
+				OrderSetTargetPoint(ord, point1);
+			}
+			AICast(aiUnit, ord, c_noMarker, c_castHold);
+			//AIWaveAddUnit(AIWaveGet(player, c_waveHome), aiUnit);
+			return true;//UnitGetPosition(selunit)
+		}
+	}
+	return false;
+}
+

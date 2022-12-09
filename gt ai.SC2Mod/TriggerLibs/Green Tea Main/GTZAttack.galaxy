@@ -1,0 +1,302 @@
+//-------------------------------
+// Ai Attack & Defense function
+//-------------------------------
+
+
+unit GUnitGroupUnitOfType(unitgroup group, string unitType) {
+	int amount = UnitGroupCount(group, c_unitCountAlive);
+	unit u;
+	int i = 1;
+	while (i <= amount) {
+		u = UnitGroupUnit(group, i);
+		if (UnitGetType(u) == unitType) {
+			return u;
+		}
+		i += 1;
+	}
+	return null;
+}
+
+
+void GTAttack2 (int player, string group){
+	UnitGroupIssueOrder(UnitGroup(group, player, RegionPlayableMap() , null, 0),  OrderTargetingPoint(AbilityCommand("attack", 0), PlayerStartLocation(GTEnemyID(player))), c_orderQueueReplace);
+	return;
+}
+
+void GTDivert1 (int player, string group) {
+	int i = AITechCount(player, group, c_techCountCompleteOnly);
+	if (!g_canattack){
+		return;
+	}
+
+	GTManageWave(player, c_waveDivert1, 1, i, 999, group);
+	return;
+}
+
+void GTDivert2 (int player, string group) {
+	int i = AITechCount(player, group, c_techCountCompleteOnly);
+	if (!g_canattack){
+		return;
+	}
+
+	GTManageWave(player, c_waveDivert2, 1, i, 999, group);
+	return;
+}
+void GTDivert3 (int player, string group, int num){
+	if (!g_canattack){
+		return;
+	}
+	GTManageWave(player, c_waveDivert2, 1, num, num, group);
+	return;
+}
+
+
+void GTAttackS (int player, string group, int number ){
+	 unitgroup group2 = GTGroupWorker(GTEnemyID(player));
+     order ord = AICreateOrder(player, "attack", 0);
+     unit u = UnitGroupNearestUnit(UnitGroup(group, player, RegionPlayableMap(), null, 0), PlayerStartLocation(GTEnemyID(player)) );
+ 	if (!g_canattack){
+ 		return;
+ 	}
+     if (u != null ){
+    	 OrderSetTargetUnit(ord, UnitGroupNearestUnit(group2, PlayerStartLocation(GTEnemyID(player))));
+         AICast(u,ord, c_noMarker, c_castHold);
+     }
+}
+
+ void GTDefendScout (int player){
+   region R = RegionCircle(AIGetTownLocation(player,0), 25);
+   unitgroup groupE;
+   unit uE;
+   unit uO;
+   order ord;
+   if (AIWaveUnitCount(AIWaveGet(player, c_waveMain)) > 0){
+     	return;
+   }
+   RegionAddCircle(R, true, GTDO(player,0), 15);
+   groupE = UnitGroupAlliance(player, c_unitAllianceEnemy, R, UnitFilter((1 << c_targetFilterWorker), 0, 0, (1 << c_targetFilterStructure)),  0);
+   uE = UnitGroupUnit(groupE, 1);
+   if (uE == null){
+	   return;
+   }
+
+   if (DistanceBetweenPoints(UnitGetPosition(uE), PlayerStartLocation(player)) <= 10){
+	   return;
+   }
+   uO = GTWorkerKillScout(player, UnitGetPosition(uE));
+   ord = AICreateOrder(player, "attack", 0);
+   OrderSetTargetUnit(ord, uE);
+   AICast(uO, ord, c_noMarker, c_castRetreat);
+   return;
+}
+ void GTWorkerReturn (int player){
+
+    region R = RegionEntireMap();
+    unitgroup group;
+    unit u;
+    order ord;
+
+    RegionAddCircle(R, false, AIGetTownLocation(player,0), 20);
+    RegionAddCircle(R, false, GTDO(player,0), 10);
+    group = UnitGroup(GTWorker(player), player, R, null, 0);
+    u = UnitGroupUnit(group, 1);
+    if (u == null){
+      return;
+    }
+    if (!UnitOrderHasAbil(u, "attack")){
+      return;
+    }
+    ord = AICreateOrder(player, "move", 0);
+    OrderSetTargetPoint(ord, PlayerStartLocation(player));
+    AICast(u, ord, c_noMarker, c_castHold);
+}
+
+
+ void GTPreventScout (int player){
+    if (GTime() > 300 || PlayerRace(player) == "Zerg" ){
+       return;
+    }
+    GTDefendScout(player);
+    GTWorkerReturn(player);
+    return;
+}
+
+void GTAttackPing (int player){
+	int p = PingLastCreated();
+	if ( p == 0){
+		return;
+	}
+	if (!PlayerGroupHasPlayer(PingGetPlayerGroup(p), player)){
+		return;
+	}
+	if (AIGetTime() > DataTableGetFixed(true, "PingTime") + 10){
+		return;
+	}
+
+
+	AIWaveMerge(player, c_waveMain, c_waveAttack);
+    AIWaveSetType(AIWaveGet(player, c_waveMain), c_waveStateAttack, AIWaveTargetMeleeHarass(player));
+    return;
+}
+void GDropAttack(int player) {
+	wave waveA = AIWaveGet(player, c_waveAttack);
+	wave waveD = AIWaveGet(player, c_waveMain);
+	point p;
+//	if (AIWaveIsInCombat(waveA) || AIWaveIsInCombat(waveD)){
+//		return;
+//	}
+	if (AIGetNumMobileTransports(player) < 1){
+		return;
+	}
+	if (AIGetNumMobileTransports(player) < 2 && GTime() > 600){
+		return;
+	}
+//	if (AIGetNumMobileTransports(player) < 3 && GTime() > 900){
+//		return;
+//	}
+	p = PlayerStartLocation(GTEnemyID(player));
+	if (AIUnitGroupStrength(UnitGroupAlliance(player, c_unitAllianceEnemy, RegionCircle(p, 10), null, 0)) > 15){
+	  p = AIGetBestTarget(player ,PlayerGroupAlliance(c_playerGroupEnemy, player), AIGetGatherLocation(player, c_townMain), e_flagsDiversion);		
+
+	}
+	
+	//Check Drop Location
+	if (AIUnitGroupStrength(UnitGroupAlliance(player, c_unitAllianceEnemy, RegionCircle(p, 10), null, 0)) > 10){
+	//	GFuncSetDelay(player, "GDropAttack");
+	//	DebugAI("Cannot find drop");
+		return;
+	}
+	//Check drop every 1 minute
+	if (GFuncIsDelay(player, "GDropAttack", 90)) {
+		return;
+	}
+	//DebugAI("Drop Atack");
+            AIWaveMerge(player, c_waveAttack, c_waveDefend);
+            AIWaveMerge(player, c_waveMain, c_waveDefend);
+            AIWaveSetType(AIWaveGet(player, c_waveDefend), c_waveStateDropAttack, AIWaveTargetMeleeDrop(player, p, p) );
+        	GFuncSetDelay(player, "GDropAttack");
+        	return;
+}
+
+int g_GroupLeader = -1;
+
+void GTAttack (int player){
+    int index = 1;
+    int playerCount = PlayerGroupCount(PlayerGroupActive());
+    
+	if (g_showbuild){
+		return;
+	}
+	if (!g_canattack){
+		return;
+	}
+    // Merge own group
+    GTWaveMerge(player, c_waveMain, c_waveAttack);
+    
+    if (g_isTeamGame == true) {
+        if (g_GroupLeader == -1) {
+            //DebugAI("player " + IntToString(player) + " takes the lead");
+            g_GroupLeader = player;
+        }
+        if (g_GroupLeader == player) {
+            while(index <= playerCount) {
+                if (PlayerGetAlliance(player, c_allianceIdVision, index)) {
+                    GTWaveMerge(index, c_waveMain, c_waveAttack);
+                    // GTWaveMergeTeamPlay(player, AIWaveGet(index, c_waveAttack), AIWaveGet(player, c_waveAttack));                    
+                    AIWaveSetType(AIWaveGet(index, c_waveAttack), c_waveStateAttack, AIWaveTargetEscort(AIWaveGetUnits(AIWaveGet(player,c_waveAttack)),0)   );
+                }
+                index += 1;
+            }
+        }  
+    }
+  //  GTWaveMerge(player, c_waveDefend, c_waveMain);	
+    
+    AIWaveSetType(AIWaveGet(player, c_waveAttack), c_waveStateAttack, AIWaveTargetMelee(player));
+
+    return;
+}
+
+
+void GTRetreat (int player){
+    int index = 1;
+    int playerCount = PlayerGroupCount(PlayerGroupActive());
+ 
+    if (g_isTeamGame == true) {        
+        if (g_GroupLeader == player) {
+            while(index <= playerCount) {
+                if (PlayerGetAlliance(player, c_allianceIdVision, index)) {                                                            
+                    //GTWaveSplitTeamPlay(player, AIWaveGet(index, c_waveAttack), AIWaveGet(player, c_waveAttack));
+                    AIWaveSetType(AIWaveGet(index, c_waveAttack), c_waveStateRetreat, AIWaveTargetGatherO(index, c_townMain));
+                    GTWaveMerge(index, c_waveAttack, c_waveMain);
+                }
+                index += 1;
+            }
+            //DebugAI("player " + IntToString(player) + " has no lead anymore");
+            g_GroupLeader = -1;                
+        }                
+    }    
+
+    AIWaveSetType(AIWaveGet(player, c_waveAttack), c_waveStateRetreat, AIWaveTargetGatherO(player, c_townMain));
+    GTWaveMerge(player, c_waveAttack, c_waveMain);
+	return;
+}
+
+
+
+
+
+
+void GTDefend(int player){
+
+   if (GTTowns(player) == 1){
+	   AIWaveSetType(AIWaveGet(player, c_waveMain),   c_waveStateIdle, AIWaveTargetGatherO(player, c_townMain));
+   }
+   else{
+	   AIWaveSetType(AIWaveGet(player, c_waveMain),   c_waveStateIdle, AIWaveTargetGatherD(player, c_townMain));
+   }
+
+   if(GTCanAttack(player)){
+	   GTWaveMerge(player, c_waveMain, c_waveAttack);
+   }
+   else if (GTNeedRetreat(player)){
+	   GTWaveMerge(player, c_waveAttack, c_waveMain);
+   }
+
+   return;
+}
+
+
+
+void GTRock (int player){
+		  unitgroup groupO;
+          unit obstruction;
+          if (GTCountI2(player, GTGasGenerator(player)) < 3){
+        	  return;
+          }
+          groupO = UnitGroup(null, 0, RegionPlayableMap(), UnitFilterStr("Destructible;"), 0);
+          obstruction = AIGetObstruction(player);
+          if ( AIGetObstruction(player) == null){
+               obstruction = UnitGroupNearestUnit(groupO, GTDO(player, c_townMain));
+          }
+          if ( obstruction == null){
+        	  GTWaveMerge(player, c_waveClearObs, c_waveMain);
+        	  return;
+          }
+          if( GTCanAttack(player) || AIDefenseThreat(c_dtAnyThreat, player, AIWaveGet(player, c_waveClearObs)) ||  AIDefenseThreat(c_dtAnyThreat, player, AIWaveGet(player, c_waveMain)) ){
+        	  GTWaveMerge(player, c_waveClearObs, c_waveMain);
+        	  return;
+          }
+          else if  (GTOArmy(player) + 4 >= GTEArmy(player)){
+        	  GTWaveMerge(player, c_waveMain, c_waveClearObs);
+        	  AIWaveSetType(AIWaveGet(player, c_waveClearObs), c_waveStateAttack, AIWaveTargetUnit(obstruction));
+        	  return;
+          }
+          else{
+        	  GTWaveMerge(player, c_waveClearObs, c_waveMain);
+        	  return;
+          }
+          return;
+}
+
+
+

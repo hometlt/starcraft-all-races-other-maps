@@ -1,0 +1,139 @@
+//==================================================================================================
+//  Zerg First Edition
+//==================================================================================================
+
+
+//--------------------------------------------------------------------------------------------------
+//  ZergOpenGnd0
+//--------------------------------------------------------------------------------------------------
+void Zerg6 (int player) {
+	 int towns = GTTowns (player);
+	 int i = 1;
+	 GTMicro(player);
+	 GTName(player, "Roach Expand");
+
+     GTShowTimer(player);
+
+	 if (GTZergOpening6(player) ){
+		 return;
+	 }
+
+//------------------------------------
+// Economy Management
+//---------------------------------------
+	 GTCreateWorkers (player);
+	 GTSupply (player, 4 );
+
+			 GTExpand(player);
+
+
+
+
+
+
+
+
+
+
+//----------------------------
+// Unit Production
+//---------------------------
+		     if (GTCountE(player, c_TU_Medivac) > 0 ){
+		     	  GTrain(player, c_ZU_Infestor, 2);
+		       }
+		       else{
+		     	  GTrain(player, c_ZU_Infestor, 1);
+		       }
+		     if (GTCountE(player, c_TU_Medivac) > 0 ){
+		     	  GTrain(player, c_ZU_Infestor, 2);
+		       }
+		       else{
+		     	  GTrain(player, c_ZU_Infestor, 1);
+		       }
+
+	 GTrain (player,  c_ZU_Mutalisk, 16);
+	 GTBasicTrain(player);
+
+//--------------------------------------
+// Build Management
+//--------------------------------------
+  	  	  	GTAutoBDefend(player, 0);
+  	  		GTDefendTown(player, 0 );
+  	  		GTQueenBuild(player, 0);
+
+
+
+  	  	   	 GTBuildT(player, 2, 0, c_ZB_Lair_Alias, 1, 0);
+ 			 GBuildI(player, c_ZB_Extractor, 2, c_ZB_Spire_Alias, 1);
+  	  	     GBuildA(player,  c_ZB_Spire_Alias, 1, c_ZB_Lair_Alias, 1);
+//--------------------------------------------
+//Expansion Town
+//------------------------------------------
+		 while ( i <= 16 )
+			  	  {
+	      	 if (AIGetTownState(player, i ) == c_townStateEstablished) {
+	             GTAutoBExpand(player, i);
+	      	 }
+			i = i + 1;
+		}
+  //----------------------------------------
+  	 // Strategy
+       //-----------------------------------------
+  	  		                    GTDefend(player);
+  	  		                    if (GTTowns(player) >= 3){
+  	  		                    	GTRock(player);
+  	  		                    }
+  	  		                       if (GTCanAttack(player) ||( AIEvalRatio(player) > 130   && GTFinishA(player, c_ZR_ZerglingSpeed, 1)))  {
+  	  		                  	  	  GTAttack(player);
+  	  		                  	   }
+
+  	  		    			    else if (GTNeedRetreat(player)){
+  	  		    			    	GTRetreat(player);
+  	  		    			    }
+//  	  		                    GTDivert2 (player, c_ZU_Mutalisk );
+
+
+
+  	  		                   if(AIHasRes(player, 101, 0)){
+      GTrain(player, c_ZU_Zergling, GCounterFull(player, c_ZU_Zergling)); }
+	  GTrain(player, c_ZU_Baneling, GCounterFull(player, c_ZU_Baneling));
+      GTrain(player, c_ZU_Roach, GCounterFull(player, c_ZU_Roach));
+
+      GTrain(player, c_ZU_Mutalisk, GCounterFull(player, c_ZU_Mutalisk));
+      GTrain(player, c_ZU_Infestor, GCounterFull(player, c_ZU_Infestor));
+      GTrain(player, c_ZU_Corruptor, GCounterFull(player, c_ZU_Corruptor));
+
+
+//--------------------------------------
+// Build Management
+//--------------------------------------
+	  	 GTAutoBDefend(player, 0);
+	  	 GTDefendTown(player, 0 );
+  		 GTQueenBuild(player, 0);
+
+  		 if (AIHasRes(player, 210, 0)){
+  			 GBuild(player, c_ZB_Extractor, 2);
+  		 }
+  		 GBuildI(player, c_ZB_InfestationPit, 1,  c_ZR_FlyerAttacks1, 1);
+  		 GTBuildT(player, 2, 0, c_ZB_Hive, 1, 0);
+//  		DebugVarInt("Baneling:", GCounterFull(player, c_ZU_Baneling));
+//  		DebugVarInt("Roach", GCounterFull(player, c_ZB_RoachWarren));
+//  		DebugVarInt("Corruptor:", GCounterFull(player, c_ZU_Corruptor));
+  		 if (GCounterFull(player, c_ZU_Baneling) >= 2){
+
+  			 GBuild(player, c_ZB_BanelingNest, 1);
+  		 }
+  		 if (GCounterFull(player, c_ZU_Roach) >= 2){
+  		  	 GBuild(player, c_ZB_RoachWarren, 1);
+  		 }
+
+  		 if (GCounterFull(player, c_ZU_Mutalisk) +  GCounterFull(player, c_ZU_Corruptor)>= 1){
+  		  	 GBuild(player, c_ZB_Spire_Alias, 1);
+  		 }
+  	 	 if (GTFinishIA(player, c_ZB_Spire_Alias, 1)){
+  	  	  	     			 GTAutoResearch(player);
+  	  	  	     		 }
+// Run
+
+}
+

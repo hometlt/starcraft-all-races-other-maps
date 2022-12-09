@@ -1,0 +1,679 @@
+//==================================================================================================
+// 
+// Generated Map Script
+// 
+// Name:   [ARC] Mist Opportunities
+// 
+//==================================================================================================
+include "TriggerLibs/NativeLib"
+include "LibCOMI"
+include "LibARRA"
+
+//--------------------------------------------------------------------------------------------------
+// Library Initialization
+//--------------------------------------------------------------------------------------------------
+void InitLibs () {
+    libNtve_InitLib();
+    libCOMI_InitLib();
+    libARRA_InitLib();
+}
+
+//--------------------------------------------------------------------------------------------------
+// Global Function Declarations
+//--------------------------------------------------------------------------------------------------
+void gf_BEPrimary ();
+void gf_BETerrazineNodes ();
+void gf_BETank (point lp_tankSpawnPoint);
+void gf_BEGuard (int lp_limit);
+void gf_BEEscort (fixed lp_delay);
+void gf_BEWave (fixed lp_delayMin);
+void gf_BEHarvester (int lp_park, int lp_node);
+void gf_BEWhales ();
+void gf_BEWhale (point lp_prisonSpawnPoint, fixed lp_delayMinutes);
+
+//--------------------------------------------------------------------------------------------------
+// Trigger Variables
+//--------------------------------------------------------------------------------------------------
+trigger gt_MistOpportunities;
+trigger gt_BETankDestroyedDefeat;
+trigger gt_BEPrimaryBotDestroyedWarning;
+trigger gt_BEPrimaryBotDestroyedDefeat;
+trigger gt_BEPrimaryBotCounterIncrement;
+trigger gt_BEEscortStart;
+trigger gt_BEEscortProgress;
+trigger gt_BEEscortCompleted;
+trigger gt_BEScoreCalculateHarvesterDamage;
+trigger gt_BEWaveStart;
+trigger gt_BEWaveEnded;
+trigger gt_BEHarvesterController;
+trigger gt_BEHarvesterUnderAttack;
+trigger gt_BEHarvesterOnDestroy;
+trigger gt_BEHarass;
+trigger gt_BWStart;
+trigger gt_BWUpdate;
+trigger gt_BWTimerExpiredFail;
+trigger gt_BWPrisonAttacked;
+trigger gt_BWPrisonDestroyedComplete;
+
+//--------------------------------------------------------------------------------------------------
+// Global Functions
+//--------------------------------------------------------------------------------------------------
+void gf_BEPrimary () {
+    // Automatic Variable Declarations
+    // Implementation
+}
+
+void gf_BETerrazineNodes () {
+    // Variable Declarations
+    int lv_regionIter;
+    point lv_harvestLocation;
+    point lv_point;
+    unit lv_node;
+    unitgroup lv_terrazineNodes;
+    int lv_playerTerrazine;
+
+    // Automatic Variable Declarations
+    // Variable Initialization
+    lv_regionIter = 1;
+    lv_terrazineNodes = UnitGroupEmpty();
+
+    // Implementation
+    while ((PointFromName(("BE Spot " + IntToString(lv_regionIter))) != null)) {
+        lv_point = PointFromName(("BE Spot " + IntToString(lv_regionIter)));
+        UnitCreate(1, "TerrazineNodeOff", c_unitCreateIgnorePlacement, lv_playerTerrazine, lv_point, PointGetFacing(lv_point));
+        lv_node = UnitLastCreated();
+        UnitGroupAdd(lv_terrazineNodes, lv_node);
+        UnitSetState(lv_node, c_unitStateSelectable, false);
+        libCOMI_gf_SetUnitInfoTextCampaign(lv_node, null, StringExternal("Param/Value/551AF2E1"), null);
+        lv_harvestLocation = PointWithOffsetPolar(UnitGetPosition(lv_node), 3.8, UnitGetFacing(lv_node));
+        lv_regionIter += 1;
+    }
+}
+
+void gf_BETank (point lp_tankSpawnPoint) {
+    // Variable Declarations
+    unit lv_terrazineCollection;
+
+    // Automatic Variable Declarations
+    // Variable Initialization
+
+    // Implementation
+    lv_terrazineCollection = UnitLastCreated();
+    libCOMI_gf_SetUnitInfoTextCampaign(lv_terrazineCollection, null, StringExternal("Param/Value/67D5FF03"), null);
+    UnitSetState(lv_terrazineCollection, c_unitStateTargetable, false);
+    UnitSetState(lv_terrazineCollection, c_unitStateInvulnerable, true);
+    UnitSetState(lv_terrazineCollection, c_unitStateSelectable, false);
+}
+
+void gf_BEGuard (int lp_limit) {
+    // Automatic Variable Declarations
+    // Implementation
+}
+
+void gf_BEEscort (fixed lp_delay) {
+    // Automatic Variable Declarations
+    // Implementation
+}
+
+void gf_BEWave (fixed lp_delayMin) {
+    // Automatic Variable Declarations
+    // Implementation
+}
+
+void gf_BEHarvester (int lp_park, int lp_node) {
+    // Automatic Variable Declarations
+    // Implementation
+}
+
+void gf_BEWhales () {
+    // Automatic Variable Declarations
+    // Implementation
+}
+
+void gf_BEWhale (point lp_prisonSpawnPoint, fixed lp_delayMinutes) {
+    // Variable Declarations
+    point lv_spawnPoint;
+    unit lv_prisonUnit;
+
+    // Automatic Variable Declarations
+    // Variable Initialization
+    lv_spawnPoint = lp_prisonSpawnPoint;
+
+    // Implementation
+    TerrainShowRegion(RegionRect((PointGetX(lv_spawnPoint) - 2.0), (PointGetY(lv_spawnPoint) - 2.0), (PointGetX(lv_spawnPoint) + 2.0), (PointGetY(lv_spawnPoint) + 2.0)), false);
+    libNtve_gf_CreateUnitsWithDefaultFacing(1, "Blocker4x4", 0, libCOMI_gv_vU_PLAYER_NEUTRAL, lv_spawnPoint);
+    lv_prisonUnit = UnitLastCreated();
+    libCOMI_gf_SetUnitInfoTextCampaign(lv_prisonUnit, null, StringExternal("Param/Value/B1794254"), null);
+    UnitSetPropertyFixed(lv_prisonUnit, c_unitPropLifePercent, 100.0);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Mist Opportunities
+//--------------------------------------------------------------------------------------------------
+bool gt_MistOpportunities_Func (bool testConds, bool runActions) {
+    // Variable Declarations
+    int lv_botsLimit;
+    int lv_bOT1;
+    int lv_bOT2;
+    int lv_bOT3;
+    bool lv_allowLowestVitalityHarass;
+    int lv_sPEC;
+
+    // Automatic Variable Declarations
+    // Variable Initialization
+    lv_botsLimit = libCOMI_gf_DifficultyValueInt2(libCOMI_gf_GetMissionDifficulty(), 3, 3, 3, 2, 0, 0);
+    lv_bOT1 = 1;
+    lv_bOT2 = 2;
+    lv_bOT3 = 3;
+    lv_allowLowestVitalityHarass = libCOMI_gf_DifficultyValueFixed4(libCOMI_gf_GetMissionDifficulty(), false, false, true, true, true, true);
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    SoundtrackStop(PlayerGroupAll(), c_soundtrackCategoryAmbience, true);
+    SoundtrackPlay(PlayerGroupAll(), c_soundtrackCategoryAmbience, "Ambience_AC_BelShir", c_soundtrackCueAny, c_soundtrackIndexAny, false);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_MistOpportunities_Init () {
+    gt_MistOpportunities = TriggerCreate("gt_MistOpportunities_Func");
+    TriggerAddEventGeneric(gt_MistOpportunities, libCOMI_gv_COOP_MISSION_STARTED_EVENT);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: BE Tank Destroyed Defeat
+//--------------------------------------------------------------------------------------------------
+bool gt_BETankDestroyedDefeat_Func (bool testConds, bool runActions) {
+    // Variable Declarations
+    unit lv_terrazineTank;
+
+    // Automatic Variable Declarations
+    // Variable Initialization
+    lv_terrazineTank = EventUnit();
+
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_BETankDestroyedDefeat_Init () {
+    gt_BETankDestroyedDefeat = TriggerCreate("gt_BETankDestroyedDefeat_Func");
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: BE Primary Bot Destroyed Warning
+//--------------------------------------------------------------------------------------------------
+bool gt_BEPrimaryBotDestroyedWarning_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    if (true) {
+        libCOMI_gf_DefferedTransmission("FailureFirstBE", 0.0, 30.0);
+    }
+    else {
+        libCOMI_gf_DefferedTransmission("FailureSecondBE", 0.0, 30.0);
+    }
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_BEPrimaryBotDestroyedWarning_Init () {
+    gt_BEPrimaryBotDestroyedWarning = TriggerCreate("gt_BEPrimaryBotDestroyedWarning_Func");
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: BE Primary Bot Destroyed Defeat
+//--------------------------------------------------------------------------------------------------
+bool gt_BEPrimaryBotDestroyedDefeat_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_BEPrimaryBotDestroyedDefeat_Init () {
+    gt_BEPrimaryBotDestroyedDefeat = TriggerCreate("gt_BEPrimaryBotDestroyedDefeat_Func");
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: BE Primary Bot Counter Increment
+//--------------------------------------------------------------------------------------------------
+bool gt_BEPrimaryBotCounterIncrement_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_BEPrimaryBotCounterIncrement_Init () {
+    gt_BEPrimaryBotCounterIncrement = TriggerCreate("gt_BEPrimaryBotCounterIncrement_Func");
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: BE Escort Start
+//--------------------------------------------------------------------------------------------------
+bool gt_BEEscortStart_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    playergroup auto25BE3B3C_g;
+    int auto25BE3B3C_var;
+    int autoF0FE8B35_val;
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    auto25BE3B3C_g = libCOMI_gf_GetAlliedCommandersPlayers();
+    auto25BE3B3C_var = -1;
+    while (true) {
+        auto25BE3B3C_var = PlayerGroupNextPlayer(auto25BE3B3C_g, auto25BE3B3C_var);
+        if (auto25BE3B3C_var < 0) { break; }
+        VisRevealArea(auto25BE3B3C_var, RegionFromId(25), 0.0, false);
+    }
+    autoF0FE8B35_val = RandomInt(1, 3);
+    if (autoF0FE8B35_val == 1) {
+        libCOMI_gf_DefferedTransmission("Intro1BE", 0.0, 0.0);
+    }
+    else if (autoF0FE8B35_val == 2) {
+        libCOMI_gf_DefferedTransmission("Intro2BE", 0.0, 0.0);
+    }
+    else if (autoF0FE8B35_val == 3) {
+        libCOMI_gf_DefferedTransmission("Intro3BE", 0.0, 0.0);
+    }
+    else {
+    }
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_BEEscortStart_Init () {
+    gt_BEEscortStart = TriggerCreate("gt_BEEscortStart_Func");
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: BE Escort Progress
+//--------------------------------------------------------------------------------------------------
+bool gt_BEEscortProgress_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_BEEscortProgress_Init () {
+    gt_BEEscortProgress = TriggerCreate("gt_BEEscortProgress_Func");
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: BE Escort Completed
+//--------------------------------------------------------------------------------------------------
+bool gt_BEEscortCompleted_Func (bool testConds, bool runActions) {
+    // Variable Declarations
+    fixed lv_harvestersLiveAverage;
+    int lv_botScoreFinal;
+    int lv_score;
+
+    // Automatic Variable Declarations
+    // Variable Initialization
+    lv_botScoreFinal = CeilingI((75000.0 * (lv_harvestersLiveAverage / 100.0)));
+    lv_score = libCOMI_gf_ObjectiveFinalScoreChecker(lv_botScoreFinal, "AC_BelshirEscort_Primary02", 1, true);
+
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_BEEscortCompleted_Init () {
+    gt_BEEscortCompleted = TriggerCreate("gt_BEEscortCompleted_Func");
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: BE Score Calculate Harvester Damage
+//--------------------------------------------------------------------------------------------------
+bool gt_BEScoreCalculateHarvesterDamage_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_BEScoreCalculateHarvesterDamage_Init () {
+    gt_BEScoreCalculateHarvesterDamage = TriggerCreate("gt_BEScoreCalculateHarvesterDamage_Func");
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: BE Wave Start
+//--------------------------------------------------------------------------------------------------
+bool gt_BEWaveStart_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_BEWaveStart_Init () {
+    gt_BEWaveStart = TriggerCreate("gt_BEWaveStart_Func");
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: BE Wave Ended
+//--------------------------------------------------------------------------------------------------
+bool gt_BEWaveEnded_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    if (true) {
+        libCOMI_gf_DefferedTransmission("BotDeliveryBE", 0.0, 30.0);
+    }
+
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_BEWaveEnded_Init () {
+    gt_BEWaveEnded = TriggerCreate("gt_BEWaveEnded_Func");
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: BE Harvester Controller
+//--------------------------------------------------------------------------------------------------
+bool gt_BEHarvesterController_Func (bool testConds, bool runActions) {
+    // Variable Declarations
+    int lv_waveTask;
+    int lv_escortTask;
+    int lv_order;
+    unit lv_bot;
+    int lv_ping;
+    unit lv_terrazineNode;
+    fixed lv_escortHoldoutDuration;
+    point lv_escortBotBirth;
+    bool lv_isFirst;
+
+    // Automatic Variable Declarations
+    // Variable Initialization
+    lv_ping = c_invalidPingId;
+    lv_escortHoldoutDuration = 60.0;
+    lv_escortBotBirth = PointFromId(48);
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    UnitIssueOrder(lv_terrazineNode, Order(AbilityCommand("TerrazineNode", 0)), c_orderQueueReplace);
+    libCOMI_gf_CreatePingCoop(PlayerGroupAll(), "PingAlert", UnitGetPosition(lv_terrazineNode), ColorWithAlpha(0.00, 100.00, 0.00, 0.00), 15.0);
+    PingSetRotation(PingLastCreated(), 270.0);
+    PingSetTooltip(PingLastCreated(), StringExternal("Param/Value/AEC4E5B6"));
+    lv_bot = UnitLastCreated();
+    UnitStatusBarOverride(lv_bot, c_unitStatusGroupAll);
+    UnitSetPropertyFixed(lv_bot, c_unitPropLifePercent, 100.0);
+    UnitSetState(lv_bot, c_unitStateTargetable, false);
+    UnitSetState(lv_bot, c_unitStateStoppable, false);
+    libCOMI_gf_SetUnitInfoTextCampaign(lv_bot, null, StringExternal("Param/Value/36756E9F"), null);
+    libCOMI_gf_CreatePingCoop(PlayerGroupAll(), "PingObjective", UnitGetPosition(lv_bot), ColorWithAlpha(0.00, 100.00, 0.00, 0.00), 0.0);
+    lv_ping = PingLastCreated();
+    PingSetTooltip(lv_ping, StringExternal("Param/Value/E7B9C2C2"));
+    PingSetUnit(lv_ping, lv_bot);
+    UnitIssueOrder(lv_bot, Order(AbilityCommand("move", 2)), c_orderQueueAddToEnd);
+    UnitAbilityEnable(lv_bot, "attack", false);
+    UnitIssueOrder(lv_bot, Order(AbilityCommand("move", 2)), c_orderQueueReplace);
+    UnitIssueOrder(lv_bot, OrderTargetingUnit(AbilityCommand("TerrazineHarvesterExtract", 0), lv_terrazineNode), c_orderQueueAddToEnd);
+    UnitAbilityEnable(lv_bot, "attack", true);
+    UnitBehaviorAdd(lv_bot, "ProgressBar", lv_bot, 1);
+    UnitBehaviorSetDuration(lv_bot, "ProgressBar", lv_escortHoldoutDuration);
+    libNtve_gf_PlayAnimation(libNtve_gf_MainActorofUnit(lv_terrazineNode), c_animNameDefault, "Stand Angry", c_animFlagPlayForever, c_animTimeDefault);
+    UnitAbilityEnable(lv_bot, "move", false);
+    UnitAbilityEnable(lv_bot, "move", true);
+    libNtve_gf_PlayAnimation(libNtve_gf_MainActorofUnit(lv_terrazineNode), c_animNameDefault, "Stand Default", c_animFlagPlayForever, c_animTimeDefault);
+    UnitIssueOrder(lv_terrazineNode, Order(AbilityCommand("TerrazineNodeOff", 0)), c_orderQueueReplace);
+    UnitRemove(lv_bot);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_BEHarvesterController_Init () {
+    gt_BEHarvesterController = TriggerCreate("gt_BEHarvesterController_Func");
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: BE Harvester - Under Attack
+//--------------------------------------------------------------------------------------------------
+bool gt_BEHarvesterUnderAttack_Func (bool testConds, bool runActions) {
+    // Variable Declarations
+    int lv_tracker;
+    unit lv_bot;
+
+    // Automatic Variable Declarations
+    // Variable Initialization
+    lv_bot = EventUnit();
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    libCOMI_gf_CreatePingCoop(PlayerGroupAll(), "PingAlert", UnitGetPosition(lv_bot), ColorWithAlpha(100.00, 0.00, 0.00, 0.00), 15.0);
+    PingSetUnit(PingLastCreated(), lv_bot);
+    libCOMI_gf_DefferedTransmission("BotUnderAttackBE", 0.0, 15.0);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_BEHarvesterUnderAttack_Init () {
+    gt_BEHarvesterUnderAttack = TriggerCreate("gt_BEHarvesterUnderAttack_Func");
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: BE Harvester - On Destroy
+//--------------------------------------------------------------------------------------------------
+bool gt_BEHarvesterOnDestroy_Func (bool testConds, bool runActions) {
+    // Variable Declarations
+    unit lv_terrazineNode;
+
+    // Automatic Variable Declarations
+    // Variable Initialization
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    UnitIssueOrder(lv_terrazineNode, Order(AbilityCommand("TerrazineNodeOff", 0)), c_orderQueueReplace);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_BEHarvesterOnDestroy_Init () {
+    gt_BEHarvesterOnDestroy = TriggerCreate("gt_BEHarvesterOnDestroy_Func");
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: BE Harass
+//--------------------------------------------------------------------------------------------------
+bool gt_BEHarass_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    libCOMI_gf_DefferedTransmission("BotEnemyInboundBE", 5.0, 20.0);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_BEHarass_Init () {
+    gt_BEHarass = TriggerCreate("gt_BEHarass_Func");
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: BW Start
+//--------------------------------------------------------------------------------------------------
+bool gt_BWStart_Func (bool testConds, bool runActions) {
+    // Variable Declarations
+    unit lv_whale;
+    bool lv_isFirst;
+
+    // Automatic Variable Declarations
+    // Variable Initialization
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    libNtve_gf_SendActorMessageToUnit(lv_whale, "Signal WorkStart");
+    libCOMI_gf_CreateObjectivePingAC(libCOMI_ge_ObjectivePingType_Secondary, UnitGetPosition(lv_whale), StringExternal("Param/Value/247C50DE"));
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_BWStart_Init () {
+    gt_BWStart = TriggerCreate("gt_BWStart_Func");
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: BW Update
+//--------------------------------------------------------------------------------------------------
+bool gt_BWUpdate_Func (bool testConds, bool runActions) {
+    // Variable Declarations
+    timer lv_timer;
+    int lv_stage;
+
+    // Automatic Variable Declarations
+    // Variable Initialization
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    if ((lv_stage == 1) && (TimerGetRemaining(lv_timer) <= 150.0)) {
+        libCOMI_gf_DefferedTransmission("BonusExpireFirstBE", 0.0, 0.0);
+    }
+
+    if ((lv_stage == 2) && (TimerGetRemaining(lv_timer) <= 60.0)) {
+        libCOMI_gf_DefferedTransmission("BonusExpireRepeatBE", 0.0, 0.0);
+    }
+
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_BWUpdate_Init () {
+    gt_BWUpdate = TriggerCreate("gt_BWUpdate_Func");
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: BW Timer Expired (Fail)
+//--------------------------------------------------------------------------------------------------
+bool gt_BWTimerExpiredFail_Func (bool testConds, bool runActions) {
+    // Variable Declarations
+    unit lv_whale;
+
+    // Automatic Variable Declarations
+    // Variable Initialization
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    libCOMI_gf_DefferedTransmission("BonusLostBE", 0.0, 20.0);
+    VisRevealerCreate(1, RegionCircle(UnitGetPosition(lv_whale), 3.0));
+    UnitCreateEffectUnit(lv_whale, "COOPTerrazineTankTimeoutDeath", lv_whale);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_BWTimerExpiredFail_Init () {
+    gt_BWTimerExpiredFail = TriggerCreate("gt_BWTimerExpiredFail_Func");
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: BW Prison Attacked
+//--------------------------------------------------------------------------------------------------
+bool gt_BWPrisonAttacked_Func (bool testConds, bool runActions) {
+    // Variable Declarations
+    int lv_tracker;
+    timer lv_timer;
+    unit lv_whale;
+
+    // Automatic Variable Declarations
+    // Variable Initialization
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    TimerPause(lv_timer, true);
+    TimerPause(lv_timer, false);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_BWPrisonAttacked_Init () {
+    gt_BWPrisonAttacked = TriggerCreate("gt_BWPrisonAttacked_Func");
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: BW Prison Destroyed (Complete)
+//--------------------------------------------------------------------------------------------------
+bool gt_BWPrisonDestroyedComplete_Func (bool testConds, bool runActions) {
+    // Variable Declarations
+    unit lv_whale;
+
+    // Automatic Variable Declarations
+    // Variable Initialization
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    libCOMI_gf_DefferedTransmission("BonusCompleteBE", 0.0, 20.0);
+    VisRevealerCreate(1, RegionCircle(UnitGetPosition(lv_whale), 3.0));
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_BWPrisonDestroyedComplete_Init () {
+    gt_BWPrisonDestroyedComplete = TriggerCreate("gt_BWPrisonDestroyedComplete_Func");
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger Initialization
+//--------------------------------------------------------------------------------------------------
+void InitTriggers () {
+    gt_MistOpportunities_Init();
+    gt_BETankDestroyedDefeat_Init();
+    gt_BEPrimaryBotDestroyedWarning_Init();
+    gt_BEPrimaryBotDestroyedDefeat_Init();
+    gt_BEPrimaryBotCounterIncrement_Init();
+    gt_BEEscortStart_Init();
+    gt_BEEscortProgress_Init();
+    gt_BEEscortCompleted_Init();
+    gt_BEScoreCalculateHarvesterDamage_Init();
+    gt_BEWaveStart_Init();
+    gt_BEWaveEnded_Init();
+    gt_BEHarvesterController_Init();
+    gt_BEHarvesterUnderAttack_Init();
+    gt_BEHarvesterOnDestroy_Init();
+    gt_BEHarass_Init();
+    gt_BWStart_Init();
+    gt_BWUpdate_Init();
+    gt_BWTimerExpiredFail_Init();
+    gt_BWPrisonAttacked_Init();
+    gt_BWPrisonDestroyedComplete_Init();
+}
+
+//--------------------------------------------------------------------------------------------------
+// Map Initialization
+//--------------------------------------------------------------------------------------------------
+void InitMap () {
+    InitLibs();
+    InitTriggers();
+}

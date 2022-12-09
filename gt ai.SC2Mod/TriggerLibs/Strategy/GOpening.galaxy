@@ -1,0 +1,1471 @@
+//----------------------------
+//Basic Building
+//----------------------------
+bool GZergBasicBuild (int player){
+	if (!GTFinishIA(player, c_ZB_SpawningPool, 1)){
+	 		GBuild(player, c_ZB_SpawningPool, 1);
+	 		return true;
+	 }
+	return false;
+}
+bool GProtossBasicBuild (int player){
+	if (!GTFinishIA(player, c_PB_CyberneticsCore, 1)){
+	 		GBuild(player, c_PB_CyberneticsCore, 1);
+	 		return true;
+	 }
+	return false;
+}
+
+
+// IceFisher
+
+//9 Overlord[1]
+//16 Hatchery
+//15 Spawning Pool[2]
+//18 Queen
+//20 Queen
+//20 Spine Crawler
+//22 Zergling[3]
+//40 (32 Drones) Extractor (x4)
+
+bool GTZergOpening0 (int player){
+	if (!GTFinishIA(player, c_ZR_GroundCarapace1, 1 )  ){
+		GTrain(player, c_ZU_Drone, 9);
+		GTrainS(player, c_ZU_Overlord, 2, 9 );
+
+		GTrainI(player, c_ZU_Drone, 16, c_ZU_Overlord, 2);
+
+		if (AIHasRes(player, 210, 0) && !GTFinishIA(player, c_ZB_Hatchery_Alias, 2)){
+			GTExpand2(player);
+		}
+		GBuildI(player, c_ZB_SpawningPool, 1, c_ZB_Hatchery_Alias, 2);
+		GTrainI(player, c_ZU_Drone, 18, c_ZB_SpawningPool, 1);
+
+		GTrainS(player, c_ZU_Overlord, 3, 17 );
+		GTrainA(player, c_ZU_Queen, 1, c_ZU_Overlord, 3);
+
+		GTrainI(player, c_ZU_Zergling, 2, c_ZU_Queen, 1);
+
+		if (GTFinishA(player, c_ZB_Hatchery_Alias, 2)){
+					GTTrainQueen(player, 1);
+		}
+
+
+		if(GTCountE2(player, c_TB_CommandCenter_Alias) < 2){
+			GTrainI(player, c_ZU_Overlord, 4, c_ZU_Zergling,  2);
+			GTrainI(player, c_ZU_Drone, 24, c_ZU_Overlord, 4);
+			GTBuildPAI ( player,  c_ZB_SpineCrawler, 2, GTDO1(player, 1), c_ZU_Overlord, 5);
+			GBuildI(player, c_ZB_Extractor, 2, c_ZU_Drone, 32);
+			GTBuildTI(player, 2, 1, c_ZB_Extractor, 2, c_onVespeneGas, c_ZU_Drone, 32);
+
+		}
+		else{
+			if (AIHasRes(player, 190, 0) && !GTFinishIA(player, c_ZB_Hatchery_Alias, 3)){
+				GTExpand2(player);
+			}
+			GTrainI(player, c_ZU_Overlord, 4, c_ZB_Hatchery_Alias, 3);
+			GTrainI(player, c_ZU_Drone, 24, c_ZU_Overlord, 4);
+
+			if (GTFinishA(player, c_ZB_Hatchery_Alias, 3)){
+				GTTrainQueen(player, 2);
+			}
+			GTBuildPAI ( player,  c_ZB_SpineCrawler, 1, GTDO1(player, 1), c_ZU_Overlord, 5);
+			GTBuildPAI ( player,  c_ZB_SpineCrawler, 2, GTDO1(player, 2), c_ZU_Queen, 3);
+			GTrainI(player, c_ZU_Drone, 46, c_ZU_Overlord, 8);
+			GTrainI(player, c_ZU_Overlord, 9, c_ZU_Drone, 46);
+			GTrainI(player, c_ZU_Drone, 54, c_ZU_Overlord, 9);
+			GTrainI(player, c_ZU_Overlord, 10, c_ZU_Drone, 54);
+			GTrainI(player, c_ZU_Drone, 60, c_ZU_Overlord, 10);
+			GTBuildTI(player, 2, 1, c_ZB_Extractor, 2, c_onVespeneGas, c_ZU_Drone, 44);
+			GBuildI(player, c_ZB_Extractor, 2, c_ZU_Drone, 46);
+			GBuildI(player, c_ZB_EvolutionChamber, 1,  c_ZB_Lair_Alias, 1);
+			GBuildI(player, c_ZB_RoachWarren, 1, c_ZB_Extractor, 2);
+
+		}
+
+		    GBuildI(player, c_ZB_Lair_Alias, 1,  c_ZB_Extractor, 2);
+		    GTrainI(player, c_ZU_Overlord, 5, c_ZU_Drone, 24);
+		    GTrainI(player, c_ZU_Drone, 28, c_ZU_Overlord, 5);
+			GTrainI(player, c_ZU_Overlord, 6, c_ZU_Drone, 28);
+			GTrainI(player, c_ZU_Drone, 32, c_ZU_Overlord, 6);
+
+			GTrainI(player, c_ZU_Overlord, 7, c_ZU_Drone, 32);
+			GTrainI(player, c_ZU_Drone, 40, c_ZU_Overlord, 7);
+			GTrainI(player, c_ZU_Overlord, 8, c_ZU_Drone, 40);
+
+
+			GBuildI(player, c_ZB_EvolutionChamber, 1,  c_ZB_Lair_Alias, 1);
+			GBuildI(player, c_ZB_RoachWarren, 1, c_ZB_EvolutionChamber, 1);
+		    if (GTFinishA(player, c_ZB_Hatchery_Alias, 2)){
+		        						AISetMainTown(player, 1);
+		        			}
+			if (GTFinishIA(player, c_ZB_EvolutionChamber, 1)){
+						GTExpand(player);
+					}
+			if (GTFinishA(player, c_ZB_Hatchery_Alias, 3)){
+					    		GTrain(player, c_ZU_Zergling, GCounterFull(player, c_ZU_Zergling));
+					    		GTSupply(player, 0);
+					    	}
+		GResearchI(player, c_ZR_GroundCarapace1, c_ZB_Lair_Alias, 1);
+		if (GTNeedRetreat(player)){
+				    	GTRetreat(player);
+				    }
+		return true;
+	}
+	return false;
+}
+// Hatchery First
+//----------------
+
+//Basic Build
+//9 - Overlord (1)
+//15 - Hatchery (2)
+//16 - Spawning Pool
+//15 - Extractor
+//17 - Overlord (2)
+//@100% Hatchery (2) - Queen (1) (2) + Zerglings (2) (4)
+//@100 Gas - Metabolic Boost
+bool GTZergOpening1 (int player){
+	if (!GTFinishIA(player, c_ZR_ZerglingSpeed, 1 ) ){
+		GTrain(player, c_ZU_Drone, 9);
+		GTrainS(player, c_ZU_Overlord, 2, 9 );
+		GTrainI(player, c_ZU_Drone, 15, c_ZU_Overlord, 2);
+		if (AIHasRes(player, 210, 0) && !GTFinishIA(player, c_ZB_Hatchery_Alias, 2)){
+			GTExpand2(player);
+		}
+		if(!GTFinishIA(player, c_ZB_SpawningPool, 1)){
+		   GTrainI(player, c_ZU_Drone, 16, c_ZB_Hatchery, 2);
+		}
+		if(GTCountE2(player, c_TB_CommandCenter_Alias) > 1){
+			if (AIHasRes(player, 190, 0) && !GTFinishIA(player, c_ZB_Hatchery_Alias, 3)){
+				GTExpand2(player);
+			}
+		}
+		GBuildS(player, c_ZB_SpawningPool, 1, 16);
+		GBuildI(player, c_ZB_Extractor, 1, c_ZB_SpawningPool, 1 );
+		GTrainI(player, c_ZU_Drone, 18, c_ZB_Extractor, 1);
+
+		GTrainS(player, c_ZU_Overlord, 3, 17 );
+		GTrainA(player, c_ZU_Queen, 2, c_ZB_Hatchery, 2);
+		GTrainA(player, c_ZU_Zergling, 4, c_ZB_Hatchery, 2);
+		GResearchA(player, c_ZR_ZerglingSpeed, c_ZB_SpawningPool, 1);
+		if (GTFinishA(player, c_ZB_Hatchery_Alias, 2)){
+								AISetMainTown(player, 1);
+					}
+		return true;
+	}
+	return false;
+}
+
+//2 Base Mutalisk
+//----------------
+//Basic Build
+//9 - Overlord (2)
+//14 - Hatchery (2)
+//14 - Spawning Pool
+//16 - Extractor
+//16 - Overlord (3)
+//17 - Queen
+//19 - Zergling
+//20 - Queen
+//25 - Metabolic Boost
+//25 - Overlord
+//28 - Spine Crawler
+//29 - Lair
+//32 - Extractor (2)
+//37 - Spire
+bool GTZergOpening2 (int player){
+	if (!GTFinishIA(player, c_ZB_Spire_Alias, 1 ) && !GTFinishIA(player, c_ZU_Overlord, 7 )   ){
+		GTrain(player, c_ZU_Drone, 9);
+		GTrainS(player, c_ZU_Overlord, 2, 9 );
+		GTrainI(player, c_ZU_Drone, 14, c_ZU_Overlord, 2);
+		if (AIHasRes(player, 210, 0) && !GTFinishIA(player, c_ZB_Hatchery_Alias, 2)){
+			GTExpand2(player);
+		}
+		if(GTCountE2(player, c_TB_CommandCenter_Alias) > 1){
+			if (AIHasRes(player, 190, 0) && !GTFinishIA(player, c_ZB_Hatchery_Alias, 3)){
+				GTExpand2(player);
+			}
+		}
+		GTrainI(player, c_ZU_Drone, 15, c_ZB_Hatchery_Alias, 2);
+		GBuildI(player, c_ZB_SpawningPool, 1, c_ZB_Hatchery_Alias, 2);
+		    GTrainI(player, c_ZU_Drone, 16, c_ZB_SpawningPool, 1);
+		GBuildI(player, c_ZB_Extractor, 1, c_ZB_SpawningPool, 1);
+		GTrainS(player, c_ZU_Overlord, 3, 16 );
+		GTrainI(player, c_ZU_Drone, 16, c_ZU_Overlord, 3);
+		GTrainS(player, c_ZU_Queen, 1, 16);
+		GTrainI(player, c_ZU_Zergling, 2, c_ZU_Queen, 1);
+		GTrainI(player, c_ZU_Queen, 2, c_ZU_Zergling, 2);
+		GTrainI(player, c_ZU_Drone, 17, c_ZU_Queen, 2);
+		GResearchA(player, c_ZR_ZerglingSpeed, c_ZB_SpawningPool, 1);
+		GTrainI(player, c_ZU_Overlord, 4, c_ZR_ZerglingSpeed, 1 );
+		GTrainI(player, c_ZU_Drone, 23, c_ZU_Overlord, 4);
+		if(GTFinishIA(player, c_ZU_Drone, 23)){
+			GTBuildPA ( player,  c_ZB_SpineCrawler, 1, GTDO1(player, 1));
+		}
+		GTrainI(player, c_ZU_Drone, 24, c_ZB_SpineCrawler, 1);
+		GBuild(player, c_ZB_Lair_Alias, 1);
+		GTrainI(player, c_ZU_Drone, 25, c_ZB_Lair_Alias, 1);
+		GTrainI(player, c_ZU_Overlord, 5, c_ZU_Drone, 25);
+		GTrainI(player, c_ZU_Drone, 32, c_ZU_Overlord, 5);
+		if(GTFinishIA(player, c_ZU_Overlord, 6)){
+				GTBuildPA ( player,  c_ZB_SpineCrawler, 2, GTDO1(player, 1));
+		}
+		GTrainI(player, c_ZU_Zergling, 10, c_ZU_Drone, 30);
+		GTrainI(player, c_ZU_Overlord, 6, c_ZU_Zergling, 10);
+		GBuildI(player, c_ZB_Extractor, 2, c_ZB_Lair_Alias, 1);
+		GBuildI(player, c_ZB_BanelingNest, 1, c_ZB_Lair_Alias, 1);
+
+		GBuildA(player, c_ZB_Spire_Alias, 1, c_ZB_Lair_Alias, 1);
+		if (GTFinishA(player, c_ZB_Hatchery_Alias, 2)){
+								AISetMainTown(player, 1);
+					}
+		return true;
+	}
+	return false;
+}
+
+//BANELING EXPAND
+//15 Hatchery
+//14/15 Pool
+//17 Extractor (1)
+//@ 100% Spawning Pool, Queen (1)
+//@ 100% Hatchery, Queen (2)
+//@ 100 , Metabolic Boost, Extractor (2)
+//@ 50  after getting Zergling Speed, make a Baneling Nest
+//Stop Drones at 38 (16 at each mineral line + 6 mining gas)
+//Begin massing Zerglings, rally to outside opponent's base
+//Make as many Banelings as your gas will allow
+
+bool GTZergOpening3 (int player){
+	if (!GTFinishIA(player, c_ZR_BanelingSpeed, 1 ) ){
+		GTrain(player, c_ZU_Drone, 9);
+		GTrainS(player, c_ZU_Overlord, 2, 9 );
+		GTrainI(player, c_ZU_Drone, 15, c_ZU_Overlord, 2);
+		if (AIHasRes(player, 210, 0) && !GTFinishIA(player, c_ZB_Hatchery_Alias, 2)){
+			GTExpand2(player);
+		}
+
+
+		GBuildI(player, c_ZB_SpawningPool, 1, c_ZB_Hatchery, 2);
+		GBuildI(player, c_ZB_Extractor, 1, c_ZB_SpawningPool, 1 );
+		GTrainI(player, c_ZU_Drone, 17, c_ZB_Extractor, 1);
+
+		GTrainS(player, c_ZU_Overlord, 3, 17 );
+		GTrainA(player, c_ZU_Queen, 1, c_ZB_SpawningPool, 1);
+		GTrainI(player, c_ZU_Zergling, 2, c_ZU_Queen, 1);
+		GTrainI(player, c_ZU_Queen, 2, c_ZU_Zergling, 2);
+		GTrainI(player, c_ZU_Drone, 20, c_ZU_Queen, 2);
+
+		GResearchA(player, c_ZR_ZerglingSpeed, c_ZB_SpawningPool, 1);
+		GTrainI(player, c_ZU_Drone, 21, c_ZR_ZerglingSpeed, 1);
+		GTrainI(player, c_ZU_Overlord, 4, c_ZU_Drone, 20 );
+		GBuildI(player, c_ZB_EvolutionChamber, 1 , c_ZU_Overlord, 4);
+		GTrainI(player, c_ZU_Drone, 25, c_ZU_Overlord, 4);
+		GTrainI(player, c_ZU_Overlord, 5, c_ZU_Drone, 25);
+		GTrainI(player, c_ZU_Drone, 28, c_ZU_Overlord, 5 );
+		GBuildI(player, c_ZB_Extractor, 2 , c_ZB_Lair_Alias, 1);
+		GBuildI(player, c_ZB_Lair_Alias, 1 , c_ZR_ZerglingSpeed, 1);
+
+		GBuildI(player, c_ZB_BanelingNest, 1 , c_ZB_Extractor, 2);
+		GResearchI(player, c_ZR_MeleeAttacks1,  c_ZB_BanelingNest, 1);
+		GTBuildI(player, 7, 1, c_ZB_Extractor, 1, c_onVespeneGas, c_ZR_MeleeAttacks1, 1);
+		GTrainI(player, c_ZU_Zergling, 12, c_ZB_BanelingNest, 1);
+		GTrainI(player, c_ZU_Overlord, 6, c_ZU_Zergling, 12);
+
+		GTrainI(player, c_ZU_Zergling, 18, c_ZU_Overlord , 6);
+		GTrainI(player, c_ZU_Drone, 32, c_ZU_Overlord, 6);
+		GTrainI(player, c_ZU_Overlord, 7, c_ZU_Zergling, 18);
+
+		GTrainI(player, c_ZU_Zergling, 24, c_ZU_Overlord, 7);
+		GBuildI(player, c_ZU_Drone, 36 , c_ZU_Overlord, 7);
+		GTrainI(player, c_ZU_Baneling, 4, c_ZU_Overlord, 7);
+
+		GTrainI(player, c_ZU_Baneling, 12, c_ZR_MeleeAttacks1, 1);
+		GTrainI(player, c_ZU_Overlord, 8, c_ZU_Zergling, 24);
+		GTrainI(player, c_ZU_Zergling, 30, c_ZU_Overlord, 8);
+
+		GResearchI(player, c_ZR_BanelingSpeed,  c_ZR_MeleeAttacks1, 1);
+        if (GTNeedRetreat(player)){
+        	GTRetreat(player);
+		}
+        if (GTFinishA(player, c_ZB_Hatchery_Alias, 2)){
+        						AISetMainTown(player, 1);
+        			}
+		return true;
+	}
+	return false;
+}
+//ROACH EXPAND
+//15 Hatchery
+//15 Pool
+//15 Extractor (1)
+//16 Overlord (1)
+//@ 100% Spawning Pool, Queen (1). Zergling (2)
+//@ 100% Roach warren, 7 Roach
+
+
+bool GTZergOpening4 (int player){
+	if (!GTFinishIA(player, c_ZU_Overlord, 5 ) && !GTFinishIA(player, c_ZB_Lair_Alias, 1 ) ){
+			GTrain(player, c_ZU_Drone, 9);
+			GTrainS(player, c_ZU_Overlord, 2, 9 );
+			GTrainI(player, c_ZU_Drone, 15, c_ZU_Overlord, 2);
+			if (AIHasRes(player, 210, 0) && !GTFinishIA(player, c_ZB_Hatchery_Alias, 2)){
+				GTExpand2(player);
+			}
+
+
+			GBuildI(player, c_ZB_SpawningPool, 1, c_ZB_Hatchery, 2);
+			GBuildI(player, c_ZB_Extractor, 1, c_ZB_SpawningPool, 1 );
+			GTrainI(player, c_ZU_Drone, 17, c_ZB_Extractor, 1);
+
+			GTrainS(player, c_ZU_Overlord, 3, 17 );
+			if (!GTFinishIA(player, c_ZB_RoachWarren, 1)){
+			  GTrainI(player, c_ZU_Drone, 18, c_ZU_Overlord, 3);
+			}
+			GTrainA(player, c_ZU_Queen, 1, c_ZB_SpawningPool, 1);
+			GTrainI(player, c_ZU_Zergling, 2, c_ZU_Queen, 1);
+			GBuildI(player, c_ZB_RoachWarren, 1, c_ZU_Zergling, 2 );
+			GTrainI(player, c_ZU_Overlord, 4, c_ZB_RoachWarren, 1 );
+			GTrainA(player, c_ZU_Roach, 7, c_ZB_RoachWarren , 1);
+			GTrainI(player, c_ZU_Overlord, 5, c_ZU_Roach, 7 );
+			if (GTFinishA(player, c_ZB_Hatchery_Alias, 2)){
+									AISetMainTown(player, 1);
+						}
+			return true;
+		}
+	return false;
+}
+//Roach Baneling Ling Big Bust
+//---------------------------------
+//9Overlord
+//13Scout
+//15Hatch
+//16Pool
+//17Overlord
+//17Queen x 2 (Double Inject)
+//21Lings x 4 (2 Sets)
+//23 First gas (4:00)
+//Drones to 26
+//26 Overlord
+//Drones to 31
+//31 Overlord
+//Drones to 36
+//36 Zergling speed (first 100 gas, keep drones harvesting gas)
+//36 Overlord
+//Drones to 42
+//42 2nd Gas/Roach Warren
+//Drones to 44
+//Overlord x 3
+//Baneling nest when warren is halfway done (6:30)
+//44 Lings x 6 (Total of 9-12 Speedlings to move out across the map and morph into banelings)
+//47 Roaches x 9
+//65+ Lings
+//11 Banelings morphing by 8:20
+bool GTZergOpening5 (int player){
+
+	if (!GTFinishIA(player, c_ZR_ZerglingSpeed, 1 )){
+			GTrain(player, c_ZU_Drone, 9);
+			GTrainS(player, c_ZU_Overlord, 2, 9 );
+			GTrainI(player, c_ZU_Drone, 15, c_ZU_Overlord, 2);
+			if (AIHasRes(player, 210, 0) && !GTFinishIA(player, c_ZB_Hatchery_Alias, 2)){
+				GTExpand2(player);
+			}
+
+			GTrainI(player, c_ZU_Drone, 16, c_ZB_Hatchery, 2);
+
+			GBuildS(player, c_ZB_SpawningPool, 1, 16);
+			GTrainI(player, c_ZU_Drone, 17, c_ZB_SpawningPool, 1);
+
+			GTrainS(player, c_ZU_Overlord, 3, 17 );
+			GTrainI(player, c_ZU_Drone, 18, c_ZU_Overlord, 3);
+			GTrainA(player, c_ZU_Queen, 1, c_ZB_SpawningPool, 1);
+			GTrainA(player, c_ZU_Zergling, 4, c_ZB_SpawningPool, 1);
+			GTrainA(player, c_ZU_Queen, 2, c_ZB_Hatchery, 2);
+			GBuildS(player, c_ZB_Extractor, 1, 20);
+			GTrainI(player, c_ZU_Drone , 20, c_ZU_Zergling,4 );
+			GTrainS(player, c_ZU_Overlord, 4, 25 );
+			GTrainI(player, c_ZU_Drone , 25, c_ZU_Overlord,4 );
+			GTrainS(player, c_ZU_Overlord, 5, 30 );
+			GTrainI(player, c_ZU_Drone , 30, c_ZU_Overlord,5 );
+			GBuildI(player, c_ZB_Lair_Alias, 1, c_ZU_Drone, 30);
+			GTrainS(player, c_ZU_Overlord, 6, 35 );
+			if (GTFinishA(player, c_ZU_Roach, 3)&& GTFinishIA(player, c_ZB_Hatchery_Alias, 2)){
+									AISetMainTown(player, 1);
+						}
+			GTrainI(player, c_ZU_Drone , 36, c_ZU_Overlord,6 );
+
+			GBuildI(player, c_ZB_RoachWarren, 1, c_ZU_Drone, 36);
+			GBuildI(player, c_ZB_Extractor, 2, c_ZB_RoachWarren, 1);
+			GTrainI(player, c_ZU_Drone , 38, c_ZB_BanelingNest, 1 );
+			GTrainI(player, c_ZU_Overlord, 9, c_ZU_Drone, 38 );
+			GBuildI(player, c_ZB_BanelingNest, 1,  c_ZB_RoachWarren, 1);
+			GTrainI(player, c_ZU_Zergling , 8, c_ZU_Overlord, 7 );
+			GTrainI(player, c_ZU_Roach , 10, c_ZU_Overlord, 7 );
+			GTrainI(player, c_ZU_Baneling , 9, c_ZU_Roach, 5  );
+			GTrainI(player, c_ZU_Overlord , 11, c_ZU_Roach, 8 );
+			GTrainI(player, c_ZU_Zergling , 30, c_ZU_Overlord, 10 );
+			if(GTFinishIA(player, c_ZU_Overlord, 11)){
+				GResearch(player, c_ZR_ZerglingSpeed);
+				GTExpand(player);
+			}
+		    if (GTFinishA(player, c_ZU_Roach, 9) && AIEvalRatio(player) > 120 ){
+		  	  		                  	  	GTAttack(player);
+		  	  		                  	   }
+		    else{
+		    	GTWaveMerge(player, c_waveAttack, c_waveMain);
+		    }
+			return true;
+		}
+return false;
+}
+//5 Roach Economic
+//---------------------------------
+//Overlord scout to a safe position (do not sacrifice)
+//10 Overlord, send to natural
+//16 Hatch
+//Send Drone scout*
+//15 Pool
+//17 Overlord and stop production**
+//Zerglings or Drones***
+//17 Extractor (send 3 Drones upon completion, should complete at around same time as Pool)
+//@Pool completion - Queen
+//@1 larva - Zergling
+//@Hatch completion - Queen and Zergling
+//@150 minerals, Roach Warren
+//26 Overlord and stop production
+//One Queen vomits larva and the other places a Creep Tumor
+//@Overlord complete, 5 Roaches****
+//36 Overlord
+//@100 gas - Lair
+//Larva and minerals will be available for a lot of Drones
+bool GTZergOpening6 (int player){
+
+	if (!GTFinishIA(player, c_ZR_ZerglingSpeed, 1 )){
+			GTrain(player, c_ZU_Drone, 9);
+			GTrainS(player, c_ZU_Overlord, 2, 9 );
+			GTrainI(player, c_ZU_Drone, 15, c_ZU_Overlord, 2);
+			if (AIHasRes(player, 210, 0) && !GTFinishIA(player, c_ZB_Hatchery_Alias, 2)){
+				GTExpand2(player);
+			}
+			if(GTCountE2(player, c_TB_CommandCenter_Alias) > 1){
+				if (AIHasRes(player, 180, 0) && !GTFinishIA(player, c_ZB_Hatchery_Alias, 3)){
+					GTExpand2(player);
+				}
+				GTrainI(player, c_ZU_Roach, 5, c_ZB_Hatchery_Alias, 3);
+			}
+			else{
+				GTrainA(player, c_ZU_Roach, 5, c_ZB_RoachWarren, 1);
+				GBuildI(player, c_ZB_Extractor, 2, c_ZB_Lair_Alias, 1);
+			}
+			GTrainI(player, c_ZU_Drone, 16, c_ZB_Hatchery, 2);
+
+			GBuildS(player, c_ZB_SpawningPool, 1, 16);
+			GTrainI(player, c_ZU_Drone, 17, c_ZB_SpawningPool, 1);
+
+			GTrainS(player, c_ZU_Overlord, 3, 17 );
+			GBuildI(player, c_ZB_Extractor, 1, c_ZU_Overlord, 3);
+			GTrainI(player, c_ZU_Drone, 18, c_ZU_Overlord, 3);
+			GTrainA(player, c_ZU_Queen, 1, c_ZB_SpawningPool, 1);
+			GTrainA(player, c_ZU_Zergling, 4, c_ZB_SpawningPool, 1);
+			GTrainA(player, c_ZU_Queen, 2, c_ZB_Hatchery, 2);
+			GTrainI(player, c_ZU_Drone , 20, c_ZU_Zergling,4 );
+			GTrainI(player, c_ZU_Overlord, 4, c_ZU_Drone, 20 );
+			GBuildI(player, c_ZB_RoachWarren, 1, c_ZU_Overlord, 4);
+			GTrainI(player, c_ZU_Drone , 24, c_ZB_RoachWarren, 1 );
+			GTrainI(player, c_ZU_Overlord, 5, c_ZB_RoachWarren, 1 );
+			GTrainA(player, c_ZU_Roach, 1, c_ZB_RoachWarren, 1);
+			GTrainI(player, c_ZU_Overlord, 6, c_ZU_Roach, 5  );
+			GTrainI(player, c_ZU_Drone , 28,  c_ZU_Overlord, 6 );
+			GTrainI(player, c_ZU_Overlord, 7, c_ZU_Drone , 28 );
+			GTrainI(player, c_ZU_Drone , 33, c_ZU_Overlord, 7 );
+			GTrainI(player, c_ZU_Overlord, 8, c_ZU_Drone, 32);
+			GTrainI(player, c_ZU_Drone , 40, c_ZU_Overlord, 8 );
+			GBuildA(player, c_ZB_Lair_Alias, 1, c_ZU_Roach, 5);
+
+			if (GTFinishA(player, c_ZU_Roach, 3)&& GTFinishIA(player, c_ZB_Hatchery_Alias, 2)){
+											AISetMainTown(player, 1);
+								}
+			GResearchI(player, c_ZR_ZerglingSpeed,  c_ZB_Lair_Alias, 1);
+			return true;
+		}
+return false;
+}
+
+////////////////////////////////////////////////////////////////////
+// Zerg vs Protoss Strategy
+////////////////////////////////////////////////////////////////////
+
+
+//27% Spanishiwa (Ice Fisher) Gasless expand
+//21% Early Roach Pressure
+//18% Speedling Expand into Ling/Muta
+//17% Speedling Expand into Zergling/Roach
+//17% Hatch-first and counter
+
+
+
+
+//Roach/Ling All-in
+//---------------------------------------------
+
+bool GTZergOpening7 (int player){
+	if (!GTFinishIA(player, c_ZR_ZerglingSpeed, 1 ) ){
+			GTrain(player, c_ZU_Drone, 12);
+			if (!GTFinishIA(player,c_ZU_Drone, 12) && !GTFinishIA(player, c_ZB_SpawningPool, 1) ){
+				if (AIHasRes(player, 125, 0)){
+					GTBuild(player, 2, 0, c_ZB_Extractor, 2, c_onVespeneGas);
+				}
+				GTBuildQ(player, 2, 0, c_ZB_Extractor, 2, c_onVespeneGas, c_ZB_Extractor, 1);
+			}
+			if (AIHasRes(player, 210, 0) && !GTFinishIA(player, c_ZB_Hatchery_Alias, 2) && GTFinishIA(player, c_ZU_Drone, 17)){
+							GTExpand2(player);
+						}
+			if ( GTFinishIA(player,c_ZU_Drone, 10) && !GTFinishIA(player, c_ZU_Drone, 12) && GTFinishIA(player, c_ZB_Extractor, 2 )){
+				GTZergCancelGas(player);
+			}
+
+			GTrainI(player, c_ZU_Overlord, 2, c_ZU_Drone, 12);
+			GBuildI(player, c_ZB_SpawningPool, 1, c_ZU_Overlord, 2);
+			if(!GTFinishIA(player, c_ZB_Extractor, 2)){
+				GTrainI(player, c_ZU_Drone, 16, c_ZB_SpawningPool, 1);
+			}
+			GBuildI(player, c_ZB_Extractor, 1, c_ZU_Drone, 15);
+			GTrainA(player, c_ZU_Queen, 1, c_ZB_SpawningPool, 1);
+
+			if (GTFinishIA(player, c_ZU_Queen, 1)&& !GTFinishIA(player,c_ZU_Zergling,1) && AIHasRes(player, 65, 0))
+			{ GBuildI(player, c_ZB_Extractor, 2, c_ZU_Queen, 1); }
+			if (GTFinishA(player, c_ZB_Extractor, 1) &&  GTFinishIA(player, c_ZB_Extractor, 2) && !GTFinishIA(player,c_ZU_Zergling,1))
+			{ GTZergCancelGas(player); }
+			GTrainI(player, c_ZU_Zergling, 2, c_ZB_Extractor, 2);
+
+
+			GTrainI(player, c_ZU_Overlord, 4, c_ZU_Zergling, 2);
+			GTBuildI(player, 2, 0, c_ZB_RoachWarren, 1, c_nearResource,   c_ZU_Overlord, 4);
+			if( AIHasRes(player, 451, 146) || GTFinishIA(player, c_ZU_Roach, 1)){
+				GTrainA(player, c_ZU_Roach, 6, c_ZB_RoachWarren, 1 );
+			}
+
+			if (GTFinishIA(player, c_ZU_Overlord, 5 ) && AIHasRes(player, 0, 100)){
+				AISetGasPeonCountOverride(player, 0, 0);
+			}
+			else{
+				AISetGasPeonCountOverride(player, 0, AIGetBuildingCountInTown(player, 0, c_ZB_Extractor, c_techCountCompleteOnly)* 3);
+			}
+
+
+			GTrainI(player, c_ZU_Drone, 17, c_ZU_Roach, 6);
+			GTrainI(player, c_ZU_Overlord, 5, c_ZU_Drone, 17);
+			GTrainI(player, c_ZU_Zergling, 12, c_ZU_Overlord, 5);
+			GTrainI(player, c_ZU_Drone, 20, c_ZU_Zergling, 12);
+			if (GTFinishA(player, c_ZU_Roach, 3) && GTFinishIA(player, c_ZB_Hatchery_Alias, 2)){
+												AISetMainTown(player, 1);
+									}
+			GResearchI(player, c_ZR_ZerglingSpeed,  c_ZB_Hatchery_Alias, 2);
+		    if (GTFinishA(player, c_ZU_Roach, 3) && GTCanAttack(player) )  {
+		  	    GTAttack(player);
+		    }
+		    else if (GTNeedRetreat(player)){
+		    	GTRetreat(player);
+		    }
+			return true;
+		}
+		return false;
+}
+//11 Pool 18 Hatchery
+//----------------------
+//10 Extractor trick
+//11 Overlord (1)
+//11 Pool (finishes @ 2:38)
+//16 Queen (1)
+//18 Hatchery (finishes @ 4:44)
+//17 Overlord (2)
+//18 Overlord (3)
+//21 Queen (2)
+//28 Overlord (4)
+//28 Make 7 Drones
+//36 Overlord (5)bool
+bool GTZergOpening8 (int player){
+	if (!GTFinishIA(player, c_ZR_GroundCarapace1, 1 ) ){
+		GTrain(player, c_ZU_Drone, 10);
+		if (!GTFinishIA(player, c_ZB_SpawningPool, 1)&& !GTFinishIA(player,c_ZU_Drone,11) && AIHasRes(player, 65, 0))
+		{ GBuildI(player, c_ZB_Extractor, 1, c_ZU_Drone, 10); }
+		if ( GTFinishIA(player, c_ZU_Drone, 10) && GTFinishIA(player, c_ZB_Extractor, 1) && !GTFinishIA(player,c_ZU_Drone,11))
+		{ GTZergCancelGas(player); }
+		GTrain(player, c_ZU_Overlord, 2);
+		GBuildI(player, c_ZB_SpawningPool, 1, c_ZU_Overlord, 2);
+		if (!GTFinishIA(player, c_ZB_Extractor,1)){
+			GTrainI(player,  c_ZU_Drone, 16, c_ZB_SpawningPool, 1);
+		}
+		GTrainS(player,  c_ZU_Queen, 1, 16);
+
+
+		if (GTFinishIA(player, c_ZU_Queen, 1)&& !GTFinishIA(player,c_ZU_Zergling,1) && AIHasRes(player, 65, 0))
+			{ GBuildI(player, c_ZB_Extractor, 1, c_ZU_Queen, 1); }
+			if ( GTFinishIA(player, c_ZU_Queen, 1) && GTFinishIA(player, c_ZB_Extractor, 1) && !GTFinishIA(player,c_ZU_Zergling,1))
+			{ GTZergCancelGas(player); }
+			GTrainI(player, c_ZU_Zergling, 2, c_ZB_Extractor, 1);
+
+
+		if (AIHasRes(player, 210, 0) && !GTFinishIA(player, c_ZB_Hatchery_Alias, 2)&& GTFinishIA(player, c_ZU_Zergling, 1)){
+			GTExpand2(player);
+
+		}
+		if(GTFinishA(player, c_ZU_Overlord, 4)){
+			GMoveQueen(player);
+		}
+		GTrainI(player, c_ZU_Overlord, 4, c_ZB_Hatchery_Alias, 2);
+		GTrainI(player, c_ZU_Drone, 15, c_ZU_Overlord, 3);
+		GTrainA(player, c_ZU_Queen, 2, c_ZU_Overlord, 4);
+		GTrainI(player, c_ZU_Drone, 24, c_ZU_Queen, 2);
+
+
+		GTrainI(player, c_ZU_Overlord, 5, c_ZU_Drone, 24);
+		GTrainI(player, c_ZU_Drone, 32, c_ZU_Overlord, 5);
+		GBuildI(player, c_ZB_Extractor, 2, c_ZU_Drone, 32);
+		GTBuildTI(player, 2, 1, c_ZB_Extractor, 2, c_onVespeneGas, c_ZU_Drone, 32);
+		GBuildI(player, c_ZB_Lair_Alias, 1,  c_ZB_Extractor, 2);
+		GTrainI(player, c_ZU_Overlord, 7, c_ZU_Drone, 32);
+		GTrainI(player, c_ZU_Drone, 40, c_ZU_Overlord, 6);
+		if(GTFinishIA(player, c_ZU_Overlord, 6)){
+					GTBuildPA ( player,  c_ZB_SpineCrawler, 2, GTDO1(player, 1));
+			}
+		GBuildI(player, c_ZB_RoachWarren, 1, c_ZU_Drone, 40);
+		GBuildI(player, c_ZB_EvolutionChamber, 1, c_ZU_Drone, 40);
+		if (GTFinishA(player, c_ZU_Queen, 2)){
+											AISetMainTown(player, 1);
+								}
+
+		GResearchI(player, c_ZR_GroundCarapace1, c_ZB_Lair_Alias, 1);
+		if (GTNeedRetreat(player)){
+				    	GTRetreat(player);
+				    }
+		return true;
+	}
+	return false;
+}
+bool GTZergOpening9 (int player){
+	if (!GTFinishIA(player, c_ZB_HydraliskDen_Alias, 1 ) ){
+		GTrain(player, c_ZU_Drone, 9);
+				GTrainS(player, c_ZU_Overlord, 2, 9 );
+
+				GTrainI(player, c_ZU_Drone, 14, c_ZU_Overlord, 2);
+				GBuildI(player, c_ZB_SpawningPool, 1, c_ZU_Drone, 14);
+				GTrainI(player, c_ZU_Drone, 16, c_ZB_SpawningPool, 1);
+				if (AIHasRes(player, 210, 0) && !GTFinishIA(player, c_ZB_Hatchery_Alias, 2) && GTFinishIA(player, c_ZB_SpawningPool, 1)){
+					GTExpand2(player);
+				}
+				if(GTCountE2(player, c_TB_CommandCenter_Alias) > 1){
+					if (AIHasRes(player, 190, 0) && !GTFinishIA(player, c_ZB_Hatchery_Alias, 3)){
+						GTExpand2(player);
+					}
+				}
+				GTrainI(player, c_ZU_Overlord, 3, c_ZB_Hatchery_Alias, 2);
+				GTrainA(player, c_ZU_Queen, 1, c_ZB_SpawningPool, 1);
+				GTrainI(player, c_ZU_Zergling, 4, c_ZU_Queen, 1);
+				GTrainI(player, c_ZU_Drone, 19, c_ZU_Zergling, 4);
+			    GBuildI(player, c_ZB_Extractor, 1, c_ZU_Drone, 18);
+				GTrainA(player, c_ZU_Queen, 2, c_ZU_Queen, 1);
+				GTrainI(player, c_ZU_Overlord, 4,c_ZU_Queen, 2);
+				GTrainI(player, c_ZU_Drone, 24, c_ZU_Overlord, 4);
+
+		if(GTFinishIA(player, c_ZU_Overlord, 4)){
+					GMoveQueen(player);
+				}
+
+
+		GTrainI(player, c_ZU_Overlord, 5, c_ZU_Drone, 24);
+		GTrainI(player, c_ZU_Drone, 32, c_ZU_Overlord, 5);
+
+
+		GBuildI(player, c_ZB_Lair_Alias, 1,  c_ZB_Extractor, 1);
+		GBuildI(player, c_ZB_EvolutionChamber, 1,  c_ZB_RoachWarren, 1);
+		GBuildI(player, c_ZB_RoachWarren, 1,  c_ZB_Lair_Alias, 1);
+		GTrainI(player, c_ZU_Overlord, 6, c_ZU_Drone, 32);
+		GTrainI(player, c_ZU_Drone, 35, c_ZU_Overlord, 6);
+
+		GTrainI(player, c_ZU_Overlord, 8 , c_ZU_Drone, 35);
+
+
+		if(GTFinishIA(player, c_ZU_Overlord, 6)){
+					GTBuildPA ( player,  c_ZB_SpineCrawler, 2, GTDO1(player, 1));
+			}
+
+		if (GTFinishA(player, c_ZU_Queen, 2)){
+			AISetMainTown(player, 1);
+								}
+		GBuildA(player, c_ZB_HydraliskDen_Alias, 1, c_ZB_Lair_Alias, 1);
+		if (GTNeedRetreat(player)){
+				    	GTRetreat(player);
+				    }
+		return true;
+	}
+	return false;
+}
+//9 - Overlord
+//14 - Spawning Pool
+//15 - Hatchery[1]
+//15 - 4 Zerglings
+//21 - Hatchery
+//Queen(main)
+//Queen(natural)[2]
+//Queen(natural)
+//@ 6:00 Both Main gases
+//@ 7:00 Roach Warren, Evolution Chamber[3]
+//@ 100 Gas - Lair and 3rd gas[4]
+//@ 100 Gas - Metabolic Boost
+//@ 100% Roach Warren - 4th gas, Roach Production
+//@ 100 Gas - +1 Ranged Upgrade
+//Drone[5]
+//@ 100% Lair - Roach Speed
+//@ 60 Drones - Macro hatchery in Main
+bool GTZergOpening10 (int player){
+	if (!GTFinishIA(player, c_ZB_Spire_Alias, 1 ) ){
+		GTrain(player, c_ZU_Drone, 9);
+				GTrainS(player, c_ZU_Overlord, 2, 9 );
+
+				GTrainI(player, c_ZU_Drone, 14, c_ZU_Overlord, 2);
+				GBuildI(player, c_ZB_SpawningPool, 1, c_ZU_Drone, 14);
+				GTrainI(player, c_ZU_Drone, 16, c_ZB_SpawningPool, 1);
+				if (AIHasRes(player, 210, 0) && !GTFinishIA(player, c_ZB_Hatchery_Alias, 2) && GTFinishIA(player, c_ZB_SpawningPool, 1)){
+					GTExpand2(player);
+				}
+				GTrainI(player, c_ZU_Overlord, 3, c_ZB_Hatchery_Alias, 2);
+				GTrainA(player, c_ZU_Queen, 1, c_ZB_SpawningPool, 1);
+				GTrainI(player, c_ZU_Zergling, 4, c_ZU_Queen, 1);
+				GTrainI(player, c_ZU_Drone, 19, c_ZU_Zergling, 4);
+			    GBuildI(player, c_ZB_Extractor, 1, c_ZU_Drone, 18);
+				GTrainA(player, c_ZU_Queen, 2, c_ZU_Queen, 1);
+				GTrainI(player, c_ZU_Overlord, 4,c_ZU_Queen, 2);
+				GTrainI(player, c_ZU_Drone, 24, c_ZU_Overlord, 4);
+
+		if(GTFinishIA(player, c_ZU_Overlord, 4)){
+					GMoveQueen(player);
+				}
+
+
+		GTrainI(player, c_ZU_Overlord, 5, c_ZU_Drone, 24);
+		GTrainI(player, c_ZU_Drone, 32, c_ZU_Overlord, 5);
+
+
+		GBuildI(player, c_ZB_Lair_Alias, 1,  c_ZB_Extractor, 1);
+		GBuildI(player, c_ZB_RoachWarren, 1,  c_ZB_Lair_Alias, 1);
+		GBuildI(player, c_ZB_Extractor, 2, c_ZB_RoachWarren, 1);
+		GTrainI(player, c_ZU_Overlord, 7, c_ZU_Drone, 32);
+		GTrainI(player, c_ZU_Drone, 38, c_ZU_Overlord, 6);
+
+		GTrainI(player, c_ZU_Overlord, 8 , c_ZU_Drone, 38);
+
+
+		if(GTFinishIA(player, c_ZU_Overlord, 6)){
+					GTBuildPA ( player,  c_ZB_SpineCrawler, 2, GTDO1(player, 1));
+			}
+
+		if (GTFinishA(player, c_ZU_Queen, 2)){
+			AISetMainTown(player, 1);
+								}
+		GBuildA(player, c_ZB_Spire_Alias, 1, c_ZB_Lair_Alias, 1);
+		if (GTNeedRetreat(player)){
+				    	GTRetreat(player);
+				    }
+		return true;
+	}
+	return false;
+}
+
+bool GTZergOpening11(int player){
+		if (!GTFinishIA(player, c_ZB_Lair_Alias, 1 ) ){
+			GTrain(player, c_ZU_Drone, 9);
+					GTrainS(player, c_ZU_Overlord, 2, 9 );
+
+					GTrainI(player, c_ZU_Drone, 14, c_ZU_Overlord, 2);
+					GBuildI(player, c_ZB_SpawningPool, 1, c_ZU_Drone, 14);
+
+					GTrainI(player, c_ZU_Drone, 15, c_ZB_SpawningPool, 1);
+					if (AIHasRes(player, 210, 0)  && GTFinishIA(player, c_ZB_SpawningPool, 1)){
+						if (AIGetUserInt(player, 20) < 1){
+							AIExpand(player, PlayerStartLocation(player), c_ZB_Hatchery_Alias);
+							AISetUserInt(player, 20, AIGetUserInt(player, 20) + 1);
+						}
+
+					}
+					GTrainI(player, c_ZU_Zergling, 4, c_ZB_Hatchery_Alias, 2);
+					GTrainI(player, c_ZU_Overlord, 3, c_ZU_Zergling, 4);
+					GTrainI(player, c_ZU_Drone, 19, c_ZU_Overlord, 3);
+					if (GTFinishIA(player, c_ZB_Hatchery_Alias, 2)&& AIHasRes(player, 190, 0)  ){
+						if (AIGetUserInt(player, 20) < 2){
+							AIExpand(player, PlayerStartLocation(player), c_ZB_Hatchery_Alias);
+							AISetUserInt(player, 20, AIGetUserInt(player, 20) + 1);
+						}
+
+					}
+				    GBuildI(player, c_ZB_Extractor, 2, c_ZU_Drone, 48);
+					GTrainI(player, c_ZU_Queen, 1, c_ZB_Hatchery_Alias, 3);
+					if (GTFinishIA(player, c_ZB_Hatchery_Alias, 3)){
+								GTTrainQueen(player, 1);
+						}
+					if (GTFinishA(player, c_ZB_Hatchery_Alias, 3)){
+						GTTrainQueen(player, 2);
+					}
+
+					GTrainI(player, c_ZU_Overlord, 4, c_ZU_Queen, 2);
+					GTrainI(player, c_ZU_Drone, 24, c_ZU_Overlord, 4);
+					GTrainI(player, c_ZU_Overlord, 5, c_ZU_Drone, 24);
+					GTrainI(player, c_ZU_Drone, 30, c_ZU_Overlord, 5);
+					GTrainI(player, c_ZU_Overlord, 6, c_ZU_Drone, 30);
+					GTrainI(player, c_ZU_Drone, 36, c_ZU_Overlord, 6);
+					GTrainI(player, c_ZU_Overlord, 7, c_ZU_Drone, 30);
+					GTrainI(player, c_ZU_Drone, 42, c_ZU_Overlord, 7);
+					GTrainI(player, c_ZU_Overlord, 8, c_ZU_Drone, 42);
+					GTrainI(player, c_ZU_Drone, 48, c_ZU_Overlord, 8);
+					GTrainI(player, c_ZU_Overlord, 9, c_ZU_Drone, 54);
+					GTrainI(player, c_ZU_Drone, 54, c_ZU_Overlord, 9);
+					GTrainI(player, c_ZU_Overlord, 10, c_ZU_Drone, 60);
+					GTrainI(player, c_ZU_Drone, 60, c_ZU_Overlord, 10);
+
+
+		        	GBuildI(player, c_ZB_Lair_Alias, 1,  c_ZB_Extractor, 1);
+		        	GBuildI(player, c_ZB_EvolutionChamber, 1,  c_ZB_RoachWarren, 1);
+			        GBuildI(player, c_ZB_RoachWarren, 1,  c_ZB_Extractor, 2);
+			    	if (GTFinishA(player, c_ZB_Hatchery_Alias, 3)){
+			    		GTrain(player, c_ZU_Zergling, GCounterFull(player, c_ZU_Zergling));
+			    		GTSupply(player, 0);
+			    	}
+
+
+			if (GTFinishA(player, c_ZU_Queen, 2)){
+				AISetMainTown(player, 1);
+									}
+
+			if (GTOArmy(player) < GTEArmy(player)  ){
+
+					    	GTRetreat(player);
+
+					    }
+			return true;
+		}
+		return false;
+	}
+//9 Overlord[1]
+//13 Hatchery
+//15 Spawning Pool[2]
+//17 Overlord[2]
+//18 Queen
+//20 Queen
+//20 Spine Crawler
+//22 Zergling[3]
+//40 (32 Drones) Extractor (x4)
+bool GTZergOpening12 (int player){
+if (!GTFinishIA(player, c_ZB_Extractor, 2 ) ){
+		GTrain(player, c_ZU_Drone, 9);
+		GTrainS(player, c_ZU_Overlord, 2, 9 );
+
+		GTrainI(player, c_ZU_Drone, 13, c_ZU_Overlord, 2);
+
+		if (AIHasRes(player, 210, 0) && !GTFinishIA(player, c_ZB_Hatchery_Alias, 2)){
+			GTExpand2(player);
+		}
+		GTrainI(player, c_ZU_Drone, 15, c_ZB_Hatchery_Alias, 2);
+
+		GBuildI(player, c_ZB_SpawningPool, 1, c_ZB_Hatchery_Alias, 2);
+		GTrainI(player, c_ZU_Drone, 17, c_ZB_SpawningPool, 1);
+
+		GTrainS(player, c_ZU_Overlord, 3, 17 );
+		GTrainA(player, c_ZU_Queen, 1, c_ZU_Overlord, 3);
+		GTrainA(player, c_ZU_Queen, 2, c_ZB_Hatchery, 2);
+		GTrainI(player, c_ZU_Zergling, 2, c_ZU_Queen, 1);
+		GTrainI(player, c_ZU_Drone, 18, c_ZU_Zergling, 2);
+
+
+		GTrainI(player, c_ZU_Overlord, 4, c_ZU_Zergling,  2);
+		GTrainI(player, c_ZU_Drone, 24, c_ZU_Overlord, 4);
+		if(GTFinishA(player, c_ZU_Queen, 2)){
+						GTBuildPA ( player,  c_ZB_SpineCrawler, 2, GTDO1(player, 1));
+		}
+		if (GTFinishA(player, c_ZU_Queen, 2)){
+				AISetMainTown(player, 1);
+									}
+		GTrainI(player, c_ZU_Overlord, 5, c_ZU_Drone, 24);
+		GTrainI(player, c_ZU_Drone, 28, c_ZU_Overlord, 5);
+			GTrainI(player, c_ZU_Overlord, 6, c_ZU_Drone, 28);
+			GTrainI(player, c_ZU_Drone, 32, c_ZU_Overlord, 6);
+			GBuildI(player, c_ZB_Extractor, 2, c_ZU_Drone, 32);
+
+		return true;
+	}
+	return false;
+}
+//-----------Speedling Expand-----------------//
+//9 	 1 x		Overlord
+//14 	 1 x		Extractor
+//14 	 1 x		Spawning Pool
+//15 	 1 x		Overlord
+//15 	 1 x		Queen				 Spawn Larva!
+//17 	 4 x		Zergling
+//19 	 1 x		Metabolic Boost				 Remove Drones from Gas!
+//20 	 1 x		Hatchery
+//20 	 1 x		Queen				 Spawn Creep Tumor!
+//22 	 1 x		Overlord
+//29 	 1 x		Roach Warren				 Send Drones back to Gas!
+//30 	 1 x		Overlord
+bool GTZergOpening13(int player){
+	if (!GTFinishIA(player, c_ZB_RoachWarren, 1 ) ){
+			GTrain(player, c_ZU_Drone, 9);
+			GTrainS(player, c_ZU_Overlord, 2, 9 );
+
+			GTrainI(player, c_ZU_Drone, 14, c_ZU_Overlord, 2);
+			GBuildI(player, c_ZB_Extractor, 1, c_ZU_Drone, 14);
+			GBuildI(player, c_ZB_SpawningPool, 1, c_ZB_Extractor, 1);
+			GTrainI(player, c_ZU_Drone, 15, c_ZB_SpawningPool, 1);
+			GTrainS(player, c_ZU_Overlord, 3, 15 );
+			GTrainI(player, c_ZU_Queen, 1, c_ZU_Overlord, 3);
+			GTrainI(player, c_ZU_Zergling, 4, c_ZU_Queen, 1);
+			GResearchI(player, c_ZR_ZerglingSpeed, c_ZU_Zergling, 4);
+			GTrainI(player, c_ZU_Drone, 16, c_ZR_ZerglingSpeed, 1);
+
+			if (AIHasRes(player, 210, 0) && !GTFinishIA(player, c_ZB_Hatchery_Alias, 2)&& GTFinishIA(player, c_ZR_ZerglingSpeed, 1)){
+				GTExpand2(player);
+			}
+			GTrainI(player, c_ZU_Queen, 2, c_ZB_Hatchery_Alias, 2);
+			GTrainI(player, c_ZU_Overlord, 4, c_ZU_Queen, 2 );
+			if(GTFinishIA(player, c_ZU_Overlord, 4)){
+							GMoveQueen(player);
+						}
+			if (GTFinishIA(player, c_ZR_ZerglingSpeed, 1 ) ){
+						AISetGasPeonCountOverride(player, 0, 0);
+					}
+
+			GTrainI(player, c_ZU_Drone, 23, c_ZU_Overlord, 4);
+			GBuildI(player, c_ZB_RoachWarren, 1, c_ZU_Overlord, 4);
+
+			if (GTFinishA(player, c_ZU_Queen, 2)){
+					AISetMainTown(player, 1);
+										}
+
+			return true;
+		}
+		return false;
+	}
+
+//-----------6 pool-----------------//
+//6 - Spawning Pool
+//5 - Drone
+//6 - Drone
+//7 - Zerglings (2) (4) (6)
+//10 - Overlord
+//Next 150 Minerals > Queen
+bool GTZergOpening14 (int player){
+	if (!GTFinishIA(player, c_ZU_Overlord , 2 ) ){
+		    GBuild(player, c_ZB_SpawningPool, 1);
+			GTrainI(player, c_ZU_Drone, 7, c_ZB_SpawningPool, 1);
+			GTrainA(player, c_ZU_Zergling, 6, c_ZB_SpawningPool, 1);
+			GTrainI(player, c_ZU_Overlord, 2, c_ZU_Zergling, 6 );
+			return true;
+			}
+			return false;
+		}
+//Zergling Flood
+//9 Overlord
+//15 Spawning Pool
+//15 Extractor
+//14 Hatchery
+//15 Queen
+//@100 Gas, put drones back on minerals
+//18 Overlord
+//18 Metabolic Boost
+//18 Overlord
+//Make lings until supply capped and two overlords at 36 supply
+bool GTZergOpening15 (int player){
+	if (!GTFinishIA(player, c_ZU_Overlord, 6 ) && !GTFinishA(player, c_ZR_ZerglingSpeed, 1) ){
+	        	GTrain(player, c_ZU_Drone, 9);
+				GTrainS(player, c_ZU_Overlord, 2, 9 );
+
+				GTrainI(player, c_ZU_Drone, 15, c_ZU_Overlord, 2);
+				GBuildI(player, c_ZB_SpawningPool, 1, c_ZU_Drone, 15);
+				if(GTFinishIA(player, c_ZB_SpawningPool, 1)){
+					GBuildS(player, c_ZB_Extractor, 1, 15);
+				}
+				if (AIHasRes(player, 210, 0) && !GTFinishIA(player, c_ZB_Hatchery_Alias, 2) && GTFinishIA(player, c_ZB_SpawningPool, 1)){
+					GTExpand2(player);
+				}
+				GTrainI(player, c_ZU_Queen, 1, c_ZB_Hatchery_Alias, 2);
+				GTrainI(player, c_ZU_Drone, 16, c_ZU_Queen, 1);
+				GTrainI(player, c_ZU_Overlord, 3, c_ZU_Drone, 16);
+				GResearchI(player, c_ZR_ZerglingSpeed, c_ZU_Overlord, 3);
+				if ( AIHasRes(player, 0, 100)){
+					AISetGasPeonCountOverride(player, 0, 0);
+				}
+				GTrainI(player, c_ZU_Overlord, 4, c_ZR_ZerglingSpeed, 1);
+				GTrainI(player, c_ZU_Zergling, 10, c_ZU_Overlord, 4);
+				GTrainI(player, c_ZU_Overlord, 5, c_ZU_Zergling, 10);
+				GTrainI(player, c_ZU_Zergling, 20, c_ZU_Overlord, 5);
+				GTrainI(player, c_ZU_Overlord, 6, c_ZU_Zergling, 20);
+				if (GTFinishA(player, c_ZB_Hatchery, 2)){
+							AISetMainTown(player, 1);
+				}
+				   if (GTCanAttack(player) && GTFinishA(player, c_ZU_Zergling, 16))  {
+				  	  		                  	  	  GTAttack(player);
+				  	  		                  	   }
+
+		return true;
+	}
+	return false;
+}
+bool GTZergOpening16 (int player){
+	if (!GTFinishIA(player, c_ZU_Overlord, 10 )){
+	        	GTrain(player, c_ZU_Drone, 9);
+				GTrainS(player, c_ZU_Overlord, 2, 9 );
+
+				GTrainI(player, c_ZU_Drone, 13, c_ZU_Overlord, 2);
+				GBuildI(player, c_ZB_SpawningPool, 1, c_ZU_Drone, 13);
+				GTrainI(player, c_ZU_Drone, 16, c_ZB_SpawningPool, 1);
+				GBuildI(player, c_ZB_Extractor, 1, c_ZU_Drone, 16);
+				GTrainI(player, c_ZU_Overlord, 3, c_ZB_Extractor, 1);
+				GTrainA(player, c_ZU_Queen, 1, c_ZB_SpawningPool, 1);
+				GTBuildI(player, 2, 0, c_ZB_SpineCrawler, 1, c_nearCloseDefense,  c_ZU_Queen, 1);
+				GBuildI(player, c_ZB_RoachWarren, 1, c_ZB_SpineCrawler, 1);
+				GTrainI(player, c_ZU_Drone, 18, c_ZB_RoachWarren, 1);
+				GTrainI(player, c_ZU_Overlord, 4, c_ZU_Drone, 18);
+				GTrainA(player, c_ZU_Roach, 6, c_ZB_RoachWarren, 1);
+
+				GTrainI(player, c_ZU_Overlord, 5, c_ZU_Roach, 6);
+				GTrainI(player, c_ZU_Drone, 20, c_ZU_Overlord, 5);
+				if (AIHasRes(player, 210, 0) && !GTFinishIA(player, c_ZB_Hatchery_Alias, 2) && GTFinishIA(player, c_ZU_Overlord, 5)){
+					GTExpand2(player);
+				}
+				GTrainI(player, c_ZU_Drone, 22, c_ZB_Hatchery_Alias, 2);
+				GResearchI(player, c_ZR_ZerglingSpeed, c_ZU_Drone, 22);
+				if ( GTFinishIA(player, c_ZR_ZerglingSpeed, 1) && AIHasRes(player, 0, 175)){
+					AISetGasPeonCountOverride(player, 0, 0);
+				}
+				GTrainI(player, c_ZU_Roach, 8, c_ZR_ZerglingSpeed, 1);
+				GTrainI(player, c_ZU_Overlord, 6,  c_ZU_Roach, 8);
+				GTrainI(player, c_ZU_Roach, 11, c_ZU_Overlord, 6);
+				GTrainI(player, c_ZU_Overlord, 7,  c_ZU_Roach, 11);
+				GTrainI(player, c_ZU_Roach, 13, c_ZU_Overlord, 7);
+				GTrainI(player, c_ZU_Overlord, 8, c_ZU_Roach, 13);
+				GTrainI(player, c_ZU_Zergling, 14, c_ZU_Overlord, 8);
+				GTrainI(player, c_ZU_Overlord, 9, c_ZU_Zergling, 14);
+				GTrainI(player, c_ZU_Zergling, 28, c_ZU_Overlord, 9);
+				GTrainI(player, c_ZU_Overlord, 10, c_ZU_Zergling, 28);
+				if (GTCanAttack(player) && GTFinishA(player, c_ZU_Roach, 13))  {
+					  	GTAttack(player);
+				 }
+				if (GTFinishIA(player, c_ZB_Hatchery, 2)){
+								AISetMainTown(player, 1);
+				}
+
+
+		return true;
+	}
+	return false;
+}
+//Baneling/Mutalisk
+bool GTZergOpening17(int player){
+	if (!GTFinishIA(player, c_ZB_Spire_Alias, 1) ){
+			GTrain(player, c_ZU_Drone, 9);
+			GTrainS(player, c_ZU_Overlord, 2, 9 );
+
+			GTrainI(player, c_ZU_Drone, 14, c_ZU_Overlord, 2);
+			GBuildI(player, c_ZB_Extractor, 1, c_ZU_Drone, 14);
+			GBuildI(player, c_ZB_SpawningPool, 1, c_ZB_Extractor, 1);
+			GTrainI(player, c_ZU_Drone, 15, c_ZB_SpawningPool, 1);
+			GTrainS(player, c_ZU_Overlord, 3, 15 );
+			GTrainI(player, c_ZU_Drone, 16, c_ZU_Overlord, 3);
+			GTrainI(player, c_ZU_Queen, 1, c_ZU_Overlord, 3);
+
+			GResearchI(player, c_ZR_ZerglingSpeed, c_ZU_Queen, 1);
+			GTrainI(player, c_ZU_Zergling, 4, c_ZR_ZerglingSpeed, 1);
+			GBuildI(player, c_ZB_BanelingNest, 1, c_ZR_ZerglingSpeed, 1);
+			GTrainI(player, c_ZU_Drone, 20, c_ZR_ZerglingSpeed, 1);
+			GTrainI(player, c_ZU_Overlord, 4, c_ZU_Drone, 20 );
+			GBuildI(player, c_ZB_Lair_Alias, 1, c_ZR_ZerglingSpeed, 1);
+			GBuildI(player, c_ZB_Extractor, 2, c_ZB_Lair_Alias, 1);
+			GTrainI(player, c_ZU_Drone, 22, c_ZB_Extractor, 2);
+			GTrainI(player, c_ZU_Overlord, 5, c_ZU_Drone, 22 );
+			GBuildA(player, c_ZB_Spire_Alias, 1, c_ZB_Lair_Alias, 1);
+			GTrain(player, c_ZU_Baneling, GCounterFull(player, c_ZU_Baneling));
+			if (GTFinishIA(player, c_ZU_Zergling, 6)){
+				GTSupply(player, 0);
+			}
+			if (GTFinishIA(player, c_ZB_BanelingNest, 1)){
+				GTrain(player, c_ZU_Zergling, GCounterFull(player, c_ZU_Zergling));
+			}
+			return true;
+		}
+	if (GTFinishIA(player, c_ZB_Hatchery, 2)){
+								AISetMainTown(player, 1);
+				}
+	if (AIHasRes(player, 250, 0) && !GTFinishIA(player, c_ZB_Hatchery_Alias, 2) && GTFinishIA(player, c_ZB_Lair_Alias, 1)){
+					GTExpand2(player);
+				}
+		return false;
+	}
+//-------------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------
+//Terran
+//--------------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------
+//10 - Supply Depot
+//12 - Barracks (1)
+//13 - Refinery (1)
+//15 - Orbital Command Upgrade
+//15 - Marine (1 only)
+//16 - Supply Depot
+//17 - Factory
+//19 - Reactor on Barracks (1) > Switch to Factory
+//20 - Command Center (2)
+//21 - Supply Depot
+//26 - Hellions (to 4) > Tech Lab (1)
+//26 - Barracks (1) > Tech Lab (2)
+//31 - Stimpack
+//37 - Infernal Pre-Ignier
+//33 - Barracks (2), built on Reactor
+//34 - Marauders and Hellions
+//38 - Supply Depot
+//45 - Marines + Supply Depot
+bool GTerranOpening0 (int player){
+	  if (!GTFinishIA(player,  c_TR_SiegeTankSiege, 1 ) ){
+	         		        GTrain(player, c_TU_SCV, 10);
+	         		 		GBuild(player,  c_TB_SupplyDepot_Alias, 1);
+	         		 		GTrainI(player, c_TU_SCV, 11, c_TB_SupplyDepot_Alias, 1);
+	         		 		GTrainA(player, c_TU_SCV, 12, c_TB_SupplyDepot_Alias, 1);
+	         		 		GBuildI(player, c_TB_Barracks, 1,  c_TU_SCV, 12);
+	         		 		GTrainI(player, c_TU_SCV, 13, c_TB_Barracks, 1);
+	         		 		GBuildI(player, c_TB_Refinery, 1,  c_TU_SCV, 13);
+	         		 		GTrainI(player, c_TU_SCV, 15, c_TB_Refinery, 1);
+	         		 		GTrainA(player, c_TU_Marine, 1, c_TB_Barracks, 1 );
+	         		 		GTBuildTA ( player, 2, 0, c_TB_OrbitalCommand, 1, 0, c_TB_Barracks, 1 );
+
+	         		 		GBuildI(player, c_TB_SupplyDepot_Alias, 2, c_TB_OrbitalCommand, 1);
+	         		 		GTrainI(player, c_TU_SCV, 16, c_TB_Factory, 1);
+	         		 		GBuildI(player, c_TB_Factory, 1,  c_TB_SupplyDepot_Alias, 2);
+	         		 		GTrainI(player, c_TU_SCV, 18, c_TB_Factory, 1);
+	         		 		if(!GTFinishIA(player, c_TB_CommandCenter_Alias, 2)){
+	         		 			GTBuildTI ( player, 7, 0, c_TB_BarracksReactor, 1, 0, c_TB_Factory, 1 );
+	         		 		}
+	         		 		GTrainI(player, c_TU_SCV, 19, c_TB_BarracksReactor, 1);
+	         				if (AIHasRes(player, 310, 0) && !GTFinishIA(player, c_TB_CommandCenter_Alias, 2) && GTFinishIA(player, c_TB_BarracksReactor, 1)){
+	         					GTExpand2(player);
+	         				}
+	         				GTrainI(player, c_TU_SCV, 20, c_TB_CommandCenter_Alias, 2);
+	         				GBuildI(player, c_TB_SupplyDepot_Alias, 3,  c_TB_CommandCenter_Alias, 2);
+	         				if (!GTFinishA(player, c_TU_Hellion, 1) && !GTFinishA(player, c_TB_FactoryReactor, 1) && GTFinishA(player, c_TB_Factory, 1) ){
+	         					GTSwapAddon(player, "Alias_Barracks", "Alias_Factory");
+	         				}
+	         				GTrainI(player, c_TU_SCV, 30, c_TB_SupplyDepot_Alias, 3);
+	         				GTrainA(player, c_TU_Hellion, 2, c_TB_FactoryReactor, 1);
+	         				GTBuildTA(player, 7, 0, c_TB_BarracksTechLab, 1, 0, c_TB_FactoryReactor, 1);
+	         				if (GTFinishA(player, c_TU_Hellion, 2)&& !GTFinishA(player, c_TB_FactoryTechLab, 1) ){
+	         					GTSwapAddon(player,  "Alias_Factory", "Alias_Barracks");
+	         				}
+
+	         				GResearchA(player, c_TR_SiegeTankSiege, c_TB_FactoryTechLab, 1);
+
+	        		      return true;
+	         	 }
+	  return false;
+}
+//10 - Supply Depot (1)
+//12 - Barracks
+//15 - Orbital Command (1) Upgrade
+//15 - Marine (1 Only)
+//16 - Command Center (2)
+//17 - Refineries (1 & 2)
+//17 - Supply Depot (2)
+//18 - Bunker (1)
+//19 - Marines (to 3)
+//23 - Orbital Command (2) Upgrade
+//24 - Factory
+//24 - Reactor on Barracks > @100% Switch to Factory
+//29 - Starport
+//29 - Hellions (1 & 2)
+//35 - Supply Depot (3 & 4)
+//37 - Tech Lab on Barracks > @100% Switch to Starport
+//43 - Cloaking Field
+//43 - Banshee
+bool GTerranOpening1 (int player){
+if (!GTFinishIA(player,  c_TR_BansheeCloak, 1 ) ){
+       		        GTrain(player, c_TU_SCV, 10);
+       		 		GBuild(player,  c_TB_SupplyDepot_Alias, 1);
+       		 		GTrainI(player, c_TU_SCV, 11, c_TB_SupplyDepot_Alias, 1);
+       		 		GTrainA(player, c_TU_SCV, 12, c_TB_SupplyDepot_Alias, 1);
+       		 		GBuildI(player, c_TB_Barracks, 1,  c_TU_SCV, 12);
+
+       		 		GTrainI(player, c_TU_SCV, 15, c_TB_Barracks, 1);
+       		 		GTBuildTA ( player, 2, 0, c_TB_OrbitalCommand, 1, 0, c_TB_Barracks, 1 );
+       		 		if (AIHasRes(player, 310, 0) && !GTFinishIA(player, c_TB_CommandCenter_Alias, 2) && GTFinishIA(player, c_TB_OrbitalCommand, 1)){
+       		        	GTExpand2(player);
+       		        }
+       		 	    GTrainI(player, c_TU_SCV, 16, c_TB_CommandCenter_Alias, 2);
+       		 		if (GTFinishIA(player, c_TB_SupplyDepot_Alias, 2)){
+       		 			GTrainA(player, c_TU_SCV, 19, c_TB_SupplyDepot_Alias, 2 );
+       		 			GTrain(player, c_TU_Marine, 3);
+       		 	    }
+       		 		if (GTFinishIA(player, c_TB_OrbitalCommand, 2)){
+       		 	       	GTCreateWorkers(player);
+       		 	    }
+       		 			GTrainA(player, c_TU_Marine, 1, c_TB_Barracks, 1 );
+       		 		GBuildS(player, c_TB_Refinery, 2, 17);
+       		 		GBuildI(player, c_TB_SupplyDepot_Alias, 2, c_TB_Refinery, 2);
+       		 		if (GTFinishIA(player, c_TB_SupplyDepot_Alias, 2)){
+       		 			GTBuildT(player,2, 1, c_TB_Bunker, 1, c_nearCloseDefense);
+       		 		}
+       		 		GTBuildTA ( player, 2, 0, c_TB_OrbitalCommand, 2, 0, c_TU_SCV, 19 );
+
+       		 		GBuildI(player, c_TB_Factory, 1,  c_TB_Refinery, 2);
+       		 		if(!GTFinishIA(player, c_TB_FactoryReactor, 1)){
+       		 			GTBuildTI ( player, 7, 0, c_TB_BarracksReactor, 1, 0, c_TB_Factory, 1 );
+       		 		}
+
+       				GBuildI(player, c_TB_SupplyDepot_Alias, 3,  c_TB_Starport, 1);
+       				if (!GTFinishA(player, c_TU_Hellion, 1) && !GTFinishA(player, c_TB_FactoryReactor, 1) && GTFinishA(player, c_TB_Factory, 1)){
+       					GTSwapAddon(player, "Alias_Barracks", "Alias_Factory");
+       				}
+       				GTrainA(player, c_TU_Hellion, 2, c_TB_FactoryReactor, 1);
+       				if (!GTFinishIA(player, c_TB_StarportTechLab, 1)){
+       					GTBuildTI(player, 7, 0, c_TB_BarracksTechLab, 1, 0, c_TB_Starport, 1);
+       				}
+       				GBuildI(player, c_TB_Starport, 1,  c_TB_FactoryReactor, 1);
+       				GBuildI(player, c_TB_SupplyDepot_Alias, 4,  c_TB_BarracksTechLab, 1);
+       				if (GTFinishA(player, c_TB_Starport, 1)&& !GTFinishA(player, c_TB_StarportTechLab, 1) ){
+       					GTSwapAddon(player,  "Alias_Starport" , "Alias_Barracks");
+       				}
+       				if (GTFinishA(player, c_TB_Bunker, 1)){
+       					AISetMainTown(player, 1);
+       				}
+
+       				GResearchA(player, c_TR_BansheeCloak, c_TB_StarportTechLab, 1);
+
+      		      return true;
+       	 }
+return false;
+}
+bool GTerranOpening2 (int player){
+	  if (!GTFinishIA(player,  c_TR_SiegeTankSiege, 1 ) ){
+	         		        GTrain(player, c_TU_SCV, 10);
+	         		 		GBuild(player,  c_TB_SupplyDepot_Alias, 1);
+	         		 		GTrainI(player, c_TU_SCV, 11, c_TB_SupplyDepot_Alias, 1);
+	         		 		GTrainA(player, c_TU_SCV, 12, c_TB_SupplyDepot_Alias, 1);
+	         		 		GBuildI(player, c_TB_Barracks, 1,  c_TU_SCV, 12);
+	         		 		GTrainI(player, c_TU_SCV, 13, c_TB_Barracks, 1);
+	         		 		GBuildI(player, c_TB_Refinery, 1,  c_TU_SCV, 13);
+	         		 		GTrainI(player, c_TU_SCV, 15, c_TB_Refinery, 1);
+	         		 		GTrainA(player, c_TU_Marine, 1, c_TB_Barracks, 1 );
+	         		 		GTBuildTA ( player, 2, 0, c_TB_OrbitalCommand, 1, 0, c_TB_Barracks, 1 );
+
+	         		 		GBuildI(player, c_TB_SupplyDepot_Alias, 2, c_TB_OrbitalCommand, 1);
+	         		 		GTrainI(player, c_TU_SCV, 16, c_TB_Factory, 1);
+	         		 		GBuildI(player, c_TB_Factory, 1,  c_TB_SupplyDepot_Alias, 2);
+	         		 		GTrainI(player, c_TU_SCV, 18, c_TB_Factory, 1);
+
+	         		 		GTBuildTI ( player, 7, 0, c_TB_BarracksTechLab, 1, 0, c_TB_Factory, 1 );
+	         		 		GTBuildTA ( player, 7, 0, c_TB_FactoryTechLab, 1, 0, c_TB_Factory, 1 );
+	         		 			GTrainI(player, c_TU_SCV, 19, c_TB_BarracksTechLab, 1);
+
+	         				if (AIHasRes(player, 310, 0) && !GTFinishIA(player, c_TB_CommandCenter_Alias, 2) && GTFinishIA(player, c_TB_BarracksTechLab, 1)){
+	         					GTExpand2(player);
+	         				}
+	         				GTrainI(player, c_TU_SCV, 20, c_TB_CommandCenter_Alias, 2);
+	         				GBuildI(player, c_TB_SupplyDepot_Alias, 3,  c_TB_CommandCenter_Alias, 2);
+
+	         		 		GTBuildTA ( player, 2, 0, c_TB_OrbitalCommand, 2, 0, c_TB_CommandCenter_Alias, 2 );
+	         		 		GTrainI(player, c_TU_SCV, 26, c_TB_SupplyDepot_Alias, 3);
+	         				GTrainI(player, c_TU_SCV, 34, c_TB_OrbitalCommand, 2);
+	         				GBuildI(player, c_TB_Refinery, 2,  c_TB_FactoryTechLab, 1);
+	         				GTrainA(player, c_TU_Hellion, 3, c_TB_FactoryTechLab, 1);
+	         				GTrainI(player, c_TU_Marauder, 4, c_TB_CommandCenter_Alias, 2);
+	         				GTrainI(player, c_TU_Hellion, 5, c_TB_Factory, 2);
+	         				GBuildI(player, c_TB_Barracks, 2,  c_TB_Factory, 2);
+	         				GBuildI(player, c_TB_Factory, 3,  c_TB_Barracks, 2);
+	         				GTrainI(player, c_TU_Marauder, 7, c_TB_Factory, 2);
+	         				if(GTFinishIA(player, c_TB_FactoryTechLab, 1)){
+	         					GTSupply (player, 0);
+	         				}
+	         				GResearchA(player, c_TR_HellionDamage, c_TB_FactoryTechLab, 1);
+	         				GResearchI(player, c_TR_MarineStimPack, c_TB_BarracksTechLab, 1);
+	         				GBuildI(player, c_TB_Factory, 2,  c_TR_HellionDamage, 1);
+	         				GResearchI(player, c_TR_SiegeTankSiege, c_TB_Factory, 2);
+	         				if (GTFinishA(player, c_TB_CommandCenter_Alias, 2)){
+	         				         				    AISetMainTown(player, 1);
+	         				         				}
+	         				 if( GTCanAttack(player ) ){
+	         						 GTAttack(player);
+	         					 }
+	         					 else if (GTNeedRetreat(player)){
+	         						 GTRetreat(player);
+	         					 }
+	        		      return true;
+	         	 }
+	  return false;
+}
+// Marauder/Hellion => Banshee
+bool GTerranOpening3 (int player){
+if (!GTFinishIA(player,  c_TR_BansheeCloak, 1 ) ){
+       		        GTrain(player, c_TU_SCV, 10);
+       		 		GBuild(player,  c_TB_SupplyDepot_Alias, 1);
+       		 		GTrainI(player, c_TU_SCV, 11, c_TB_SupplyDepot_Alias, 1);
+       		 		GTrainA(player, c_TU_SCV, 12, c_TB_SupplyDepot_Alias, 1);
+       		 		GBuildI(player, c_TB_Barracks, 1,  c_TU_SCV, 12);
+
+       		 		GTrainI(player, c_TU_SCV, 15, c_TB_Barracks, 1);
+       		 		GTBuildTA ( player, 2, 0, c_TB_OrbitalCommand, 1, 0, c_TB_Barracks, 1 );
+       		 		if (AIHasRes(player, 310, 0) && !GTFinishIA(player, c_TB_CommandCenter_Alias, 2) && GTFinishIA(player, c_TB_OrbitalCommand, 1)){
+       		        	GTExpand2(player);
+       		        }
+       		 	    GTrainI(player, c_TU_SCV, 16, c_TB_CommandCenter_Alias, 2);
+       		 		if (GTFinishIA(player, c_TB_SupplyDepot_Alias, 2)){
+       		 			GTrainA(player, c_TU_SCV, 19, c_TB_SupplyDepot_Alias, 2 );
+       		 			GTrain(player, c_TU_Marine, 3);
+       		 	    }
+       		 		if (GTFinishIA(player, c_TB_OrbitalCommand, 2)){
+       		 	       	GTCreateWorkers(player);
+       		 	    }
+       		 			GTrainA(player, c_TU_Marine, 1, c_TB_Barracks, 1 );
+       		 		GBuildS(player, c_TB_Refinery, 2, 17);
+       		 		GBuildI(player, c_TB_SupplyDepot_Alias, 2, c_TB_Refinery, 2);
+       		 		if (GTFinishIA(player, c_TB_SupplyDepot_Alias, 2)){
+       		 			GTBuildT(player,2, 1, c_TB_Bunker, 1, c_nearCloseDefense);
+       		 		}
+       		 		GTBuildTA ( player, 2, 0, c_TB_OrbitalCommand, 2, 0, c_TU_SCV, 19 );
+
+       		 		GBuildI(player, c_TB_Factory, 1,  c_TB_Refinery, 2);
+
+       		 		GTBuildTI ( player, 7, 0, c_TB_BarracksReactor, 1, 0, c_TB_Factory, 1 );
+
+
+       				GBuildI(player, c_TB_SupplyDepot_Alias, 3,  c_TB_Starport, 1);
+
+
+
+       				GTBuildTI(player, 7, 0, c_TB_FactoryTechLab, 1, 0, c_TB_Factory, 1);
+       				GTrainA(player, c_TU_Marine, 8, c_TB_BarracksReactor, 1);
+       				GBuildI(player, c_TB_Starport, 1,  c_TB_Factory, 1);
+       				GBuildI(player, c_TB_SupplyDepot_Alias, 4,  c_TU_Marine, 6);
+       				if (GTFinishA(player, c_TB_Starport, 1)&& !GTFinishA(player, c_TB_StarportTechLab, 1) ){
+       					GTSwapAddon(player,   "Alias_Factory", "Alias_Starport" );
+       				}
+       				if (GTFinishA(player, c_TB_Bunker, 1)){
+       					AISetMainTown(player, 1);
+       				}
+       				GTrainA(player, c_TU_Banshee, 1, c_TB_StarportTechLab, 1);
+       				GResearchI(player, c_TR_BansheeCloak, c_TU_Banshee, 1);
+
+      		      return true;
+       	 }
+return false;
+}
+
+bool GTTerranOpening1 (int player){
+	  if (!GTFinishIA(player, c_TB_SupplyDepot_Alias, 2 ) ){
+	         		        GTrain(player, c_TU_SCV, 10);
+	         		 		GBuild(player,  c_TB_SupplyDepot_Alias, 1);
+	         		 		GTrainI(player, c_TU_SCV, 11, c_TB_SupplyDepot_Alias, 1);
+	         		 		GTrainA(player, c_TU_SCV, 12, c_TB_SupplyDepot_Alias, 1);
+	         		 		GBuildI(player, c_TB_Barracks, 1,  c_TU_SCV, 12);
+	         		 		GTrainI(player, c_TU_SCV, 13, c_TB_Barracks, 1);
+	         		 		GBuildI(player, c_TB_Refinery, 1,  c_TU_SCV, 13);
+	         		 		GTrainI(player, c_TU_SCV, 15, c_TB_Refinery, 1);
+	         		 		GTrainA(player, c_TU_Marine, 1, c_TB_Barracks, 1 );
+	         		 		GTBuildTA ( player, 2, 0, c_TB_OrbitalCommand, 1, 0, c_TB_Barracks, 1 );
+	         		 		GBuildI(player, c_TB_SupplyDepot_Alias, 2, c_TB_OrbitalCommand, 1);
+	        		      return true;
+	         	 }
+	  return false;
+}
+
+bool GTTerranOpening2 (int player){
+	  if (!GTFinishIA(player, c_TB_SupplyDepot_Alias, 2 ) ){
+	         		        GTrain(player, c_TU_SCV, 10);
+	         		 		GBuild(player,  c_TB_SupplyDepot_Alias, 1);
+	         		 		GTrainI(player, c_TU_SCV, 11, c_TB_SupplyDepot_Alias, 1);
+	         		 		GTrainA(player, c_TU_SCV, 12, c_TB_SupplyDepot_Alias, 1);
+	         		 		GBuildI(player, c_TB_Barracks, 1,  c_TU_SCV, 12);
+	         		 		GTrainI(player, c_TU_SCV, 15, c_TB_Barracks, 1);
+	         		 		GTrainA(player, c_TU_Marine, 3, c_TB_Barracks, 1 );
+	         		 		GTBuildTA ( player, 2, 0, c_TB_OrbitalCommand, 1, 0, c_TB_Barracks, 1 );
+	         		 		GBuildI(player, c_TB_SupplyDepot_Alias, 2, c_TB_OrbitalCommand, 1);
+	        		      return true;
+	         	 }
+	  return false;
+}
+
+
+bool GTProtossOpening1 (int player){
+// Traditional Opening
+	if (!GTFinishIA(player, c_PB_Assimilator, 1 )){
+	  	if (GTFinishIA(player, c_PU_Probe, 11) && (!GTFinishIA(player, c_PU_Probe, 12) || GTFinishIA(player, c_PU_Probe, 13)) && !GTFinishA(player, c_PB_Gateway, 1)){
+	  		GTChronoBoost(player, 0, c_PB_Nexus ,"TimeWarpProduction");
+		}
+	    GTrain(player, c_PU_Probe, 9);
+	  	GBuild(player, c_PB_Pylon, 1);
+	  	GTrainI(player, c_PU_Probe, 11, c_PB_Pylon, 1);
+	    GBuildI(player, c_PB_Gateway, 1,  c_PU_Probe, 11);
+	    GTrainI(player, c_PU_Probe, 16, c_PB_Gateway, 1);
+		if (AIHasRes(player, 300, 0) && !GTFinishIA(player, c_PB_Nexus, 2)){
+				GTExpand2(player);
+		}
+
+		GBuildI(player, c_PB_Pylon, 2, c_PB_Nexus, 2);
+		GTrainI(player, c_PU_Zealot, 1, c_PB_Pylon, 2);
+		GBuildI(player, c_PB_CyberneticsCore, 1, c_PB_Pylon, 2);
+	    GBuildI(player, c_PB_Assimilator, 1, c_PB_CyberneticsCore, 1);
+	  	GTrainA(player, c_PU_Probe, 18, c_PB_Pylon, 2);
+
+	    
+	    return true;
+	}
+	return false;
+}
+
+bool GTProtossOpening2 (int player){
+	  if (!GTFinishIA(player, c_PB_Pylon, 2)){
+		  if (GTFinishIA(player, c_PU_Probe, 11) && (!GTFinishIA(player, c_PU_Probe, 12) || GTFinishIA(player, c_PU_Probe, 13)) && !GTFinishA(player, c_PB_Gateway, 1)){
+			  GTChronoBoost(player, 0, c_PB_Nexus ,"TimeWarpProduction");
+		  }
+		  GTrain(player, c_PU_Probe, 9);
+		  GBuild(player, c_PB_Pylon, 1);
+		  GTrainI(player, c_PU_Probe, 11, c_PB_Pylon, 1);
+		  GBuildI(player, c_PB_Gateway, 1,  c_PU_Probe, 11);
+		  GTrainI(player, c_PU_Probe, 14, c_PB_Gateway, 1);
+		  GBuildI(player, c_PB_Assimilator, 1, c_PU_Probe, 14);
+		  GTrainI(player, c_PU_Probe, 16, c_PB_Assimilator, 1);
+		  GBuildA(player, c_PB_CyberneticsCore, 1, c_PB_Gateway, 1);
+		  GTrainI(player, c_PU_Probe, 18, c_PB_CyberneticsCore, 1);
+		  GBuildI(player, c_PB_Pylon, 2, c_PB_CyberneticsCore, 1);
+		  
+		  return true;
+	  }
+	  return false;
+}
+
+bool GTProtossOpening3 (int player){
+// Traditional Opening
+	if (!GTFinishIA(player, c_PB_CyberneticsCore, 1 )){
+	  	if (GTFinishIA(player, c_PU_Probe, 11) && (!GTFinishIA(player, c_PU_Probe, 12) || GTFinishIA(player, c_PU_Probe, 13)) && !GTFinishA(player, c_PB_Gateway, 1)){
+	  		GTChronoBoost(player, 0, c_PB_Nexus ,"TimeWarpProduction");
+		}
+	  	GTrain(player, c_PU_Probe, 9);
+	  	GBuildS(player, c_PB_Pylon, 1, 9);
+	  	GTrainI(player, c_PU_Probe, 10, c_PB_Pylon, 1);
+	  	GTrainA(player, c_PU_Probe, 13, c_PB_Pylon, 1);
+	  	GBuildS(player, c_PB_Gateway, 1, 13);
+	  	GTrainI(player, c_PU_Probe, 14, c_PB_Gateway, 1);
+	 	GBuildS(player, c_PB_Pylon, 2, 14);
+	  	GTrainI(player, c_PU_Probe, 16, c_PB_Gateway, 1);
+	  	GBuildS(player, c_PB_Gateway, 2, 16);
+	  	GTrainI(player, c_PU_Probe, 17, c_PB_Gateway, 2);
+	  	GTrainS(player, c_PU_Zealot, 1, 17);
+	  	GTrainI(player, c_PU_Probe, 18, c_PU_Zealot, 1);
+	  	GBuildS(player, c_PB_Assimilator, 1, 20);
+	  	GTrainI(player, c_PU_Probe, 19, c_PU_Zealot, 1);
+	  	GBuildS(player, c_PB_Pylon, 3, 21);
+	  	GTrainI(player, c_PU_Zealot, 2, c_PB_Pylon, 3);
+	  	GTrainI(player, c_PU_Probe, 20, c_PU_Zealot, 2);
+	  	GBuildS(player, c_PB_CyberneticsCore, 1, 24);
+
+
+	    return true;
+	}
+	return false;
+}

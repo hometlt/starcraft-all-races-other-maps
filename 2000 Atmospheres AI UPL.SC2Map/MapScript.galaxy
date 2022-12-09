@@ -1,0 +1,1047 @@
+//==================================================================================================
+// 
+// Generated Map Script
+// 
+// Name:   2000 Atmospheres LE
+// 
+//==================================================================================================
+include "TriggerLibs/NativeLib"
+
+//--------------------------------------------------------------------------------------------------
+// Library: Tangor AI Lib
+//--------------------------------------------------------------------------------------------------
+// Preset Declarations
+const int lib1_ge_TgAIIncludeAlias_DontIncludeAlias = 0;
+const int lib1_ge_TgAIIncludeAlias_IncludeFirstAlias = 1;
+const int lib1_ge_TgAIIncludeAlias_IncludeLastAlias = 2;
+
+// Constants
+const fixed lib1_gv_tacticalDistanceFromDamage = 0.2;
+const int lib1_gv_townInvalid = -2;
+const int lib1_gv_townMain = -1;
+const int lib1_gv_townMax = 32;
+const int lib1_gv_realSelfThreat = 1;
+const int lib1_gv_realThreat = 1 | 2;
+const int lib1_gv_anySelfThreat = 1 | 4 | 8;
+const int lib1_gv_anyThreat = 1 | 2 | 4 | 8;
+const int lib1_gv_standard = 0;
+const int lib1_gv_townHall = 0x00040000;
+const int lib1_gv_creep = 0x00000001 | 0x00000010 | 0x00200000;
+const int lib1_gv_power = 0x00000001 | 0x00000010 | 0x00008000 | 0x00200000;
+const int lib1_gv_expandPower = 0x00000001 | 0x00000800 | 0x00008000 | 0x00040000;
+const int lib1_gv_darkPower = 0x00000800 | 0x00008000 | 0x00040000;
+const int lib1_gv_collector = 0x00000800 | 0x00008000 | 0x10000000;
+const int lib1_gv_defense = 0x00000004 | 0x00001000 | 0x00002000 | 0x00008000 | 0x00040000 | 0x00080000;
+const int lib1_gv_resourceDefense = 0x00000004 | 0x00040000;
+const int lib1_gv_lowerableSupplyDepot = 0x08000000;
+const int lib1_gv_wall = 0x00080000 | 0x0c000000;
+const int lib1_gv_default = -1;
+const int lib1_gv_techTg = 0x00000002 | 0x00000008 | 0x00000020 | 0x00000080 | 0x00010000 | 0x00020000;
+const int lib1_gv_productionTg = 0x00000002 | 0x00000008 | 0x00010000 | 0x00020000 | 0x00100000;
+
+// Variable Declarations
+bool lib1_gv_unitToActorInitDone;
+bool lib1_gv_aliasDataInitDone;
+wave lib1_gv_p2_wave;
+timer lib1_gv_expandtimer2;
+int lib1_gv_p2;
+
+// Function Declarations
+string lib1_gf_unit_to_actorDataName (string lp_unitType);
+void lib1_gf_InitUnitTypeToActorData ();
+string lib1_gf_GetMainActorofUnitType (string lp_unitType);
+string lib1_gf_aliasDataCountName (string lp_alias);
+string lib1_gf_aliasDataIndexName (string lp_alias, int lp_index);
+void lib1_gf_InitUnitAliasData ();
+int lib1_gf_TechAliasCheck (string lp_aliasUnit, string lp_checkUnit);
+string lib1_gf_GetUnitAlias (string lp_unittype, int lp_alias_index);
+string lib1_gf_GetUnitAliasGameLink (string lp_unittype, int lp_alias_index);
+int lib1_gf_GetNumberOfUnitsInGroupIncludeAlias (string lp_unitType, unitgroup lp_unitgroup);
+unitgroup lib1_gf_FilterUnitGroupIncludeAlias (string lp_unitType, unitgroup lp_unitgroup);
+bool lib1_gf_TechExistsInUnitGroupIncludeAlias (string lp_unitType, unitgroup lp_unitgroup);
+void lib1_gf_KillUnitWithCustomDeath (int lp_killingplayer, unit lp_unit, string lp_deathtype);
+int lib1_gf_ConvertBuildFlagsToInteger (int lp_flags);
+void lib1_gf_TrainUnitIfNotInQueue (int lp_player, string lp_unitType, int lp_includeAlias, int lp_count, string lp_requiredTech, int lp_requiredTechAlias, int lp_town, int lp_maxqueue);
+void lib1_gf_BuildIfNotInQueue (int lp_player, string lp_unitType, int lp_includeAlias, int lp_count, string lp_requiredTech, int lp_requiredTechAlias, int lp_town, int lp_buildFlags, int lp_maxqueue);
+void lib1_gf_TgBuildIfNotInQueue (int lp_player, string lp_unitType, int lp_includeAlias, int lp_count, string lp_requiredTech, int lp_requiredTechAlias, int lp_town, int lp_buildFlags, int lp_maxqueue);
+void lib1_gf_ResearchIfNotInQueue (int lp_player, string lp_upgrade, int lp_count, string lp_requiredTech, int lp_requiredTechAlias);
+int lib1_gf_GetTownInRegion (int lp_player, region lp_region);
+void lib1_gf_OrderUnitToAttackMove (unit lp_unit, point lp_target);
+order lib1_gf_CreateOrderforAI (abilcmd lp_abilCmd, int lp_player);
+void lib1_gf_AddAttackWaveUnitType (int lp_count, string lp_unitType);
+unitgroup lib1_gf_CreateUnitsWithDefaultFacing (int lp_count, string lp_type, int lp_style, int lp_player, point lp_p);
+unitgroup lib1_gf_CreateUnitsAtPoint2 (int lp_count, string lp_type, int lp_flags, int lp_player, point lp_p);
+unitgroup lib1_gf_UnitCreateFacingPoint (int lp_count, string lp_type, int lp_flags, int lp_player, point lp_pos, point lp_facing);
+void lib1_gf_P2Expand ();
+
+// Trigger Declarations
+trigger lib1_gt_MeleeInitialization;
+trigger lib1_gt_P2;
+trigger lib1_gt_P2Build;
+trigger lib1_gt_P2train;
+trigger lib1_gt_P2attackwaves;
+trigger lib1_gt_P2harvest;
+trigger lib1_gt_P2rally;
+
+// Library Initialization
+void lib1_InitVariables ();
+
+//--------------------------------------------------------------------------------------------------
+// Library: Tangor AI Lib
+//--------------------------------------------------------------------------------------------------
+// External Library Initialization
+void lib1_InitLibraries () {
+    libNtve_InitVariables();
+}
+
+// Variable Initialization
+bool lib1_InitVariables_completed = false;
+
+void lib1_InitVariables () {
+    if (lib1_InitVariables_completed) {
+        return;
+    }
+
+    lib1_InitVariables_completed = true;
+
+    lib1_gv_expandtimer2 = TimerCreate();
+    lib1_gv_p2 = 2;
+}
+
+// Presets
+// Functions
+string lib1_gf_unit_to_actorDataName (string lp_unitType) {
+    // Automatic Variable Declarations
+    // Implementation
+    return ("tg_unit_to_actor." + (lp_unitType));
+}
+
+void lib1_gf_InitUnitTypeToActorData () {
+    // Variable Declarations
+    string lv_u;
+    string lv_a_name;
+    string lv_a;
+
+    // Automatic Variable Declarations
+    int autoB30E818C_catalog;
+    int autoB30E818C_i;
+    int auto52857CF3_catalog;
+    int auto52857CF3_i;
+
+    // Variable Initialization
+    lv_a_name = "";
+
+    // Implementation
+    if ((lib1_gv_unitToActorInitDone == true)) {
+        return ;
+    }
+    else {
+        lib1_gv_unitToActorInitDone = true;
+    }
+    autoB30E818C_catalog = c_gameCatalogUnit;
+    autoB30E818C_i = 1;
+    for ( ; autoB30E818C_i <= CatalogEntryCount(c_gameCatalogUnit) ; autoB30E818C_i += 1 ) {
+        lv_u = CatalogEntryGet(autoB30E818C_catalog, autoB30E818C_i);
+        if ((CatalogEntryIsValid(c_gameCatalogActor, lv_u) == true) && (CatalogEntryClass(c_gameCatalogActor, lv_u) == c_classIdCActorUnit)) {
+            DataTableSetString(true, lib1_gf_unit_to_actorDataName(lv_u), (lv_u));
+        }
+        else {
+            auto52857CF3_catalog = c_gameCatalogActor;
+            auto52857CF3_i = 1;
+            for ( ; auto52857CF3_i <= CatalogEntryCount(c_gameCatalogActor) ; auto52857CF3_i += 1 ) {
+                lv_a = CatalogEntryGet(auto52857CF3_catalog, auto52857CF3_i);
+                if ((CatalogEntryClass(c_gameCatalogActor, lv_a) == c_classIdCActorUnit)) {
+                    lv_a_name = CatalogFieldValueGet(c_gameCatalogActor, lv_a, "HighlightTooltip", c_playerAny);
+                    if ((lv_a_name == ("Unit/Name/" + (lv_u)))) {
+                        DataTableSetString(true, lib1_gf_unit_to_actorDataName(lv_u), (lv_a));
+                        break;
+                    }
+
+                }
+
+            }
+        }
+    }
+}
+
+string lib1_gf_GetMainActorofUnitType (string lp_unitType) {
+    // Variable Declarations
+    string lv_dataName;
+
+    // Automatic Variable Declarations
+    // Variable Initialization
+    lv_dataName = lib1_gf_unit_to_actorDataName(lp_unitType);
+
+    // Implementation
+    lib1_gf_InitUnitTypeToActorData();
+    if ((DataTableValueExists(true, lv_dataName) == true) && (DataTableValueType(true, lv_dataName) == c_dataTypeString)) {
+        return (DataTableGetString(true, lv_dataName));
+    }
+    else {
+        return null;
+    }
+}
+
+string lib1_gf_aliasDataCountName (string lp_alias) {
+    // Automatic Variable Declarations
+    // Implementation
+    return ("tg_unit_alias_count." + lp_alias);
+}
+
+string lib1_gf_aliasDataIndexName (string lp_alias, int lp_index) {
+    // Automatic Variable Declarations
+    // Implementation
+    return ("tg_unit_alias." + lp_alias + "." + IntToString(lp_index));
+}
+
+void lib1_gf_InitUnitAliasData () {
+    // Variable Declarations
+    string lv_u;
+    string lv_data_name;
+    string lv_alias;
+    int lv_a_cnt;
+    int lv_a_idx;
+
+    // Automatic Variable Declarations
+    int auto08636769_catalog;
+    int auto08636769_i;
+    int autoED0E1D45_catalog;
+    string autoED0E1D45_entry;
+    string autoED0E1D45_fieldPath;
+    int autoED0E1D45_player;
+    int autoED0E1D45_i;
+
+    // Variable Initialization
+    lv_data_name = "";
+    lv_alias = "";
+
+    // Implementation
+    if ((lib1_gv_aliasDataInitDone == true)) {
+        return ;
+    }
+    else {
+        lib1_gv_aliasDataInitDone = true;
+    }
+    auto08636769_catalog = c_gameCatalogUnit;
+    auto08636769_i = 1;
+    for ( ; auto08636769_i <= CatalogEntryCount(c_gameCatalogUnit) ; auto08636769_i += 1 ) {
+        lv_u = CatalogEntryGet(auto08636769_catalog, auto08636769_i);
+        autoED0E1D45_catalog = c_gameCatalogUnit;
+        autoED0E1D45_entry = lv_u;
+        autoED0E1D45_fieldPath = "TechAliasArray";
+        autoED0E1D45_player = c_playerAny;
+        autoED0E1D45_i = 0;
+        for ( ; autoED0E1D45_i <= CatalogFieldValueCount(c_gameCatalogUnit,autoED0E1D45_entry,autoED0E1D45_fieldPath,autoED0E1D45_player)-1 ; autoED0E1D45_i += 1 ) {
+            lv_alias = CatalogFieldValueGet(c_gameCatalogUnit,autoED0E1D45_entry,autoED0E1D45_fieldPath+"["+IntToString(autoED0E1D45_i)+"]",autoED0E1D45_player);
+            lv_data_name = lib1_gf_aliasDataCountName(lv_alias);
+            if ((DataTableValueExists(true, lv_data_name) == true)) {
+                lv_a_idx = DataTableGetInt(true, lv_data_name);
+                lv_a_cnt = (lv_a_idx + 1);
+            }
+            else {
+                lv_a_cnt = 1;
+                lv_a_idx = 0;
+            }
+            DataTableSetInt(true, lv_data_name, lv_a_cnt);
+            DataTableSetString(true, lib1_gf_aliasDataIndexName(lv_alias, lv_a_idx), (lv_u));
+        }
+    }
+}
+
+int lib1_gf_TechAliasCheck (string lp_aliasUnit, string lp_checkUnit) {
+    // Variable Declarations
+    string lv_alias;
+    int lv_a_cnt;
+    int lv_a_idx;
+
+    // Automatic Variable Declarations
+    int autoE5CEED5F_catalog;
+    string autoE5CEED5F_entry;
+    string autoE5CEED5F_fieldPath;
+    int autoE5CEED5F_player;
+    int autoE5CEED5F_i;
+    int autoF589F4F9_ae;
+    const int autoF589F4F9_ai = 1;
+
+    // Variable Initialization
+    lv_alias = "";
+
+    // Implementation
+    if ((lib1_gv_aliasDataInitDone == false)) {
+        lib1_gf_InitUnitAliasData();
+    }
+
+    autoE5CEED5F_catalog = c_gameCatalogUnit;
+    autoE5CEED5F_entry = lp_aliasUnit;
+    autoE5CEED5F_fieldPath = "TechAliasArray";
+    autoE5CEED5F_player = c_playerAny;
+    autoE5CEED5F_i = 0;
+    for ( ; autoE5CEED5F_i <= CatalogFieldValueCount(c_gameCatalogUnit,autoE5CEED5F_entry,autoE5CEED5F_fieldPath,autoE5CEED5F_player)-1 ; autoE5CEED5F_i += 1 ) {
+        lv_alias = CatalogFieldValueGet(c_gameCatalogUnit,autoE5CEED5F_entry,autoE5CEED5F_fieldPath+"["+IntToString(autoE5CEED5F_i)+"]",autoE5CEED5F_player);
+        lv_a_cnt = DataTableGetInt(true, lib1_gf_aliasDataCountName(lv_alias));
+        autoF589F4F9_ae = (lv_a_cnt - 1);
+        lv_a_idx = 0;
+        for ( ; ( (autoF589F4F9_ai >= 0 && lv_a_idx <= autoF589F4F9_ae) || (autoF589F4F9_ai < 0 && lv_a_idx >= autoF589F4F9_ae) ) ; lv_a_idx += autoF589F4F9_ai ) {
+            if (((DataTableGetString(true, lib1_gf_aliasDataIndexName(lv_alias, lv_a_idx))) == lp_checkUnit)) {
+                return 1;
+            }
+
+        }
+    }
+    return 0;
+}
+
+string lib1_gf_GetUnitAlias (string lp_unittype, int lp_alias_index) {
+    // Variable Declarations
+    string lv_alias;
+    int lv_count;
+
+    // Automatic Variable Declarations
+    // Variable Initialization
+    lv_alias = "";
+    lv_count = CatalogFieldValueCount(c_gameCatalogUnit, lp_unittype, "TechAliasArray", c_playerAny);
+
+    // Implementation
+    if ((lv_count == 0)) {
+        return (lp_unittype);
+    }
+    else {
+        return CatalogFieldValueGet(c_gameCatalogUnit, lp_unittype, "TechAliasArray[" + IntToString(MinI((lv_count - 1), lp_alias_index)) + "]", c_playerAny);
+    }
+}
+
+string lib1_gf_GetUnitAliasGameLink (string lp_unittype, int lp_alias_index) {
+    // Variable Declarations
+    string lv_alias;
+    int lv_count;
+
+    // Automatic Variable Declarations
+    // Variable Initialization
+    lv_alias = "";
+    lv_count = CatalogFieldValueCount(c_gameCatalogUnit, lp_unittype, "TechAliasArray", c_playerAny);
+
+    // Implementation
+    if ((lv_count == 0)) {
+        return lp_unittype;
+    }
+    else {
+        return CatalogFieldValueGet(c_gameCatalogUnit, lp_unittype, "TechAliasArray[" + IntToString(MinI((lv_count - 1), lp_alias_index)) + "]", c_playerAny);
+    }
+}
+
+int lib1_gf_GetNumberOfUnitsInGroupIncludeAlias (string lp_unitType, unitgroup lp_unitgroup) {
+    // Variable Declarations
+    int lv_count;
+    unit lv_u;
+
+    // Automatic Variable Declarations
+    unitgroup auto82747DFB_g;
+    int auto82747DFB_u;
+
+    // Variable Initialization
+
+    // Implementation
+    if ((lib1_gv_aliasDataInitDone == false)) {
+        lib1_gf_InitUnitAliasData();
+    }
+
+    auto82747DFB_g = lp_unitgroup;
+    auto82747DFB_u = UnitGroupCount(auto82747DFB_g, c_unitCountAll);
+    for (;; auto82747DFB_u -= 1) {
+        lv_u = UnitGroupUnitFromEnd(auto82747DFB_g, auto82747DFB_u);
+        if (lv_u == null) { break; }
+        if ((UnitGetType(lv_u) == lp_unitType)) {
+            lv_count += 1;
+        }
+        else {
+            lv_count += lib1_gf_TechAliasCheck(lp_unitType, UnitGetType(lv_u));
+        }
+    }
+    return lv_count;
+}
+
+unitgroup lib1_gf_FilterUnitGroupIncludeAlias (string lp_unitType, unitgroup lp_unitgroup) {
+    // Variable Declarations
+    unitgroup lv_ret;
+    unit lv_u;
+
+    // Automatic Variable Declarations
+    unitgroup auto56B34833_g;
+    int auto56B34833_u;
+
+    // Variable Initialization
+    lv_ret = UnitGroupEmpty();
+
+    // Implementation
+    if ((lib1_gv_aliasDataInitDone == false)) {
+        lib1_gf_InitUnitAliasData();
+    }
+
+    auto56B34833_g = lp_unitgroup;
+    auto56B34833_u = UnitGroupCount(auto56B34833_g, c_unitCountAll);
+    for (;; auto56B34833_u -= 1) {
+        lv_u = UnitGroupUnitFromEnd(auto56B34833_g, auto56B34833_u);
+        if (lv_u == null) { break; }
+        if (((UnitGetType(lv_u) == lp_unitType) || (lib1_gf_TechAliasCheck(lp_unitType, UnitGetType(lv_u)) == 1))) {
+            UnitGroupAdd(lv_ret, lv_u);
+        }
+
+    }
+    return lv_ret;
+}
+
+bool lib1_gf_TechExistsInUnitGroupIncludeAlias (string lp_unitType, unitgroup lp_unitgroup) {
+    // Variable Declarations
+    unit lv_u;
+
+    // Automatic Variable Declarations
+    unitgroup auto5570A1BE_g;
+    int auto5570A1BE_u;
+
+    // Variable Initialization
+
+    // Implementation
+    if ((lib1_gv_aliasDataInitDone == false)) {
+        lib1_gf_InitUnitAliasData();
+    }
+
+    auto5570A1BE_g = lp_unitgroup;
+    auto5570A1BE_u = UnitGroupCount(auto5570A1BE_g, c_unitCountAll);
+    for (;; auto5570A1BE_u -= 1) {
+        lv_u = UnitGroupUnitFromEnd(auto5570A1BE_g, auto5570A1BE_u);
+        if (lv_u == null) { break; }
+        if (((UnitGetType(lv_u) == lp_unitType) || (lib1_gf_TechAliasCheck(lp_unitType, UnitGetType(lv_u)) == 1))) {
+            return true;
+        }
+
+    }
+    return false;
+}
+
+void lib1_gf_KillUnitWithCustomDeath (int lp_killingplayer, unit lp_unit, string lp_deathtype) {
+    // Automatic Variable Declarations
+    // Implementation
+    CatalogFieldValueSet(c_gameCatalogEffect, "CustomDeathEffectKill", "Death", lp_killingplayer, (lp_deathtype));
+    PlayerCreateEffectUnit(lp_killingplayer, "CustomDeathEffectKill", lp_unit);
+}
+
+int lib1_gf_ConvertBuildFlagsToInteger (int lp_flags) {
+    // Automatic Variable Declarations
+    // Implementation
+    return (lp_flags);
+}
+
+void lib1_gf_TrainUnitIfNotInQueue (int lp_player, string lp_unitType, int lp_includeAlias, int lp_count, string lp_requiredTech, int lp_requiredTechAlias, int lp_town, int lp_maxqueue) {
+    // Variable Declarations
+    int lv_progressCount;
+
+    // Automatic Variable Declarations
+    int auto151DF88B_val;
+    int autoEE849BF0_val;
+
+    // Variable Initialization
+
+    // Implementation
+    auto151DF88B_val = lp_includeAlias;
+    if (auto151DF88B_val == lib1_ge_TgAIIncludeAlias_DontIncludeAlias) {
+        lv_progressCount = AITechCount(lp_player, lp_unitType, c_techCountQueuedOrBetter);
+    }
+    else if (auto151DF88B_val == lib1_ge_TgAIIncludeAlias_IncludeFirstAlias) {
+        lv_progressCount = AITechCount(lp_player, lib1_gf_GetUnitAliasGameLink(lp_unitType, 0), c_techCountQueuedOrBetter);
+    }
+    else {
+        lv_progressCount = AITechCount(lp_player, lib1_gf_GetUnitAliasGameLink(lp_unitType, 255), c_techCountQueuedOrBetter);
+    }
+    if ((lp_requiredTech != null)) {
+        autoEE849BF0_val = lp_requiredTechAlias;
+        if (autoEE849BF0_val == lib1_ge_TgAIIncludeAlias_IncludeFirstAlias) {
+            lp_requiredTech = lib1_gf_GetUnitAliasGameLink(lp_requiredTech, 0);
+        }
+        else if (autoEE849BF0_val == lib1_ge_TgAIIncludeAlias_IncludeLastAlias) {
+            lp_requiredTech = lib1_gf_GetUnitAliasGameLink(lp_requiredTech, 255);
+        }
+        else {
+        }
+    }
+
+    if (((lp_requiredTech == null) || (AITechCount(lp_player, lp_requiredTech, c_techCountCompleteOnly) != 0)) && (lv_progressCount < lp_count)) {
+        AITrain(lp_player, 2, lp_town, lp_unitType, MinI((lp_count - lv_progressCount), lp_maxqueue));
+    }
+
+}
+
+void lib1_gf_BuildIfNotInQueue (int lp_player, string lp_unitType, int lp_includeAlias, int lp_count, string lp_requiredTech, int lp_requiredTechAlias, int lp_town, int lp_buildFlags, int lp_maxqueue) {
+    // Variable Declarations
+    int lv_progressCount;
+
+    // Automatic Variable Declarations
+    int auto33C392E2_val;
+    int autoFFF20AFC_val;
+
+    // Variable Initialization
+
+    // Implementation
+    auto33C392E2_val = lp_includeAlias;
+    if (auto33C392E2_val == lib1_ge_TgAIIncludeAlias_DontIncludeAlias) {
+        lv_progressCount = AITechCount(lp_player, lp_unitType, c_techCountQueuedOrBetter);
+    }
+    else if (auto33C392E2_val == lib1_ge_TgAIIncludeAlias_IncludeFirstAlias) {
+        lv_progressCount = AITechCount(lp_player, lib1_gf_GetUnitAliasGameLink(lp_unitType, 0), c_techCountQueuedOrBetter);
+    }
+    else {
+        lv_progressCount = AITechCount(lp_player, lib1_gf_GetUnitAliasGameLink(lp_unitType, 255), c_techCountQueuedOrBetter);
+    }
+    if ((lp_requiredTech != null)) {
+        autoFFF20AFC_val = lp_requiredTechAlias;
+        if (autoFFF20AFC_val == lib1_ge_TgAIIncludeAlias_IncludeFirstAlias) {
+            lp_requiredTech = lib1_gf_GetUnitAliasGameLink(lp_requiredTech, 0);
+        }
+        else if (autoFFF20AFC_val == lib1_ge_TgAIIncludeAlias_IncludeLastAlias) {
+            lp_requiredTech = lib1_gf_GetUnitAliasGameLink(lp_requiredTech, 255);
+        }
+        else {
+        }
+    }
+
+    if (((lp_requiredTech == null) || (AITechCount(lp_player, lp_requiredTech, c_techCountCompleteOnly) != 0)) && (lv_progressCount < lp_count)) {
+        AIBuild(lp_player, 2, lp_town, lp_unitType, MinI((lp_count - lv_progressCount), lp_maxqueue), lp_buildFlags);
+    }
+
+}
+
+void lib1_gf_TgBuildIfNotInQueue (int lp_player, string lp_unitType, int lp_includeAlias, int lp_count, string lp_requiredTech, int lp_requiredTechAlias, int lp_town, int lp_buildFlags, int lp_maxqueue) {
+    // Variable Declarations
+    int lv_progressCount;
+
+    // Automatic Variable Declarations
+    int auto0EC49736_val;
+    int auto8105CB91_val;
+
+    // Variable Initialization
+
+    // Implementation
+    auto0EC49736_val = lp_includeAlias;
+    if (auto0EC49736_val == lib1_ge_TgAIIncludeAlias_DontIncludeAlias) {
+        lv_progressCount = AITechCount(lp_player, lp_unitType, c_techCountQueuedOrBetter);
+    }
+    else if (auto0EC49736_val == lib1_ge_TgAIIncludeAlias_IncludeFirstAlias) {
+        lv_progressCount = AITechCount(lp_player, lib1_gf_GetUnitAliasGameLink(lp_unitType, 0), c_techCountQueuedOrBetter);
+    }
+    else {
+        lv_progressCount = AITechCount(lp_player, lib1_gf_GetUnitAliasGameLink(lp_unitType, 255), c_techCountQueuedOrBetter);
+    }
+    if ((lp_requiredTech != null)) {
+        auto8105CB91_val = lp_requiredTechAlias;
+        if (auto8105CB91_val == lib1_ge_TgAIIncludeAlias_IncludeFirstAlias) {
+            lp_requiredTech = lib1_gf_GetUnitAliasGameLink(lp_requiredTech, 0);
+        }
+        else if (auto8105CB91_val == lib1_ge_TgAIIncludeAlias_IncludeLastAlias) {
+            lp_requiredTech = lib1_gf_GetUnitAliasGameLink(lp_requiredTech, 255);
+        }
+        else {
+        }
+    }
+
+    if (((lp_requiredTech == null) || (AITechCount(lp_player, lp_requiredTech, c_techCountCompleteOnly) != 0)) && (lv_progressCount < lp_count)) {
+        AIBuild(lp_player, 2, lp_town, lp_unitType, MinI((lp_count - lv_progressCount), lp_maxqueue), lp_buildFlags);
+    }
+
+}
+
+void lib1_gf_ResearchIfNotInQueue (int lp_player, string lp_upgrade, int lp_count, string lp_requiredTech, int lp_requiredTechAlias) {
+    // Variable Declarations
+    int lv_progressCount;
+
+    // Automatic Variable Declarations
+    int auto1C33ECF1_val;
+
+    // Variable Initialization
+    lv_progressCount = TechTreeUpgradeCount(lp_player, lp_upgrade, c_techCountQueuedOrBetter);
+
+    // Implementation
+    if ((lp_requiredTech != null)) {
+        auto1C33ECF1_val = lp_requiredTechAlias;
+        if (auto1C33ECF1_val == lib1_ge_TgAIIncludeAlias_IncludeFirstAlias) {
+            lp_requiredTech = lib1_gf_GetUnitAliasGameLink(lp_requiredTech, 0);
+        }
+        else if (auto1C33ECF1_val == lib1_ge_TgAIIncludeAlias_IncludeLastAlias) {
+            lp_requiredTech = lib1_gf_GetUnitAliasGameLink(lp_requiredTech, 255);
+        }
+        else {
+        }
+    }
+
+    if (((lp_requiredTech == null) || (AITechCount(lp_player, lp_requiredTech, c_techCountCompleteOnly) != 0)) && (lv_progressCount < lp_count)) {
+        AIResearch(lp_player, 0, -1, lp_upgrade);
+    }
+
+}
+
+int lib1_gf_GetTownInRegion (int lp_player, region lp_region) {
+    // Variable Declarations
+    int lv_i;
+    int lv_i_free;
+
+    // Automatic Variable Declarations
+    // Variable Initialization
+    lv_i_free = AIGetNextUnusedTownSlot(lp_player);
+
+    // Implementation
+    while ((lib1_gv_townMax > lv_i)) {
+        if ((AIGetTownState(lp_player, lv_i) != 0) && (AIGetTownState(lp_player, lv_i) != -1) && (RegionContainsPoint(lp_region, AIGetTownLocation(lp_player, lv_i)) == true)) {
+            return lv_i;
+        }
+        else {
+            lv_i += 1;
+        }
+    }
+    AIDeclareTown(lp_player, lv_i_free, RegionGetCenter(lp_region));
+    return lv_i_free;
+}
+
+void lib1_gf_OrderUnitToAttackMove (unit lp_unit, point lp_target) {
+    // Variable Declarations
+    order lv_ord;
+
+    // Automatic Variable Declarations
+    // Variable Initialization
+    lv_ord = OrderTargetingPoint(AbilityCommand("attack", 0), lp_target);
+
+    // Implementation
+    if ((UnitOrderIsValid(lp_unit, lv_ord) == true)) {
+        libNtve_gf_AICast(lp_unit, lv_ord);
+        return ;
+    }
+
+    lv_ord = OrderTargetingPoint(AbilityCommand("move", 3), lp_target);
+    if ((UnitOrderIsValid(lp_unit, lv_ord) == true)) {
+        libNtve_gf_AICast(lp_unit, lv_ord);
+        return ;
+    }
+
+    lv_ord = OrderTargetingPoint(AbilityCommand("move", 0), lp_target);
+    if ((UnitOrderIsValid(lp_unit, lv_ord) == true)) {
+        libNtve_gf_AICast(lp_unit, lv_ord);
+        return ;
+    }
+
+}
+
+order lib1_gf_CreateOrderforAI (abilcmd lp_abilCmd, int lp_player) {
+    // Variable Declarations
+    order lv_ord;
+
+    // Automatic Variable Declarations
+    // Variable Initialization
+
+    // Implementation
+    if ((lp_abilCmd == null)) {
+        return null;
+    }
+
+    lv_ord = Order(lp_abilCmd);
+    OrderSetPlayer(lv_ord, lp_player);
+    return lv_ord;
+}
+
+void lib1_gf_AddAttackWaveUnitType (int lp_count, string lp_unitType) {
+    // Automatic Variable Declarations
+    // Implementation
+    AIAttackWaveAddUnits(-1, lp_count, lp_unitType);
+}
+
+unitgroup lib1_gf_CreateUnitsWithDefaultFacing (int lp_count, string lp_type, int lp_style, int lp_player, point lp_p) {
+    // Variable Declarations
+    fixed lv_angle;
+
+    // Automatic Variable Declarations
+    // Variable Initialization
+
+    // Implementation
+    if ((CatalogFieldValueGet(c_gameCatalogUnit, lp_type, "FlagArray", lp_player) == "1")) {
+        lv_angle = libNtve_gf_RandomAngle();
+    }
+    else {
+        lv_angle = StringToFixed(CatalogFieldValueGet(c_gameCatalogUnit, lp_type, "Facing", lp_player));
+        lv_angle -= 90.0;
+    }
+    return UnitCreate(lp_count, lp_type, lp_style, lp_player, lp_p, lv_angle);
+}
+
+unitgroup lib1_gf_CreateUnitsAtPoint2 (int lp_count, string lp_type, int lp_flags, int lp_player, point lp_p) {
+    // Automatic Variable Declarations
+    // Implementation
+    return UnitCreate(lp_count, lp_type, lp_flags, lp_player, lp_p, PointGetFacing(lp_p));
+}
+
+unitgroup lib1_gf_UnitCreateFacingPoint (int lp_count, string lp_type, int lp_flags, int lp_player, point lp_pos, point lp_facing) {
+    // Automatic Variable Declarations
+    // Implementation
+    return UnitCreate(lp_count, lp_type, lp_flags, lp_player, lp_pos, AngleBetweenPoints(lp_pos, lp_facing));
+}
+
+void lib1_gf_P2Expand () {
+    // Variable Declarations
+    int lv_towns;
+
+    // Automatic Variable Declarations
+    int auto5828ED54_player;
+    int auto5828ED54_state;
+    int auto5828ED54_var;
+    int auto5828ED54_statevar;
+    int auto45E83A28_player;
+    int auto45E83A28_state;
+    int auto45E83A28_var;
+    int auto45E83A28_statevar;
+
+    // Variable Initialization
+
+    // Implementation
+    auto5828ED54_player = lib1_gv_p2;
+    auto5828ED54_state = 2;
+    auto5828ED54_var = 0;
+    for ( ; auto5828ED54_var < c_townMax; auto5828ED54_var += 1 ) {
+        auto5828ED54_statevar = AIGetTownState(auto5828ED54_player,auto5828ED54_var);
+        if (auto5828ED54_statevar >= auto5828ED54_state) {
+            lv_towns += 1;
+            if ((AIGetBuildingCountInTown(lib1_gv_p2, auto5828ED54_var, "UPLExhumer", c_techCountQueuedOrBetter) < 2)) {
+                AIBuild(lib1_gv_p2, 6, auto5828ED54_var, "UPLExhumer", 1, lib1_gv_default);
+            }
+
+        }
+    }
+    auto45E83A28_player = lib1_gv_p2;
+    auto45E83A28_state = 3;
+    auto45E83A28_var = 0;
+    for ( ; auto45E83A28_var < c_townMax; auto45E83A28_var += 1 ) {
+        auto45E83A28_statevar = AIGetTownState(auto45E83A28_player,auto45E83A28_var);
+        if (auto45E83A28_statevar == auto45E83A28_state) {
+            if ((AIGetBuildingCountInTown(lib1_gv_p2, auto45E83A28_var, "UPLElectrostaticDefenseTower", c_techCountQueuedOrBetter) < 3)) {
+                AIBuild(lib1_gv_p2, 0, auto45E83A28_var, "UPLElectrostaticDefenseTower", 1, lib1_gv_defense);
+            }
+
+        }
+    }
+    if ((lv_towns < 5) && (TimerGetRemaining(lib1_gv_expandtimer2) <= 0.0)) {
+        AIExpand(lib1_gv_p2, UnitGetPosition(UnitGroupRandomUnit(UnitGroup(null, c_playerAny, RegionEntireMap(), UnitFilter((1 << c_targetFilterHarvestableResource), 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0), c_unitCountAlive)), "UPLHeadquarters");
+        TimerStart(lib1_gv_expandtimer2, 30.0, false, c_timeAI);
+    }
+
+}
+
+// Triggers
+//--------------------------------------------------------------------------------------------------
+// Trigger: Melee Initialization
+//--------------------------------------------------------------------------------------------------
+bool lib1_gt_MeleeInitialization_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    PlayerModifyPropertyInt(1, c_playerPropMinerals, c_playerPropOperSetTo, 10000);
+    PlayerModifyPropertyInt(1, c_playerPropVespene, c_playerPropOperSetTo, 10000);
+    MeleeInitResources();
+    MeleeInitUnits();
+    MeleeInitAI();
+    MeleeInitOptions();
+    TriggerExecute(lib1_gt_P2, true, false);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void lib1_gt_MeleeInitialization_Init () {
+    lib1_gt_MeleeInitialization = TriggerCreate("lib1_gt_MeleeInitialization_Func");
+    TriggerAddEventMapInit(lib1_gt_MeleeInitialization);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: P2
+//--------------------------------------------------------------------------------------------------
+bool lib1_gt_P2_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    PlayerModifyPropertyInt(2, c_playerPropMinerals, c_playerPropOperSetTo, 1000);
+    AICampaignStart(lib1_gv_p2);
+    AIHarvestRate(lib1_gv_p2, -1);
+    AISetDifficulty(lib1_gv_p2, c_diffSetRallyPoints, false);
+    AISetDifficulty(lib1_gv_p2, c_diffWaveLeashing, true);
+    AISetDifficulty(lib1_gv_p2, c_diffBalancePeonsAcrossBases, true);
+    PlayerSetAlliance(lib1_gv_p2, c_allianceIdVision, 1, true);
+    TriggerExecute(lib1_gt_P2Build, true, false);
+    TriggerExecute(lib1_gt_P2train, true, false);
+    TriggerExecute(lib1_gt_P2attackwaves, true, false);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void lib1_gt_P2_Init () {
+    lib1_gt_P2 = TriggerCreate("lib1_gt_P2_Func");
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: P2 Build
+//--------------------------------------------------------------------------------------------------
+bool lib1_gt_P2Build_Func (bool testConds, bool runActions) {
+    // Variable Declarations
+    int lv_supllyneeded;
+    int lv_customBuild2;
+    string lv_townHall;
+    int lv_towns;
+
+    // Automatic Variable Declarations
+    // Variable Initialization
+    lv_customBuild2 = 0x00000002 | 0x00000008 | 0x00000080 | 0x00002000 | 0x00004000 | 0x00010000 | 0x00080000 | 0x00400000;
+    lv_townHall = "UPLHeadquarters";
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    while (true) {
+        Wait(15.0, c_timeAI);
+        AIClearBuildQueue(lib1_gv_p2);
+        if ((AIGetBuildingCountInTown(lib1_gv_p2, 0, lib1_gf_GetUnitAliasGameLink(lv_townHall, 0), c_techCountInProgressOrBetter) < 1)) {
+            AIBuild(lib1_gv_p2, 0, 0, lv_townHall, 1, lib1_gv_townHall);
+        }
+        else {
+            lv_supllyneeded = ((PlayerGetPropertyInt(lib1_gv_p2, c_playerPropSuppliesUsed) / 8) + 1);
+            lib1_gf_BuildIfNotInQueue(lib1_gv_p2, "UPLGenerator", lib1_ge_TgAIIncludeAlias_IncludeFirstAlias, lv_supllyneeded, null, lib1_ge_TgAIIncludeAlias_DontIncludeAlias, -1, lib1_gv_productionTg, 2);
+            lib1_gf_BuildIfNotInQueue(lib1_gv_p2, "UPLBillet", lib1_ge_TgAIIncludeAlias_IncludeFirstAlias, 2, null, lib1_ge_TgAIIncludeAlias_DontIncludeAlias, 0, lib1_gv_productionTg, 1);
+            lib1_gf_BuildIfNotInQueue(lib1_gv_p2, "UPLExhumer", lib1_ge_TgAIIncludeAlias_IncludeFirstAlias, 2, null, lib1_ge_TgAIIncludeAlias_DontIncludeAlias, 0, lib1_gv_default, 1);
+            lib1_gf_BuildIfNotInQueue(lib1_gv_p2, "UPLRnDFacility", lib1_ge_TgAIIncludeAlias_IncludeFirstAlias, 2, null, lib1_ge_TgAIIncludeAlias_DontIncludeAlias, 0, lib1_gv_techTg, 1);
+            lib1_gf_BuildIfNotInQueue(lib1_gv_p2, "UPLAirstrip", lib1_ge_TgAIIncludeAlias_IncludeFirstAlias, 2, null, lib1_ge_TgAIIncludeAlias_DontIncludeAlias, 0, lib1_gv_productionTg, 1);
+            lib1_gf_BuildIfNotInQueue(lib1_gv_p2, "UPLManufacturingFacility", lib1_ge_TgAIIncludeAlias_IncludeFirstAlias, 2, null, lib1_ge_TgAIIncludeAlias_DontIncludeAlias, 0, lib1_gv_productionTg, 1);
+            if ((AITechCount(lib1_gv_p2, lib1_gf_GetUnitAliasGameLink("MiningDrone", 0), c_techCountCompleteOnly) > 15)) {
+                lib1_gf_P2Expand();
+            }
+
+        }
+    }
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void lib1_gt_P2Build_Init () {
+    lib1_gt_P2Build = TriggerCreate("lib1_gt_P2Build_Func");
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: P2 train
+//--------------------------------------------------------------------------------------------------
+bool lib1_gt_P2train_Func (bool testConds, bool runActions) {
+    // Variable Declarations
+    int lv_lordsneeded;
+
+    // Automatic Variable Declarations
+    int auto684A2364_player;
+    int auto684A2364_state;
+    int auto684A2364_var;
+    int auto684A2364_statevar;
+
+    // Variable Initialization
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    while (true) {
+        Wait(5.0, c_timeAI);
+        AIClearTrainQueue(lib1_gv_p2);
+        lib1_gf_TrainUnitIfNotInQueue(lib1_gv_p2, "MiningDrone", lib1_ge_TgAIIncludeAlias_IncludeFirstAlias, 15, null, lib1_ge_TgAIIncludeAlias_DontIncludeAlias, -1, 3);
+        lib1_gf_TrainUnitIfNotInQueue(lib1_gv_p2, "MiningDrone", lib1_ge_TgAIIncludeAlias_IncludeFirstAlias, 25, "UPLBillet", lib1_ge_TgAIIncludeAlias_DontIncludeAlias, -1, 2);
+        auto684A2364_player = lib1_gv_p2;
+        auto684A2364_state = 3;
+        auto684A2364_var = 0;
+        for ( ; auto684A2364_var < c_townMax; auto684A2364_var += 1 ) {
+            auto684A2364_statevar = AIGetTownState(auto684A2364_player,auto684A2364_var);
+            if (auto684A2364_statevar == auto684A2364_state) {
+                if ((AIGetCurPeonCount(lib1_gv_p2, auto684A2364_var) < 14) && (AIGetMineralNumSpots(lib1_gv_p2, auto684A2364_var) > 0)) {
+                    lib1_gf_TrainUnitIfNotInQueue(lib1_gv_p2, "MiningDrone", lib1_ge_TgAIIncludeAlias_IncludeFirstAlias, 50, "Hatchery", lib1_ge_TgAIIncludeAlias_IncludeFirstAlias, auto684A2364_var, 1);
+                }
+
+            }
+        }
+        lib1_gf_TrainUnitIfNotInQueue(lib1_gv_p2, "InfantryRifle", lib1_ge_TgAIIncludeAlias_IncludeFirstAlias, 20, "UPLBillet", lib1_ge_TgAIIncludeAlias_DontIncludeAlias, -1, 4);
+        lib1_gf_TrainUnitIfNotInQueue(lib1_gv_p2, "InfantryHeavy", lib1_ge_TgAIIncludeAlias_IncludeFirstAlias, 20, "UPLBillet", lib1_ge_TgAIIncludeAlias_DontIncludeAlias, -1, 4);
+    }
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void lib1_gt_P2train_Init () {
+    lib1_gt_P2train = TriggerCreate("lib1_gt_P2train_Func");
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: P2 attack waves
+//--------------------------------------------------------------------------------------------------
+bool lib1_gt_P2attackwaves_Func (bool testConds, bool runActions) {
+    // Variable Declarations
+    fixed lv_nextwavetime;
+    bool lv_wavemerge;
+
+    // Automatic Variable Declarations
+    // Variable Initialization
+    lv_nextwavetime = 160.0;
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    while (true) {
+        while (!((GameGetMissionTime() > lv_nextwavetime) && ((GameGetMissionTime() < (2 * 60)) || (PlayerGetPropertyInt(lib1_gv_p2, c_playerPropSuppliesUsed) > 40)))) {
+            Wait(5.0, c_timeAI);
+        }
+        lv_nextwavetime += RandomFixed(90.0, 120.0);
+        if ((AIWaveUnitCount(lib1_gv_p2_wave) > 0)) {
+            AIAttackWaveSetTargetMerge(lib1_gv_p2, lib1_gv_p2_wave);
+            lv_wavemerge = true;
+        }
+        else {
+            AIAttackWaveSetTargetMelee(lib1_gv_p2);
+            lv_wavemerge = false;
+        }
+        lib1_gf_AddAttackWaveUnitType(20, "InfantryRifle");
+        lib1_gf_AddAttackWaveUnitType(20, "InfantryHeavy");
+        AIAttackWaveSend(lib1_gv_p2, 20, false);
+        if ((lv_wavemerge == false)) {
+            lib1_gv_p2_wave = WaveLastCreated();
+        }
+
+    }
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void lib1_gt_P2attackwaves_Init () {
+    lib1_gt_P2attackwaves = TriggerCreate("lib1_gt_P2attackwaves_Func");
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: P2 harvest
+//--------------------------------------------------------------------------------------------------
+bool lib1_gt_P2harvest_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    // Conditions
+    if (testConds) {
+        if (!((UnitGetOwner(EventUnitProgressUnit()) == lib1_gv_p2))) {
+            return false;
+        }
+
+        if (!((libNtve_gf_TriggeringProgressUnitType() == "UPLHeadquarters"))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    TriggerEnable(TriggerGetCurrent(), false);
+    AIInitCampaignHarvest(lib1_gv_p2);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void lib1_gt_P2harvest_Init () {
+    lib1_gt_P2harvest = TriggerCreate("lib1_gt_P2harvest_Func");
+    TriggerAddEventUnitConstructProgress(lib1_gt_P2harvest, null, c_unitProgressStageComplete);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: P2 rally
+//--------------------------------------------------------------------------------------------------
+bool lib1_gt_P2rally_Func (bool testConds, bool runActions) {
+    // Variable Declarations
+    int lv_town;
+    point lv_unitpos;
+    point lv_target;
+
+    // Automatic Variable Declarations
+    // Variable Initialization
+
+    // Conditions
+    if (testConds) {
+        if (!((UnitGetOwner(EventUnitProgressUnit()) == lib1_gv_p2))) {
+            return false;
+        }
+
+        if (!((libNtve_gf_TriggeringProgressUnitType() == "UPLHeadquarters"))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    lv_unitpos = UnitGetPosition(EventUnitProgressUnit());
+    lv_town = AIGetClosestTown(lib1_gv_p2, lv_unitpos);
+    if ((lv_town == AIGetMainTown(lib1_gv_p2))) {
+        libNtve_gf_AICast(EventUnitProgressUnit(), OrderTargetingPoint(null, UnitGetPosition(UnitGroupRandomUnit(UnitGroup(null, lib1_gv_p2, RegionEntireMap(), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0), c_unitCountAlive))));
+    }
+    else {
+        lv_target = libNtve_gf_PointOffsetTowardsPoint(lv_unitpos, -3.0, UnitGroupCenterOfGroup(UnitGroup(null, c_playerAny, RegionCircle(lv_unitpos, 13.0), UnitFilter((1 << c_targetFilterHarvestableResource), 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0)));
+        libNtve_gf_AICast(EventUnitProgressUnit(), OrderTargetingPoint(null, lv_target));
+    }
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void lib1_gt_P2rally_Init () {
+    lib1_gt_P2rally = TriggerCreate("lib1_gt_P2rally_Func");
+    TriggerAddEventUnitConstructProgress(lib1_gt_P2rally, null, c_unitProgressStageStart);
+}
+
+void lib1_InitTriggers () {
+    lib1_gt_MeleeInitialization_Init();
+    lib1_gt_P2_Init();
+    lib1_gt_P2Build_Init();
+    lib1_gt_P2train_Init();
+    lib1_gt_P2attackwaves_Init();
+    lib1_gt_P2harvest_Init();
+    lib1_gt_P2rally_Init();
+}
+
+//--------------------------------------------------------------------------------------------------
+// Library Initialization
+//--------------------------------------------------------------------------------------------------
+bool lib1_InitLib_completed = false;
+
+void lib1_InitLib () {
+    if (lib1_InitLib_completed) {
+        return;
+    }
+
+    lib1_InitLib_completed = true;
+
+    lib1_InitLibraries();
+    lib1_InitVariables();
+    lib1_InitTriggers();
+}
+
+//--------------------------------------------------------------------------------------------------
+// Library Initialization
+//--------------------------------------------------------------------------------------------------
+void InitLibs () {
+    libNtve_InitLib();
+    lib1_InitLib();
+}
+
+//--------------------------------------------------------------------------------------------------
+// Map Initialization
+//--------------------------------------------------------------------------------------------------
+void InitMap () {
+    InitLibs();
+}

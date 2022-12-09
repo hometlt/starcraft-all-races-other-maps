@@ -1,0 +1,187 @@
+//==================================================================================================
+//  Terran First Edition
+//==================================================================================================
+
+
+//--------------------------------------------------------------------------------------------------
+//  TerranOpenGnd0
+//--------------------------------------------------------------------------------------------------
+void Terran9 (int player) {
+	 int towns = GTTowns (player);
+	 int tech_level = 0;
+	 int i = 1;
+      	 GTMicro(player);
+    	 GTName(player, DataTableGetString(true, IntToString(player)+ "GTName"));
+
+     GTShowTimer(player);
+     GTPreventScout(player);
+
+     if (GTTerranOpening1(player)){
+    	 return;
+     }
+
+	 tech_level = GTGetTech(player,  c_TB_BarracksTechLab, c_TB_Factory, c_TB_Starport,   c_TB_StarportTechLab , c_TB_FusionCore, c_TB_Armory, c_TB_Armory, c_TB_Armory);
+
+//------------------------------------
+// Economy Management
+//---------------------------------------
+
+	
+
+	if (GTFinishIA (player, c_TB_BarracksTechLab, 1))
+	{ GTSupply (player, 6 + tech_level); }
+	else
+	{  GTSupply (player, 4 + tech_level); }
+	if (!GTFinishA(player, c_TB_CommandCenter_Alias, 2) || GTFinishIA(player, c_TB_OrbitalCommand, 2) || GTFinishIA(player, c_TB_PlanetaryFortress, 1) )
+	 { GTCreateWorkers (player); }
+
+        if (GTOArmy(player) < GTEArmy(player))
+	    {AISetDifficulty(player, c_diffFleeDamage, false); }
+        else
+        {AISetDifficulty(player, c_diffFleeDamage, true); }
+
+	  // Expand
+        if (towns <= 1 || GTFinishIA(player, c_TU_Battlecruiser, 1))
+        		{ GTExpand(player); }
+
+	  //----------------------------
+	  // Unit Production
+	  //---------------------------
+        GTTrainA ( player, 10, c_townMain, c_TU_Ghost   , 3, c_TB_GhostAcademy, 1  );
+        if (!GTNeedGhost(player))
+        {   if ( tech_level >= 0)
+	             {
+	                GTTrain (player, 2, c_townMain, c_TU_Marine, 8);
+	                  GTTrainI( player, 2, c_townMain, c_TU_Marine, 10, c_TB_BarracksTechLab, 1 );
+	                  GTTrainI( player, 2, c_townMain, c_TU_Marine, 12, c_TB_BarracksTechLab, 2 );
+	                  GTTrainA( player, 2, c_townMain, c_TU_Marine,  2*GTCountI2(player, c_TU_Marauder), c_TB_BarracksReactor, 1 );
+
+	                  GTBasicTrain(player);
+	             }
+            if ( tech_level >= 1)
+                 {  GTTrain( player, 4, c_townMain, c_TU_Marauder , 6 );
+            	    GTTrainI( player, 2, c_townMain, c_TU_Marauder , 6 + GTEGroAM(player)/4 + GTCountE(player, c_ZU_Baneling), c_TB_CommandCenter_Alias, 2 );
+	             }
+
+	         if ( tech_level >= 4)
+	         	{
+	         	      if( AIHasRes(player, 450, 0) )
+	         	      {GTTrainA ( player, 2, c_townMain, c_TU_Hellion ,  10, c_TB_FactoryReactor, 1  ); }
+	        	      GTTrainA ( player, 2, c_townMain, c_TU_Hellion ,  GTEGroL(player)/6, c_TU_Battlecruiser, 2  );
+	        	 }
+	         if ( tech_level >= 3  )
+	        	  	  {    GTTrainA ( player, 2, c_townMain, c_TU_Medivac , 2, c_TB_Starport, 1 );
+	        	          GTTrainI ( player, 2, c_townMain, c_TU_Medivac , GTOSoldier(player)/8, c_TU_Battlecruiser, 2 );
+	        	  	  }
+
+	  	         if ( tech_level >= 5)
+	  		  {
+	  		    GTTrain ( player, 10, c_townMain, c_TU_Battlecruiser,  8 );
+	  		  }
+
+        }
+
+    
+	  //--------------------------------------
+	  // Build Management
+	  //--------------------------------------
+
+	  	  GTDefendTown(player, 0 );
+		  GTAutoBDefend(player, 0);
+	  	  if (tech_level >= 0)
+	    { 	  GTBuild ( player, 4, 0, c_TB_Barracks, 3, c_nearCloseFactory);
+	  		  GTBuildI ( player, 4, 0, c_TB_Factory, 1, c_nearCloseFactory, c_TB_CommandCenter_Alias, 2);
+	    GTBuildI ( player, 2, 0,  c_TB_Refinery, 1, c_onVespeneGas, c_TB_Barracks, 3);
+	    GTBuildI ( player, 2, 0,  c_TB_Refinery, 2, c_onVespeneGas, c_TB_BarracksTechLab, 1);
+	     GTBuildI ( player,7, 0, c_TB_BarracksTechLab, 2, 0, c_TB_Refinery, 1);
+	     GTBuildI ( player,7, 0, c_TB_BarracksReactor, 1, 0, c_TB_Refinery, 2);
+	     GTResearchA ( player, 3, 0, c_TR_MarineShield, c_TB_BarracksTechLab, 1 );
+	     GTResearchI (player, 3, 0, c_TR_MarineStimPack, c_TR_MarineShield, 1);
+		    if (GTOArmy(player) + 1 < GTEArmy(player) && GTTowns(player) == 1)
+		   		 { GTBuildPA(player,  c_TB_Bunker, 1 , GTDO(player, 0));}
+	    }
+	    if (GTFinishIA( player, c_TB_CommandCenter_Alias, 2))
+	    {
+		   GTBuildTA ( player, 7, 0,  c_TB_OrbitalCommand , 2, 0, c_TB_CommandCenter_Alias, 2);
+
+
+		 }
+	    if ( tech_level >= 1)
+	   	    {
+
+	    	  GTResearchI (player, 3, 0, c_TR_MarauderSlow, c_TR_MarineStimPack, 1);
+        	  }
+	    if (!GTNeedGhost(player))
+	    { if ( tech_level  >= 2)
+	 	 {
+	    	   GTBuild ( player, 2, 0, c_TB_Starport, 2, c_nearCloseFactory);
+	    	   GTBuildA ( player, 4, 0, c_TB_FusionCore, 1, c_nearResource, c_TB_Starport, 1);
+	    	   GTBuildI ( player, 7, 0, c_TB_StarportTechLab, 2, 0, c_TB_FusionCore, 1);
+
+	           GTBuildI ( player, 7, 0, c_TB_BarracksReactor, 1, 0, c_TU_Medivac, 2);
+	       	   GTBuildI ( player, 7, 0, c_TB_FactoryReactor, 1, 0, c_TB_CommandCenter_Alias, 3);
+	           GTBuildTI ( player, 2, 0, c_TB_Armory, 1, 0, c_TU_Battlecruiser, 3);
+	           GTResearchI ( player, 3, 0, c_TR_BattlecruiserYamato,  c_TU_Battlecruiser, 2);
+	           GTResearchI ( player, 3, 0, c_TR_BattlecruiserEnergy,  c_TR_BattlecruiserYamato, 1);
+	           GTResearchI ( player, 10, 0, c_TR_ShipWeapons3,  c_TB_Armory, 1);
+
+
+	 	 }
+
+		 if ( tech_level >= 4 )
+		 	{
+			  GTBuildI ( player, 2, 0, c_TB_Starport, 3, c_nearDoor, c_TU_Battlecruiser, 2);
+		      GTBuildA ( player, 7, 0, c_TB_StarportTechLab, 2, 0, c_TB_Starport, 3);
+		      GTBuildA ( player, 7, 0, c_TB_StarportReactor, 1, 0, c_TB_Starport, 3);
+
+		 	}
+		 if (GTFinishIA(player, c_TU_Battlecruiser, 3))
+		 { GTAutoResearch(player); }
+
+
+
+
+     if (GTFinishA (player, c_TB_CommandCenter_Alias, 3))
+     {  GTBuildT ( player, 5, 0,  c_TB_PlanetaryFortress , AITechCount(player, c_TB_CommandCenter_Alias, c_techCountCompleteOnly) - 2, 0 ); }
+	    }
+
+
+		//--------------------------------------------
+		//   Expansion Town
+		//------------------------------------------
+            while ( i <= 16 )
+     	  	  {
+	      	 if (AIGetTownState(player, i ) == c_townStateEstablished) {
+                GTAutoBExpand(player, i);
+	      	 }
+			i = i + 1;
+		}
+ //----------------------------------------
+	 // Strategy
+     //-----------------------------------------
+	  		                    GTDefend(player);
+
+	  		                    if (GTFinishA(player, c_TU_Battlecruiser, 1))
+	  		                    { GTRock(player); }
+	  		    			    if ( GTCanAttack(player) && GTFinishIA(player, c_TR_MarineStimPack, 1))
+	  		    			    {   AIWaveMerge(player, c_waveDivert2, c_waveAttack);
+	  		    			        AIWaveMerge(player, c_waveDivert1, c_waveAttack);
+	  		    			    	GTAttack(player);}
+	  		    			    else if (GTNeedRetreat(player))
+
+	  		    			    { GTRetreat(player);}
+	  		    			    else
+	  		    			    { GTDivert1(player, c_TU_Reaper);
+	  		    			      GTDivert2(player, c_TU_Banshee);
+
+
+	  		    			    }
+
+
+
+
+// Run
+
+}
+
+

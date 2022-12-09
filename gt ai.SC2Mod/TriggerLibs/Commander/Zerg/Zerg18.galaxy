@@ -1,0 +1,159 @@
+//==================================================================================================
+//  Zerg First Edition
+//==================================================================================================
+
+
+//--------------------------------------------------------------------------------------------------
+//  ZergMid0 Overpool (Mass Hydra)
+//--------------------------------------------------------------------------------------------------
+void ZergLate2 (int player) {
+	 int towns = GTTowns (player);
+	 int tech_level = 0;
+	 int i = 1;
+	 int choice = RandomInt(1, 2);
+
+	 GTMicro(player);
+	 GTName(player, "Hellfire");
+	 
+     GTShowTimer(player);
+if (!GTFinishIA(player, c_ZB_Extractor, 1 ) )
+	 {
+	 		GTTrain(player, 2, 0, c_ZU_Drone, 10);
+	 		GTTrain(player, 2, 0, c_ZU_Overlord, 2);
+	 		GTBuild(player, 2, 0, c_ZB_SpawningPool, 1, c_nearResource );
+	 		GTTrainI(player, 2, 0, c_ZU_Drone, 13, c_ZB_SpawningPool, 1);
+	        GTTrainA(player, 2, 0, c_ZU_Zergling, 6, c_ZB_SpawningPool, 1);
+	        GTTrainI(player, 2, 0, c_ZU_Queen, 1, c_ZU_Zergling, 6);
+	        GTTrainI(player, 2, 0, c_ZU_Overlord, 3, c_ZU_Queen, 1 );
+	        GTBuildI(player, 2, 0, c_ZB_Extractor, 1, c_onVespeneGas, c_ZU_Overlord, 3);
+	 		
+	 		return;
+	 }
+
+
+tech_level = GTGetTech(player,  c_ZB_SpawningPool, c_ZB_Lair_Alias, c_ZB_HydraliskDen_Alias,  c_ZB_InfestationPit, c_ZB_InfestationPit, c_ZB_InfestationPit,  c_ZB_InfestationPit, c_ZB_InfestationPit );
+
+//------------------------------------
+// Economy Management
+//---------------------------------------
+    
+     GTSupply (player, 5 + tech_level);
+     if(5*GTOArmy(player) > 4*GTEArmy(player)){GTCreateWorkers (player);}
+
+        if (GTOArmy(player) < GTEArmy(player))
+	    {AISetDifficulty(player, c_diffFleeDamage, false); }
+        else
+        {AISetDifficulty(player, c_diffFleeDamage, true); }
+
+ GTExpand(player);
+        GTCreepTumor(player);
+
+
+	  //----------------------------
+	  // Unit Production
+	  //---------------------------
+
+
+
+	  	   if ( tech_level >= 1)
+	  	   {   
+	  		  GTTrainA ( player, 10, c_townMain, c_ZU_Zergling, GTCount(player, c_ZU_Zergling)+4, c_ZB_SpawningPool, 1  );
+	  		  GTTrainI ( player, 10, c_townMain, c_ZU_Zergling, GTCount(player, c_ZU_Zergling)+4, c_ZU_Zergling, GTCount(player, c_ZU_Zergling)/16  );
+			}
+
+	  	  if ( tech_level >= 2 )
+	  	  {   
+	  		GTTrainA ( player, 10, 0, c_ZU_Hydralisk, GTCount(player, c_ZU_Zergling)/4, c_ZB_HydraliskDen_Alias, 1  );
+	  		GTTrainI ( player, 10, 0, c_ZU_Hydralisk, GTCount(player, c_ZU_Zergling)/4, c_ZU_Hydralisk, GTCount(player, c_ZU_Zergling)/64  );
+			}
+
+	  	  if ( tech_level >= 4 )
+	  	  {   
+	  		 GTTrainA ( player, 2, c_townMain, c_ZU_Infestor, GTOGro(player)/8, c_ZB_InfestationPit, 1  );
+	  		 GTTrainI ( player, 2, c_townMain, c_ZU_Infestor, GTOGro(player)/8, c_ZU_Infestor, GTOGro(player)/128  );
+			}
+
+
+	  if ( tech_level == 8 && GTTowns(player) >= 2)
+	  		{ 
+	  		GTTrainA ( player, 10, c_townMain, c_ZU_Ultralisk, GTCount(player, c_ZU_Hydralisk)+4, c_ZB_UltraliskCavern, 1  );
+	  		GTTrainI ( player, 10, c_townMain, c_ZU_Ultralisk, GTCount(player, c_ZU_Hydralisk)+4, c_ZU_Ultralisk, GTCount(player, c_ZU_Ultralisk)/64  );
+			}
+
+	         
+
+     //----------------------------------------
+	 // Strategy
+     //-----------------------------------------
+	  		                    GTDefend(player);
+	  		                    if (GTTowns(player) >= 3)
+	  		                    { GTRock(player); }
+	  		                  if (GTCanAttack(player))
+	  		               	  		 { GTAttack(player);}
+	  		    			    else if (GTNeedRetreat(player))
+	  		    			    { GTRetreat(player);}
+
+
+
+	  //--------------------------------------
+	  // Build Management
+	  //--------------------------------------
+	  	  	GTAutoBDefend(player, 0);
+	  		GTDefendTown(player, 0 );
+	  		 GTQueenBuild(player, 0);
+
+    
+
+	    if ( tech_level >= 1 )
+	    {   
+		GTBuildTI (player, 10, 0, c_ZB_Lair_Alias, 1, 0, c_ZU_Queen, 1);
+		GTBuildI(player, 2, 0, c_ZB_Extractor, 2, c_onVespeneGas, c_ZB_Lair_Alias, 1);
+		GTBuildPAA(player,  c_ZB_EvolutionChamber, 1, GTPUnitNearest(player, c_ZB_SpawningPool, GTDI(player, 0)), c_ZB_Lair_Alias, 1);
+
+		GTResearchI(player, 3, 0, c_ZR_ZerglingSpeed, c_ZB_Lair_Alias, 1);
+		GTResearchI(player, 3, 0, c_ZR_MissileAttacks1, c_ZB_Lair_Alias, 1);
+		}
+
+
+		 if ( tech_level >= 3)
+		     {   
+		GTBuildA(player, 2, 0, c_ZB_HydraliskDen_Alias, 1, c_nearFarDefense, c_ZB_Lair_Alias, 1);
+
+		GTResearch(player, 3, 0, c_ZR_HydraliskRange);
+		 }
+
+		 if ( tech_level >= 4 && GTFinishIA(player, c_ZB_Hatchery_Alias, 2 ))
+		 	{ 
+		GTBuildPAA(player,  c_ZB_InfestationPit, 1, GTPUnitNearest(player, c_ZB_HydraliskDen_Alias, GTDI(player, 0)), c_ZB_HydraliskDen_Alias, 1);
+		GTBuild(player, 2, 1, c_ZB_EvolutionChamber, 1, c_nearCloseDefense);
+
+		GTResearch(player, 3, 0, c_ZR_GroundCarapace1);
+
+		 }
+
+
+      if ( tech_level >= 8 && GTFinishIA(player, c_ZB_Hatchery_Alias, 2 ))
+	      { 
+		GTBuildT (player, 10, 0, c_ZB_Hive, 1, 0);
+		GTBuildPAA(player,  c_ZB_UltraliskCavern, 1, GTPUnitNearest(player, c_ZB_InfestationPit, GTDI(player, 0)), c_ZB_Hive, 1);
+
+		GTResearch(player, 3, 0, c_ZR_GroundCarapace2);
+				GTAutoResearch(player);
+		  }
+
+
+		//--------------------------------------------
+		//   Expansion Town
+		//------------------------------------------
+		 while ( i <= 16 )
+		 	  	  {
+	      	 if (AIGetTownState(player, i ) == c_townStateEstablished) {
+                GTAutoBExpand(player, i);
+	      	 }
+			i = i + 1;
+		}
+
+
+// Run
+
+}

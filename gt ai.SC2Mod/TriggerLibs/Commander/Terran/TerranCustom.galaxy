@@ -1,0 +1,70 @@
+
+//--------------------------------------------------------------------------------------------------
+// Terran Build
+//--------------------------------------------------------------------------------------------------
+void TerranCustom (int player) {
+	 int slot = GTableGetInt(player, "CustomBuild");
+	 int towns = GTTowns (player);
+	 int i = 1;
+
+     GTShowTimer(player);
+	 GTPreventScout(player);
+	 GTMicro(player);
+	
+	 GTDefend(player);
+
+//----------------------------------------
+//Attack condition
+//-------------------------------------------
+	 if ( towns > 1){
+		 GTRock(player);
+	 }
+	 if ( GTCanAttack(player)){
+		 GTAttack(player);
+	 }
+	 else if (GTNeedRetreat(player)){
+		 GTRetreat(player);
+	 }
+
+
+//-----------------------------------------------
+//Opening
+//---------------------------------------------
+	 if (GTBuildStep(player, slot )){
+		 return;
+	 }
+	 if (!g_autobuild){
+		 return;
+	 }
+//----------------------------------------------
+//Auto Build
+//------------------------------------------------
+	 GTDefendTown(player, 0 );
+	 GTAutoBDefend(player, 0);
+	 GTSupply (player, 8);
+	if (!GTFinishA(player, c_TB_CommandCenter_Alias, 2) || GTFinishIA(player, c_TB_OrbitalCommand, 2) || GTFinishIA(player, c_TB_PlanetaryFortress, 1)  ){
+		GTCreateWorkers (player);
+	}
+
+	 GTExpand(player);
+
+	GTBuildTA ( player, 7, 0,  c_TB_OrbitalCommand , 2, 0, c_TB_CommandCenter_Alias, 2);
+	if (GTFinishA (player, c_TB_CommandCenter_Alias, 3)){
+		  GTBuildT ( player, 5, 0,  c_TB_PlanetaryFortress , AITechCount(player, c_TB_CommandCenter_Alias, c_techCountCompleteOnly) - 2, 0 );
+	}
+	 GTCounterTerran(player);
+	 GTBasicTrain(player);
+	 GTAutoResearch(player);
+
+//-------------------------------------------
+//Expansion Build
+//---------------------------------------------
+     while ( i <= 15 ){
+    	if (AIGetTownState(player, i ) == c_townStateEstablished) {
+    		GTAutoBExpand(player, i);
+    	}
+		i = i + 1;
+	}
+}
+
+

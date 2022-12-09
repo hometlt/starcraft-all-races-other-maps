@@ -1,0 +1,424 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Catalog>
+    <CAbilBuild id="ProtossBuildCustomMP">
+        <Name value="Abil/Name/ProtossBuild"/>
+        <EditorCategories value="Race:Protoss,AbilityorEffectType:Units"/>
+        <DataCollection value="ProtossBuild"/>
+        <FlagArray index="PeonDisableCollision" value="1"/>
+        <FlagArray index="PeonMaintained" value="0"/>
+        <InfoArray index="Build1" Unit="Nexus" Time="1">
+            <Charge Link="Abil/ProtossBuild"/>
+            <Cooldown Link="Abil/ProtossBuild"/>
+            <Button DefaultButtonFace="Nexus"/>
+        </InfoArray>
+        <InfoArray index="Build2" Unit="Pylon" Time="1">
+            <Charge Link="Abil/ProtossBuild"/>
+            <Cooldown Link="Abil/ProtossBuild"/>
+            <Button DefaultButtonFace="Pylon"/>
+        </InfoArray>
+        <InfoArray index="Build3" Unit="Assimilator" Time="1">
+            <Charge Link="Abil/ProtossBuild"/>
+            <Cooldown Link="Abil/ProtossBuild"/>
+            <Button DefaultButtonFace="Assimilator"/>
+            <ValidatorArray value="HasVespene"/>
+        </InfoArray>
+        <InfoArray index="Build4" Unit="Gateway" Time="1">
+            <Charge Link="Abil/ProtossBuild"/>
+            <Cooldown Link="Abil/ProtossBuild"/>
+            <Button DefaultButtonFace="Gateway" State="Suppressed"/>
+        </InfoArray>
+        <InfoArray index="Build5" Unit="Forge" Time="1">
+            <Charge Link="Abil/ProtossBuild"/>
+            <Cooldown Link="Abil/ProtossBuild"/>
+            <Button DefaultButtonFace="Forge"/>
+        </InfoArray>
+        <InfoArray index="Build6" Unit="FleetBeacon" Time="1">
+            <Charge Link="Abil/ProtossBuild"/>
+            <Cooldown Link="Abil/ProtossBuild"/>
+            <Button DefaultButtonFace="FleetBeacon" State="Suppressed"/>
+        </InfoArray>
+        <InfoArray index="Build7" Unit="TwilightCouncil" Time="1">
+            <Charge Link="Abil/ProtossBuild"/>
+            <Cooldown Link="Abil/ProtossBuild"/>
+            <Button DefaultButtonFace="TwilightCouncil" State="Suppressed"/>
+        </InfoArray>
+        <InfoArray index="Build8" Unit="PhotonCannon" Time="1">
+            <Charge Link="Abil/ProtossBuild"/>
+            <Cooldown Link="Abil/ProtossBuild"/>
+            <Button DefaultButtonFace="PhotonCannon"/>
+        </InfoArray>
+        <InfoArray index="Build9" Time="1">
+            <Charge Link="Abil/ProtossBuild"/>
+            <Cooldown Link="Abil/ProtossBuild"/>
+        </InfoArray>
+        <InfoArray index="Build10" Unit="Stargate" Time="1">
+            <Charge Link="Abil/ProtossBuild"/>
+            <Cooldown Link="Abil/ProtossBuild"/>
+            <Button DefaultButtonFace="Stargate" State="Suppressed"/>
+        </InfoArray>
+        <InfoArray index="Build11" Unit="TemplarArchive" Time="1">
+            <Charge Link="Abil/ProtossBuild"/>
+            <Cooldown Link="Abil/ProtossBuild"/>
+            <Button DefaultButtonFace="TemplarArchive" State="Suppressed"/>
+        </InfoArray>
+        <InfoArray index="Build12" Unit="DarkShrine" Time="1">
+            <Charge Link="Abil/ProtossBuild"/>
+            <Cooldown Link="Abil/ProtossBuild"/>
+            <Button DefaultButtonFace="DarkShrine" State="Suppressed"/>
+        </InfoArray>
+        <InfoArray index="Build13" Unit="RoboticsBay" Time="1">
+            <Charge Link="Abil/ProtossBuild"/>
+            <Cooldown Link="Abil/ProtossBuild"/>
+            <Button DefaultButtonFace="RoboticsBay" State="Suppressed"/>
+        </InfoArray>
+        <InfoArray index="Build14" Unit="RoboticsFacility" Time="1">
+            <Charge Link="Abil/ProtossBuild"/>
+            <Cooldown Link="Abil/ProtossBuild"/>
+            <Button DefaultButtonFace="RoboticsFacility" State="Suppressed"/>
+        </InfoArray>
+        <InfoArray index="Build15" Unit="CyberneticsCore" Time="1">
+            <Charge Link="Abil/ProtossBuild"/>
+            <Cooldown Link="Abil/ProtossBuild"/>
+            <Button DefaultButtonFace="CyberneticsCore" State="Suppressed"/>
+        </InfoArray>
+        <InfoArray index="Build16" Unit="ShieldBattery" Time="1">
+            <Charge Link="Abil/ProtossBuild"/>
+            <Cooldown Link="Abil/ProtossBuild"/>
+            <Button DefaultButtonFace="ShieldBattery" State="Suppressed"/>
+        </InfoArray>
+        <InfoArray index="Build17" Time="1">
+            <Charge Link="Abil/ProtossBuild"/>
+            <Cooldown Link="Abil/ProtossBuild"/>
+        </InfoArray>
+        <InfoArray index="Build18" Time="1">
+            <Charge Link="Abil/ProtossBuild"/>
+            <Cooldown Link="Abil/ProtossBuild"/>
+        </InfoArray>
+        <InfoArray index="Build19" Time="1">
+            <Charge Link="Abil/ProtossBuild"/>
+            <Cooldown Link="Abil/ProtossBuild"/>
+        </InfoArray>
+        <InfoArray index="Build20" Time="1">
+            <Charge Link="Abil/ProtossBuild"/>
+            <Cooldown Link="Abil/ProtossBuild"/>
+        </InfoArray>
+        <InfoArray index="Build21" Unit="WarpGate">
+            <Charge Link="Abil/ProtossBuild"/>
+            <Cooldown Link="Abil/ProtossBuild"/>
+            <Button DefaultButtonFace="UpgradeToWarpGate"/>
+        </InfoArray>
+        <InfoArray index="Build22">
+            <Charge Link="Abil/ProtossBuild"/>
+            <Cooldown Link="Abil/ProtossBuild"/>
+        </InfoArray>
+        <InfoArray index="Build23">
+            <Charge Link="Abil/ProtossBuild"/>
+            <Cooldown Link="Abil/ProtossBuild"/>
+        </InfoArray>
+        <InfoArray index="Build24">
+            <Charge Link="Abil/ProtossBuild"/>
+            <Cooldown Link="Abil/ProtossBuild"/>
+        </InfoArray>
+        <InfoArray index="Build25">
+            <Charge Link="Abil/ProtossBuild"/>
+            <Cooldown Link="Abil/ProtossBuild"/>
+        </InfoArray>
+        <InfoArray index="Build26">
+            <Charge Link="Abil/ProtossBuild"/>
+            <Cooldown Link="Abil/ProtossBuild"/>
+        </InfoArray>
+        <InfoArray index="Build27">
+            <Charge Link="Abil/ProtossBuild"/>
+            <Cooldown Link="Abil/ProtossBuild"/>
+        </InfoArray>
+        <InfoArray index="Build28">
+            <Charge Link="Abil/ProtossBuild"/>
+            <Cooldown Link="Abil/ProtossBuild"/>
+        </InfoArray>
+        <InfoArray index="Build29">
+            <Charge Link="Abil/ProtossBuild"/>
+            <Cooldown Link="Abil/ProtossBuild"/>
+        </InfoArray>
+        <InfoArray index="Build30">
+            <Charge Link="Abil/ProtossBuild"/>
+            <Cooldown Link="Abil/ProtossBuild"/>
+        </InfoArray>
+        <ConstructionMover value="Construction"/>
+    </CAbilBuild>
+    <CAbilBuild id="TerranMPBuildCustom">
+        <Name value="Abil/Name/TerranBuild"/>
+        <EditorCategories value="Race:Terran,AbilityorEffectType:Units"/>
+        <DataCollection value="TerranBuild"/>
+        <FlagArray index="Interruptible" value="1"/>
+        <FlagArray index="PeonDisableCollision" value="1"/>
+        <FlagArray index="PeonMaintained" value="0"/>
+        <InfoArray index="Build1" Unit="LegacyCommandCenter" Time="1">
+            <Charge Link="Abil/TerranBuild"/>
+            <Cooldown Link="Abil/TerranBuild"/>
+            <Button DefaultButtonFace="CommandCenter" State="Suppressed"/>
+        </InfoArray>
+        <InfoArray index="Build2" Unit="LegacySupplyDepot" Time="1">
+            <Charge Link="Abil/TerranBuild"/>
+            <Cooldown Link="Abil/TerranBuild"/>
+            <Button DefaultButtonFace="SupplyDepot"/>
+        </InfoArray>
+        <InfoArray index="Build3" Unit="LegacyRefinery" Time="1">
+            <Charge Link="Abil/TerranBuild"/>
+            <Cooldown Link="Abil/TerranBuild"/>
+            <Button DefaultButtonFace="Refinery"/>
+            <ValidatorArray value="HasVespene"/>
+        </InfoArray>
+        <InfoArray index="Build4" Unit="LegacyBarracks" Time="1">
+            <Charge Link="Abil/TerranBuild"/>
+            <Cooldown Link="Abil/TerranBuild"/>
+            <Button DefaultButtonFace="Barracks" State="Suppressed"/>
+        </InfoArray>
+        <InfoArray index="Build5" Unit="LegacyEngineeringBay" Time="1">
+            <Charge Link="Abil/TerranBuild"/>
+            <Cooldown Link="Abil/TerranBuild"/>
+            <Button DefaultButtonFace="EngineeringBay" State="Suppressed"/>
+        </InfoArray>
+        <InfoArray index="Build6" Unit="LegacyMissileTurret" Time="1">
+            <Charge Link="Abil/TerranBuild"/>
+            <Cooldown Link="Abil/TerranBuild"/>
+            <Button DefaultButtonFace="MissileTurret" State="Restricted"/>
+        </InfoArray>
+        <InfoArray index="Build7" Unit="LegacyBunker" Time="1">
+            <Charge Link="Abil/TerranBuild"/>
+            <Cooldown Link="Abil/TerranBuild"/>
+            <Button DefaultButtonFace="Bunker" State="Restricted"/>
+        </InfoArray>
+        <InfoArray index="Build8" Unit="LegacyRefineryRich" Time="1">
+            <Charge Link="Abil/TerranBuild"/>
+            <Cooldown Link="Abil/TerranBuild"/>
+            <Button DefaultButtonFace="Refinery"/>
+            <ValidatorArray value="HasVespene"/>
+        </InfoArray>
+        <InfoArray index="Build9" Unit="LegacySensorTower" Time="1">
+            <Charge Link="Abil/TerranBuild"/>
+            <Cooldown Link="Abil/TerranBuild"/>
+            <Button DefaultButtonFace="SensorTower" State="Restricted"/>
+        </InfoArray>
+        <InfoArray index="Build10" Unit="LegacyGhostAcademy" Time="1">
+            <Charge Link="Abil/TerranBuild"/>
+            <Cooldown Link="Abil/TerranBuild"/>
+            <Button DefaultButtonFace="GhostAcademy" State="Suppressed"/>
+        </InfoArray>
+        <InfoArray index="Build11" Unit="LegacyFactory" Time="1">
+            <Charge Link="Abil/TerranBuild"/>
+            <Cooldown Link="Abil/TerranBuild"/>
+            <Button DefaultButtonFace="Factory" State="Suppressed"/>
+        </InfoArray>
+        <InfoArray index="Build12" Unit="LegacyStarport" Time="1">
+            <Charge Link="Abil/TerranBuild"/>
+            <Cooldown Link="Abil/TerranBuild"/>
+            <Button DefaultButtonFace="Starport" State="Suppressed"/>
+        </InfoArray>
+        <InfoArray index="Build13" Time="1">
+            <Charge Link="Abil/TerranBuild"/>
+            <Cooldown Link="Abil/TerranBuild"/>
+            <Button State="Suppressed"/>
+        </InfoArray>
+        <InfoArray index="Build14" Unit="LegacyArmory" Time="1">
+            <Charge Link="Abil/TerranBuild"/>
+            <Cooldown Link="Abil/TerranBuild"/>
+            <Button DefaultButtonFace="Armory" State="Suppressed"/>
+        </InfoArray>
+        <InfoArray index="Build15" Time="1">
+            <Charge Link="Abil/TerranBuild"/>
+            <Cooldown Link="Abil/TerranBuild"/>
+        </InfoArray>
+        <InfoArray index="Build16" Unit="LegacyFusionCore" Time="1">
+            <Charge Link="Abil/TerranBuild"/>
+            <Cooldown Link="Abil/TerranBuild"/>
+            <Button DefaultButtonFace="FusionCore" State="Suppressed"/>
+        </InfoArray>
+        <InfoArray index="Build17" Time="1">
+            <Charge Link="Abil/TerranBuild"/>
+            <Cooldown Link="Abil/TerranBuild"/>
+        </InfoArray>
+        <InfoArray index="Build18" Time="1">
+            <Charge Link="Abil/TerranBuild"/>
+            <Cooldown Link="Abil/TerranBuild"/>
+        </InfoArray>
+        <InfoArray index="Build19" Time="1">
+            <Charge Link="Abil/TerranBuild"/>
+            <Cooldown Link="Abil/TerranBuild"/>
+        </InfoArray>
+        <InfoArray index="Build20" Time="1">
+            <Charge Link="Abil/TerranBuild"/>
+            <Cooldown Link="Abil/TerranBuild"/>
+        </InfoArray>
+        <InfoArray index="Build21" Unit="LegacyOrbitalCommand">
+            <Charge Link="Abil/TerranBuild"/>
+            <Cooldown Link="Abil/TerranBuild"/>
+            <Button DefaultButtonFace="OrbitalCommand"/>
+        </InfoArray>
+        <InfoArray index="Build22" Unit="LegacyPlanetaryFortress">
+            <Charge Link="Abil/TerranBuild"/>
+            <Cooldown Link="Abil/TerranBuild"/>
+            <Button DefaultButtonFace="PlanetaryFortress"/>
+        </InfoArray>
+        <InfoArray index="Build23" Unit="LegacyTechLab" Time="1">
+            <Charge Link="Abil/TerranBuild"/>
+            <Cooldown Link="Abil/TerranBuild"/>
+            <Button DefaultButtonFace="BuildTechLab"/>
+        </InfoArray>
+        <InfoArray index="Build24" Unit="LegacyReactor" Time="1">
+            <Charge Link="Abil/TerranBuild"/>
+            <Cooldown Link="Abil/TerranBuild"/>
+            <Button DefaultButtonFace="Reactor"/>
+        </InfoArray>
+        <FidgetDelayMin value="5"/>
+        <FidgetDelayMax value="10"/>
+        <ConstructionMover value="Construction"/>
+    </CAbilBuild>
+    <CAbilBuild id="ZergBuildCustomMP">
+        <Name value="Abil/Name/ZergBuild"/>
+        <EditorCategories value="Race:Zerg,AbilityorEffectType:MorphsandBurrows"/>
+        <DataCollection value="ZergBuild"/>
+        <FlagArray index="PeonMaintained" value="0"/>
+        <FlagArray index="RangeIncludesBuilding" value="0"/>
+        <InfoArray index="Build1" Unit="LegacyHatchery" Time="1">
+            <Charge Link="Abil/ZergBuild"/>
+            <Cooldown Link="Abil/ZergBuild"/>
+            <Button DefaultButtonFace="Hatchery"/>
+        </InfoArray>
+        <InfoArray index="Build2" Unit="LegacyCreepTumor" Time="1">
+            <Charge Link="Abil/ZergBuild"/>
+            <Cooldown Link="Abil/ZergBuild"/>
+            <Button DefaultButtonFace="CreepTumor"/>
+        </InfoArray>
+        <InfoArray index="Build3" Unit="LegacyExtractor" Time="1">
+            <Charge Link="Abil/ZergBuild"/>
+            <Cooldown Link="Abil/ZergBuild"/>
+            <Button DefaultButtonFace="Extractor"/>
+            <ValidatorArray value="HasVespene"/>
+        </InfoArray>
+        <InfoArray index="Build4" Unit="LegacySpawningPool" Time="1">
+            <Charge Link="Abil/ZergBuild"/>
+            <Cooldown Link="Abil/ZergBuild"/>
+            <Button DefaultButtonFace="SpawningPool"/>
+        </InfoArray>
+        <InfoArray index="Build5" Unit="LegacyEvolutionChamber" Time="1">
+            <Charge Link="Abil/ZergBuild"/>
+            <Cooldown Link="Abil/ZergBuild"/>
+            <Button DefaultButtonFace="EvolutionChamber"/>
+        </InfoArray>
+        <InfoArray index="Build6" Unit="LegacyHydraliskDen" Time="1">
+            <Charge Link="Abil/ZergBuild"/>
+            <Cooldown Link="Abil/ZergBuild"/>
+            <Button DefaultButtonFace="HydraliskDen"/>
+        </InfoArray>
+        <InfoArray index="Build7" Unit="LegacySpire" Time="1">
+            <Charge Link="Abil/ZergBuild"/>
+            <Cooldown Link="Abil/ZergBuild"/>
+            <Button DefaultButtonFace="Spire"/>
+        </InfoArray>
+        <InfoArray index="Build8" Unit="LegacyUltraliskCavern" Time="1">
+            <Charge Link="Abil/ZergBuild"/>
+            <Cooldown Link="Abil/ZergBuild"/>
+            <Button DefaultButtonFace="UltraliskCavern"/>
+        </InfoArray>
+        <InfoArray index="Build9" Unit="LegacyInfestationPit" Time="1">
+            <Charge Link="Abil/ZergBuild"/>
+            <Cooldown Link="Abil/ZergBuild"/>
+            <Button DefaultButtonFace="InfestationPit"/>
+        </InfoArray>
+        <InfoArray index="Build10" Unit="LegacyNydusNetwork" Time="1">
+            <Charge Link="Abil/ZergBuild"/>
+            <Cooldown Link="Abil/ZergBuild"/>
+            <Button DefaultButtonFace="NydusNetwork"/>
+        </InfoArray>
+        <InfoArray index="Build11" Unit="LegacyBanelingNest" Time="1">
+            <Charge Link="Abil/ZergBuild"/>
+            <Cooldown Link="Abil/ZergBuild"/>
+            <Button DefaultButtonFace="BanelingNest"/>
+        </InfoArray>
+        <InfoArray index="Build12" Unit="LegacyLurkerDenMP" Time="1">
+            <Charge Link="Abil/ZergBuild"/>
+            <Cooldown Link="Abil/ZergBuild"/>
+            <Button DefaultButtonFace="MutateintoLurkerDenMP"/>
+        </InfoArray>
+        <InfoArray index="Build13" Time="1">
+            <Charge Link="Abil/ZergBuild"/>
+            <Cooldown Link="Abil/ZergBuild"/>
+        </InfoArray>
+        <InfoArray index="Build14" Unit="LegacyRoachWarren" Time="1">
+            <Charge Link="Abil/ZergBuild"/>
+            <Cooldown Link="Abil/ZergBuild"/>
+            <Button DefaultButtonFace="RoachWarren"/>
+        </InfoArray>
+        <InfoArray index="Build15" Unit="LegacySpineCrawler" Time="1">
+            <Charge Link="Abil/ZergBuild"/>
+            <Cooldown Link="Abil/ZergBuild"/>
+            <Button DefaultButtonFace="SpineCrawler"/>
+        </InfoArray>
+        <InfoArray index="Build16" Unit="LegacySporeCrawler" Time="1">
+            <Charge Link="Abil/ZergBuild"/>
+            <Cooldown Link="Abil/ZergBuild"/>
+            <Button DefaultButtonFace="SporeCrawler"/>
+        </InfoArray>
+        <InfoArray index="Build17" Time="1">
+            <Charge Link="Abil/ZergBuild"/>
+            <Cooldown Link="Abil/ZergBuild"/>
+        </InfoArray>
+        <InfoArray index="Build18" Time="1">
+            <Charge Link="Abil/ZergBuild"/>
+            <Cooldown Link="Abil/ZergBuild"/>
+        </InfoArray>
+        <InfoArray index="Build19" Time="1">
+            <Charge Link="Abil/ZergBuild"/>
+            <Cooldown Link="Abil/ZergBuild"/>
+        </InfoArray>
+        <InfoArray index="Build20" Time="1">
+            <Charge Link="Abil/ZergBuild"/>
+            <Cooldown Link="Abil/ZergBuild"/>
+        </InfoArray>
+        <InfoArray index="Build21" Unit="LegacyLair" Time="1">
+            <Charge Link="Abil/ZergBuild"/>
+            <Cooldown Link="Abil/ZergBuild"/>
+            <Button DefaultButtonFace="Lair"/>
+        </InfoArray>
+        <InfoArray index="Build22" Unit="LegacyHive" Time="1">
+            <Charge Link="Abil/ZergBuild"/>
+            <Cooldown Link="Abil/ZergBuild"/>
+            <Button DefaultButtonFace="Hive"/>
+        </InfoArray>
+        <InfoArray index="Build23" Unit="LegacyGreaterSpire" Time="1">
+            <Charge Link="Abil/ZergBuild"/>
+            <Cooldown Link="Abil/ZergBuild"/>
+            <Button DefaultButtonFace="GreaterSpire"/>
+        </InfoArray>
+        <InfoArray index="Build24" Unit="LegacyNydusCanal" Time="1">
+            <Charge Link="Abil/ZergBuild"/>
+            <Cooldown Link="Abil/ZergBuild"/>
+            <Button DefaultButtonFace="SummonNydusWorm"/>
+        </InfoArray>
+        <InfoArray index="Build25" Unit="LegacyCreepTumor" Time="1">
+            <Charge Link="Abil/ZergBuild"/>
+            <Cooldown Link="Abil/ZergBuild"/>
+            <Button DefaultButtonFace="CreepTumor"/>
+        </InfoArray>
+        <InfoArray index="Build26">
+            <Charge Link="Abil/ZergBuild"/>
+            <Cooldown Link="Abil/ZergBuild"/>
+        </InfoArray>
+        <InfoArray index="Build27">
+            <Charge Link="Abil/ZergBuild"/>
+            <Cooldown Link="Abil/ZergBuild"/>
+        </InfoArray>
+        <InfoArray index="Build28">
+            <Charge Link="Abil/ZergBuild"/>
+            <Cooldown Link="Abil/ZergBuild"/>
+        </InfoArray>
+        <InfoArray index="Build29">
+            <Charge Link="Abil/ZergBuild"/>
+            <Cooldown Link="Abil/ZergBuild"/>
+        </InfoArray>
+        <InfoArray index="Build30">
+            <Charge Link="Abil/ZergBuild"/>
+            <Cooldown Link="Abil/ZergBuild"/>
+        </InfoArray>
+    </CAbilBuild>
+</Catalog>

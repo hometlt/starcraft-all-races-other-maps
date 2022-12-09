@@ -1,0 +1,126 @@
+//==================================================================================================
+//  Terran First Edition
+//==================================================================================================
+
+
+//--------------------------------------------------------------------------------------------------
+//  TerranOpenGnd0
+//--------------------------------------------------------------------------------------------------
+void Terran8 (int player) {
+	 int towns = GTTowns (player);
+	 int i = 1;
+	 GTName(player, DataTableGetString(true, IntToString(player)+ "GTName"));
+	 GTMicro(player);
+
+     GTShowTimer(player);
+     GTPreventScout(player);
+
+     if (GTime() > AIGetUserInt(player, 8) + 600 && GTOArmy(player) < GTEArmy(player) - 20){
+			AISetUserInt(player, 8, FixedToInt(GTime()));
+          	AISetMainState(player, e_mainState_Counter, e_mainSubState_Unset);
+     }
+     if (GTTerranOpening1(player)){
+    	 return;
+     }
+
+
+
+
+//---------------------------------------
+// Economy Management
+//---------------------------------------
+
+	GTSupply (player, 5);
+
+	if (!GTFinishA(player, c_TB_CommandCenter_Alias, 2) || GTFinishIA(player, c_TB_OrbitalCommand, 2) || GTFinishIA(player, c_TB_PlanetaryFortress, 1) ){
+		GTCreateWorkers (player);
+	}
+
+	// Expand
+		GTExpand(player);
+
+
+	//---------------------------------------
+	// Core Build
+	//---------------------------------------
+	 	 GTDefendTown(player, 0 );
+		 GTAutoBDefend(player, 0);
+
+	     //Building
+	     GBuild(player, c_TB_Factory, 1);
+	     GBuildI(player, c_TB_Starport, 2, c_TB_Factory, 1);
+
+	     GBuildS(player, c_TB_Refinery, 2, 20);
+	     GBuildA(player, c_TB_StarportTechLab, 1, c_TB_Starport, 1);
+	     GBuildA(player, c_TB_StarportTechLab, 2, c_TB_Starport, 2);
+	     GBuildA(player, c_TB_BarracksTechLab, 1, c_TU_Marine, 5);
+	     GBuildI(player, c_TB_FactoryTechLab, 2, c_TU_Banshee, 2);
+
+	     GResearchI(player, c_TR_BansheeCloak, c_TU_Banshee, 1);
+	     GTBuildTA(player, 2, 1, c_TB_OrbitalCommand, 2, 0,  c_TB_CommandCenter_Alias, 2);
+	     GBuildI(player, c_TB_Armory, 1, c_TU_Banshee, 4);
+	     GResearchA(player, c_TR_ShipWeapons1,  c_TB_Armory, 1);
+
+         GBuildI(player, c_TB_FusionCore, 1, c_TB_CommandCenter_Alias, 3);
+         GBuildI(player, c_TB_Starport, 3, c_TB_FusionCore, 1);
+         GBuildA(player, c_TB_StarportTechLab, 3, c_TB_Starport, 3);
+
+
+
+	     //Unit
+	     GTrain(player, c_TU_Marine, 4);
+	     GTrainA(player, c_TU_Marine, 6, c_TB_BarracksTechLab, 1);
+	     GTrainA(player, c_TU_Marine, 10, c_TU_Banshee, 1);
+	     if (GTFinishIA(player, c_TB_OrbitalCommand, 2)){
+	    	 GTBasicTrain(player);
+	     }
+	     if (AIHasRes(player, 500, 0)){
+	    	 GTrain(player, c_TU_Hellion, 10);
+	     }
+	     GTrain(player, c_TU_Hellion, 2 );
+	     GTrainA ( player, c_TU_Medivac , GTOSoldier(player)/8, c_TB_StarportTechLab, 2 );
+	     GTTrainA ( player, 4, c_townMain, c_TU_Marauder , GTEGroAM(player)/3, c_TB_BarracksTechLab, 1 );
+	     if (GTFinishA(player, c_TB_Armory, 1)){
+	    	 GTAutoResearch(player);
+	     }
+	     GTrainA(player,  c_TU_Banshee, 6, c_TB_StarportTechLab, 1);
+	     GTTrainA(player, 10, c_townMain, c_TU_Battlecruiser, 6, c_TB_FusionCore, 1);
+	     GTrainI(player,  c_TU_Banshee, 8, c_TU_Battlecruiser, 1);
+	     GTTrainA(player, 4, c_townMain, c_TU_Thor, 3, c_TB_Armory, 1);
+
+
+
+		//--------------------------------------------
+		//   Expansion Town
+		//------------------------------------------
+            while ( i <= 16 )
+     	  	  {
+	      	 if (AIGetTownState(player, i ) == c_townStateEstablished) {
+                GTAutoBExpand(player, i);
+	      	 }
+			i = i + 1;
+		}
+     //----------------------------------------
+	 // Strategy
+     //-----------------------------------------
+	  		                    GTDefend(player);
+
+	  		                    if (GTFinishA(player, c_TU_Thor, 1))
+	  		                    { GTRock(player); }
+	  		    			    if ( GTCanAttack(player) )
+	  		    			    {   AIWaveMerge(player, c_waveDivert2, c_waveAttack);
+	  		    			        AIWaveMerge(player, c_waveDivert1, c_waveAttack);
+	  		    			    	GTAttack(player);}
+	  		    			    else if (GTNeedRetreat(player))
+
+	  		    			    { GTRetreat(player);}
+
+
+
+
+
+// Run
+
+}
+
+

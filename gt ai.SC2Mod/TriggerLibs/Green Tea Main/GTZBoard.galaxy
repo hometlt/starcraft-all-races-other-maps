@@ -1,0 +1,1924 @@
+void GPauseAll(){
+	AITimePause(true);
+	TimerPause(GTRoundTime, true);
+	CameraLockInput(EventPlayer(),true);
+	UnitPauseAll(true);
+	return;
+}
+
+//---------------------------------------------------------------------
+// Opening Menu
+//----------------------------------------------------------------------
+
+int GOpenMenu = DialogCreate(580, 500, c_anchorCenter, 20, -100, true);
+int GOpenOption = DialogControlCreate(GOpenMenu, c_triggerControlTypeButton);
+int GVSRandom = DialogControlCreate(GOpenMenu, c_triggerControlTypeButton);
+int GVSSelect = DialogControlCreate(GOpenMenu, c_triggerControlTypeButton);
+int GVSLastSaved = DialogControlCreate(GOpenMenu, c_triggerControlTypeButton);
+int GOpenNote = DialogControlCreate(GOpenMenu, c_triggerControlTypeLabel);
+//int GOpenLoadR = DialogControlCreate(GOpenMenu, c_triggerControlTypeButton);
+int GOpenLoad = DialogControlCreate(GOpenMenu, c_triggerControlTypeButton);
+int GOpenRandom1 = DialogControlCreate(GOpenMenu, c_triggerControlTypeButton);
+int GOpenRandom2 = DialogControlCreate(GOpenMenu, c_triggerControlTypeButton);
+int GVSInfo = DialogControlCreate(GOpenMenu, c_triggerControlTypeLabel);
+int GOpenPractice = DialogControlCreate(GOpenMenu, c_triggerControlTypeButton);
+
+int GSelectBoard = DialogCreate(1130, 777, c_anchorCenter, 0, -150, true);
+
+int GBoardSInfo = DialogControlCreate(GSelectBoard, c_triggerControlTypeLabel);
+int GBoardSComLabel = DialogControlCreate(GSelectBoard, c_triggerControlTypeLabel);
+int GBoardSComIDLabel = DialogControlCreate(GSelectBoard, c_triggerControlTypeLabel);
+int GBoardSComID = DialogControlCreate(GSelectBoard, c_triggerControlTypeLabel);
+int GBoardSComNameLabel = DialogControlCreate(GSelectBoard, c_triggerControlTypeLabel);
+int GBoardSComStyleLabel = DialogControlCreate(GSelectBoard, c_triggerControlTypeLabel);
+int GBoardSComName = DialogControlCreate(GSelectBoard, c_triggerControlTypeLabel);
+int GBoardSComStyle = DialogControlCreate(GSelectBoard, c_triggerControlTypeLabel);
+int GBoardSChoose = DialogControlCreate(GSelectBoard, c_triggerControlTypeButton);
+int GBoardSChooseInfo = DialogControlCreate(GSelectBoard, c_triggerControlTypeLabel);
+int GBoardSClose = DialogControlCreate(GSelectBoard, c_triggerControlTypeButton);
+
+
+int [17] GBoardSPNone;
+int [17] GBoardSP;
+int [24] GBoardSCom;
+int [6] GBoardSPic;
+
+
+// Board Setup
+
+int GOptionBoard = DialogCreate(450, 500, c_anchorCenter, 550, -150, true);
+int GOptionClose = DialogControlCreate(GOptionBoard, c_triggerControlTypeButton);
+int GOptionAPM = DialogControlCreate(GOptionBoard, c_triggerControlTypeSlider);
+int GOptionAPMNum = DialogControlCreate(GOptionBoard, c_triggerControlTypeLabel);
+int GOptionDetail = DialogControlCreate(GOptionBoard, c_triggerControlTypeLabel);
+int GOptionStart = DialogControlCreate(GOptionBoard, c_triggerControlTypeButton);
+
+int [11] GOptionName;
+int [11] GOptionCheck;
+
+int GTrueTimer = DialogCreate(150, 75, c_anchorBottomLeft, 0, 290, true);
+int GTrueTimerDigit = DialogControlCreate(GTrueTimer, c_triggerControlTypeLabel);
+
+int GRecordStep = DialogCreate(480, 80, c_anchorBottomRight, 0, 400, true);
+int GRecordStepInfo = DialogControlCreate(GRecordStep, c_triggerControlTypeLabel);
+int GRecordSave = DialogControlCreate(GRecordStep, c_triggerControlTypeButton);
+int GRecordShow = DialogCreate(450, 80, c_anchorBottomLeft, 0, 350, true);
+int GRecordShowInfo = DialogControlCreate(GRecordShow, c_triggerControlTypeLabel);
+int GRecordShowList = DialogControlCreate(GRecordShow, c_triggerControlTypeButton);
+
+int GReminderBoard =  DialogCreate(350, 150, c_anchorTopRight, 0, 50, true);
+// int GReminderClose = DialogControlCreate(GReminderBoard, c_triggerControlTypeButton);
+int GReminderTips = DialogControlCreate(GReminderBoard, c_triggerControlTypeListBox);
+
+int GAttackBoard =  DialogCreate(250, 90, c_anchorTopRight, 350, 50, true);
+int GAttackButton = DialogControlCreate(GAttackBoard, c_triggerControlTypeButton);
+
+void GOpenMenuSetup(){
+	int numplayer = PlayerGroupCount(PlayerGroupActive());
+	int i;
+	DialogSetVisible(GTrueTimer, PlayerGroupActive(), g_truetime);
+	DialogSetVisible(GReminderBoard, PlayerGroupActive(), false);
+	DialogSetVisible(GAttackBoard, PlayerGroupActive(), false);
+
+	DialogControlSetPosition(GAttackButton, PlayerGroupActive(), c_anchorTopLeft, 25, 22);
+	DialogControlSetSize(GAttackButton, PlayerGroupActive(), 200, 50);
+	DialogControlSetPropertyAsText(GAttackButton, c_triggerControlPropertyText, PlayerGroupActive(), StringToText("AI Attack: On"));
+
+//	DialogControlSetVisible(GReminderClose, PlayerGroupActive(), false);
+    DialogControlSetPosition(GReminderTips, PlayerGroupActive(), c_anchorTopLeft, 25, 25);
+    DialogControlSetSize(GReminderTips, PlayerGroupActive(), 300, 100);
+
+	DialogControlSetPosition(GTrueTimerDigit, PlayerGroupActive(), c_anchorTopLeft, 30, 30);
+	DialogControlSetSize(GTrueTimerDigit, PlayerGroupActive(), 140, 40);
+	DialogControlSetPropertyAsText(GTrueTimerDigit, c_triggerControlPropertyText, PlayerGroupActive(), TextTimeFormat(StringToText("<hour/>:<min2/>:<sec2/>"), 0));
+
+	DialogSetVisible(GRecordStep, PlayerGroupActive(), false);
+	DialogSetVisible(GRecordShow, PlayerGroupActive(), false);
+	DialogSetVisible(GOpenMenu, PlayerGroupActive(), true);
+	DialogSetTitle(GOpenMenu,  TextWithColor(StringToText("GT START MENU"), Color(255, 255, 0)));
+
+	DialogControlSetPosition(GRecordStepInfo, PlayerGroupActive(), c_anchorTopLeft, 115, 30);
+	DialogControlSetSize(GRecordStepInfo, PlayerGroupActive(), 340, 40);
+	DialogControlSetPosition(GRecordSave, PlayerGroupActive(), c_anchorTopLeft, 25, 21);
+	DialogControlSetSize(GRecordSave, PlayerGroupActive(), 80, 40);
+	DialogControlSetPropertyAsText(GRecordSave, c_triggerControlPropertyText, PlayerGroupActive(), StringToText("Save"));
+
+	DialogControlSetPosition(GRecordShowInfo, PlayerGroupActive(), c_anchorTopLeft, 30, 30);
+	DialogControlSetSize(GRecordShowInfo, PlayerGroupActive(), 340, 40);
+	DialogControlSetPosition(GRecordShowList, PlayerGroupActive(), c_anchorTopRight, 25, 21);
+	DialogControlSetSize(GRecordShowList, PlayerGroupActive(), 80, 40);
+	DialogControlSetPropertyAsText(GRecordShowList, c_triggerControlPropertyText, PlayerGroupActive(), StringToText("List"));
+
+	DialogControlSetPosition(GOpenOption, PlayerGroupActive(), c_anchorTopLeft, 40, 80);
+	DialogControlSetSize(GOpenOption, PlayerGroupActive(), 160, 40);
+	DialogControlSetPropertyAsText(GOpenOption, c_triggerControlPropertyText, PlayerGroupActive(), StringToText("GT Option"));
+
+	DialogControlSetPosition(GVSInfo, PlayerGroupActive(), c_anchorTopLeft, 210, 90);
+	DialogControlSetSize(GVSInfo , PlayerGroupActive(), 400, 40);
+
+	DialogControlSetPosition(GVSRandom, PlayerGroupActive(), c_anchorTopLeft, 40, 130);
+	DialogControlSetSize(GVSRandom, PlayerGroupActive(), 160, 90);
+	DialogControlSetPropertyAsText(GVSRandom, c_triggerControlPropertyText, PlayerGroupActive(), TextWithColor(StringToText("VS Random General"),Color(255,255,0)));
+
+	DialogControlSetPosition(GVSSelect, PlayerGroupActive(), c_anchorTopLeft, 210, 130);
+	DialogControlSetSize(GVSSelect, PlayerGroupActive(), 160, 90);
+	DialogControlSetPropertyAsText(GVSSelect, c_triggerControlPropertyText, PlayerGroupActive(), StringToText("VS Selected General"));
+
+	DialogControlSetPosition(GVSLastSaved , PlayerGroupActive(), c_anchorTopLeft, 380, 130);
+	DialogControlSetSize(GVSLastSaved , PlayerGroupActive(), 160, 90);
+	DialogControlSetPropertyAsText(GVSLastSaved , c_triggerControlPropertyText, PlayerGroupActive(), StringToText("VS Saved General"));
+
+	DialogControlSetPosition(GOpenNote, PlayerGroupActive(), c_anchorTopLeft, 40, 240);
+	DialogControlSetSize(GOpenNote, PlayerGroupActive(), 500, 35);
+	DialogControlSetPropertyAsText(GOpenNote , c_triggerControlPropertyText, PlayerGroupActive(), StringToText("To load BO: set player 1 to human, player 2 to AI"));
+
+
+	DialogControlSetPosition(GOpenLoad, PlayerGroupActive(), c_anchorTopLeft, 40, 270);
+	DialogControlSetSize(GOpenLoad, PlayerGroupActive(), 160, 90);
+	DialogControlSetPropertyAsText(GOpenLoad, c_triggerControlPropertyText, PlayerGroupActive(), StringToText("Play/Edit Build Order"));
+
+	DialogControlSetPosition(GOpenRandom1, PlayerGroupActive(), c_anchorTopLeft, 210, 270);
+	DialogControlSetSize(GOpenRandom1, PlayerGroupActive(), 160, 90);
+	DialogControlSetPropertyAsText(GOpenRandom1, c_triggerControlPropertyText, PlayerGroupActive(), StringToText("Play Random BO"));
+
+	DialogControlSetPosition(GOpenRandom2, PlayerGroupActive(), c_anchorTopLeft, 380, 270);
+	DialogControlSetSize(GOpenRandom2, PlayerGroupActive(), 160, 90);
+	DialogControlSetPropertyAsText(GOpenRandom2, c_triggerControlPropertyText, PlayerGroupActive(), StringToText("Random All General&BO"));
+
+	DialogControlSetPosition(GOpenLoad, PlayerGroupActive(), c_anchorTopLeft, 40, 270);
+	DialogControlSetSize(GOpenLoad, PlayerGroupActive(), 160, 90);
+	DialogControlSetPropertyAsText(GOpenLoad, c_triggerControlPropertyText, PlayerGroupActive(), StringToText("Play/Edit Build Order"));
+
+	DialogControlSetPosition(GOpenPractice, PlayerGroupActive(), c_anchorTopLeft, 40, 370);
+    DialogControlSetSize(GOpenPractice, PlayerGroupActive(), 160, 90);
+	DialogControlSetPropertyAsText(GOpenPractice, c_triggerControlPropertyText, PlayerGroupActive(), StringToText("Practice Build Order"));
+
+
+
+	return;
+}
+
+bool GTClickOpenOption(bool checkConds, bool doActions){
+	if (!doActions) {
+	        return true;
+	    }
+	 DialogSetVisible(GOptionBoard, PlayerGroupActive(), true);
+	 return true;
+}
+
+bool GTClickVSRandom(bool checkConds, bool doActions){
+	if (!doActions) {
+	        return true;
+	    }
+	 DialogSetVisible(GOpenMenu, PlayerGroupActive(), false);
+	 DialogSetVisible(GOptionBoard, PlayerGroupActive(), false);
+	 CameraLockInput(EventPlayer(), false);
+     AITimePause(false);
+     TimerPause(GTRoundTime, false);
+     UnitPauseAll(false);
+
+     PlayerSetAlliance(1, c_allianceIdVision, 1, true);
+	 return true;
+}
+
+bool GTClickVSRandom1(bool checkConds, bool doActions){
+	 string match = GTShortRace(GERace(1)) + "v" + GTShortRace(PlayerRace(1));
+	 int count = BankValueGetAsInt(GTBank, "GTBO" + "-" +  match, "num");
+	 if (PlayerType(1) != c_playerTypeUser){
+		 DialogControlSetPropertyAsText(GVSInfo , c_triggerControlPropertyText, PlayerGroupActive(), StringToText("Player 1 must be human player"));
+		 return false;
+	 }
+	 if (count == 0){
+		 DialogControlSetPropertyAsText(GVSInfo , c_triggerControlPropertyText, PlayerGroupActive(), StringToText("There are no BO in " + match + "match."));
+		 return false;
+	 }
+
+	 DataTableSetInt(true, c_RandomStyle, 1);
+	 DialogSetVisible(GOpenMenu, PlayerGroupActive(), false);
+	 DialogSetVisible(GOptionBoard, PlayerGroupActive(), false);
+	 CameraLockInput(EventPlayer(), false);
+     AITimePause(false);
+     TimerPause(GTRoundTime, false);
+     UnitPauseAll(false);
+
+     PlayerSetAlliance(1, c_allianceIdVision, 1, true);
+	 return true;
+}
+
+bool GTClickVSRandom2(bool checkConds, bool doActions){
+	 string match = GTShortRace(GERace(1)) + "v" + GTShortRace(PlayerRace(1));
+	 int count = BankValueGetAsInt(GTBank, "GTBO" + "-" +  match, "num");
+	 if (PlayerType(1) != c_playerTypeUser){
+			 DialogControlSetPropertyAsText(GVSInfo , c_triggerControlPropertyText, PlayerGroupActive(), StringToText("Player 1 must be human player"));
+			 return false;
+	 }
+	 if (count == 0){
+		 DialogControlSetPropertyAsText(GVSInfo , c_triggerControlPropertyText, PlayerGroupActive(), StringToText("There are no BO in " + match + "match."));
+		 return false;
+	 }
+
+	 DataTableSetInt(true, c_RandomStyle, 2);
+	 DialogSetVisible(GOpenMenu, PlayerGroupActive(), false);
+	 DialogSetVisible(GOptionBoard, PlayerGroupActive(), false);
+	 CameraLockInput(EventPlayer(), false);
+     AITimePause(false);
+     TimerPause(GTRoundTime, false);
+     UnitPauseAll(false);
+
+     PlayerSetAlliance(1, c_allianceIdVision, 1, true);
+	 return true;
+}
+
+
+bool GTClickVSSelect(bool checkConds, bool doActions){
+	 DialogSetVisible(GOpenMenu, PlayerGroupActive(), false);
+	 DialogSetVisible(GOptionBoard, PlayerGroupActive(), false);
+	 DialogSetVisible(GSelectBoard, PlayerGroupActive(), true);
+	 CameraLockInput(EventPlayer(), false);
+	 return true;
+}
+
+bool GTClickVSLastSaved(bool checkConds, bool doActions){
+	 int i = 1;
+	 if (PlayerType(1) != c_playerTypeUser){
+	 	DialogControlSetPropertyAsText(GVSInfo , c_triggerControlPropertyText, PlayerGroupActive(), StringToText("Player 1 must be human player"));
+	 	return false;
+	 }
+	 while(PlayerRace(i) != null){
+	 	gtbuildselect[i] = BankValueGetAsInt(GTBank, c_BS_StartMenu, c_BK_CommanderSelect + PlayerRace(i));
+	 	i = i + 1;
+	 }
+	 DialogSetVisible(GOptionBoard, PlayerGroupActive(), false);
+	 DialogSetVisible(GOpenMenu, PlayerGroupActive(), false);
+	 CameraLockInput(EventPlayer(), false);
+     AITimePause(false);
+     TimerPause(GTRoundTime, false);
+     UnitPauseAll(false);
+     PlayerSetAlliance(1, c_allianceIdVision, 1, true);
+	 return true;
+}
+
+
+
+
+//---------------------------------------------------------------------
+// Select Board
+//---------------------------------------------------------------------
+// Board Setup
+
+
+void GSelectSetup(){
+	int i;
+		DialogSetVisible(GSelectBoard, PlayerGroupActive(), false);
+
+		// Choose AI Player Button
+	i = 1;
+		 while (i <= 16){
+		    GBoardSPNone[i] = DialogControlCreate(GSelectBoard, c_triggerControlTypeLabel);
+    		DialogControlSetPosition(GBoardSPNone[i], PlayerGroupActive(), c_anchorTopLeft, 310 + 45*(GifI(ModI(i,8) == 0, 8,ModI(i,8)) -1), 30 + 40*((i-1)/8));
+            DialogControlSetSize(GBoardSPNone[i], PlayerGroupActive(), 40, 40);
+            DialogControlSetPropertyAsText(GBoardSPNone[i], c_triggerControlPropertyText, PlayerGroupActive(), IntToText(i));
+			i = i + 1;
+		}
+        i = 1;
+		 while (i <= 16){
+		   GBoardSP[i] = DialogControlCreate(GSelectBoard, c_triggerControlTypeButton);
+
+
+        	if (i == 1){
+        		DataTableSetInt(true, c_Button_Player, GBoardSP[i] - 1);
+			}
+
+    	    DialogControlSetPosition(GBoardSP[i], PlayerGroupActive(), c_anchorTopLeft, 305 + 45*(GifI(ModI(i,8) == 0, 8,ModI(i,8)) -1), 20 + 40*((i-1)/8));
+            DialogControlSetSize(GBoardSP[i], PlayerGroupActive(), 40, 40);
+            DialogControlSetPropertyAsText(GBoardSP[i], c_triggerControlPropertyText, PlayerGroupActive(), IntToText(i));
+            if (PlayerType(i) != c_playerTypeComputer){
+            	DialogControlSetVisible(GBoardSP[i], PlayerGroupActive(), false);
+            }
+			i = i + 1;
+		}
+
+        // Select Info
+        DialogControlSetPosition(GBoardSInfo, PlayerGroupActive(), c_anchorTopLeft, 30, 40);
+        DialogControlSetSize(GBoardSInfo, PlayerGroupActive(), 270, 80);
+        DialogControlSetPropertyAsText(GBoardSInfo, c_triggerControlPropertyText, PlayerGroupActive(), StringToText("Please choose AI player"));
+
+		DialogControlSetPosition(GBoardSClose, PlayerGroupActive(), c_anchorTopRight, 27, 27);
+    	DialogControlSetSize(GBoardSClose, PlayerGroupActive(), 40, 40);
+    	DialogControlSetPropertyAsText(GBoardSClose, c_triggerControlPropertyText, PlayerGroupActive(), StringToText("X"));
+
+
+		GBoardSPic[0] = DialogControlCreate(GSelectBoard, c_triggerControlTypeImage);
+        DialogControlSetPosition(GBoardSPic[0], PlayerGroupActive(), c_anchorTopLeft, 40, 90);
+        DialogControlSetSize(GBoardSPic[0], PlayerGroupActive(), 1050, 800);
+		DialogControlSetPropertyAsString(GBoardSPic[0], c_triggerControlPropertyImage, PlayerGroupActive(), "Assets/Textures/highwaysigns_specular.dds");
+		DialogControlSetVisible(GBoardSPic[0], PlayerGroupActive(), false);
+
+
+		GBoardSPic[1] = DialogControlCreate(GSelectBoard, c_triggerControlTypeImage);
+        DialogControlSetPosition(GBoardSPic[1], PlayerGroupActive(), c_anchorTopLeft, 40, 100);
+        DialogControlSetSize(GBoardSPic[1], PlayerGroupActive(), 1050, 480);
+		DialogControlSetPropertyAsInt(GBoardSPic[1], c_triggerControlPropertyImageType, PlayerGroupActive(), 1);
+		DialogControlSetVisible(GBoardSPic[1], PlayerGroupActive(), false);
+
+		GBoardSPic[2] = DialogControlCreate(GSelectBoard, c_triggerControlTypeImage);
+        DialogControlSetPosition(GBoardSPic[2], PlayerGroupActive(), c_anchorTopLeft, 940, 100);
+        DialogControlSetSize(GBoardSPic[2], PlayerGroupActive(), 150, 160);
+        DialogControlSetVisible(GBoardSPic[2], PlayerGroupActive(), false);
+
+		GBoardSPic[3] = DialogControlCreate(GSelectBoard, c_triggerControlTypeImage);
+        DialogControlSetPosition(GBoardSPic[3], PlayerGroupActive(), c_anchorTopLeft, 940, 260);
+        DialogControlSetSize(GBoardSPic[3], PlayerGroupActive(), 150, 160);
+        DialogControlSetVisible(GBoardSPic[3], PlayerGroupActive(), false);
+
+		GBoardSPic[4] = DialogControlCreate(GSelectBoard, c_triggerControlTypeImage);
+        DialogControlSetPosition(GBoardSPic[4], PlayerGroupActive(), c_anchorTopLeft, 940, 420);
+        DialogControlSetSize(GBoardSPic[4], PlayerGroupActive(), 150, 160);
+        DialogControlSetVisible(GBoardSPic[4], PlayerGroupActive(), false);
+        i = 1;
+        while (i <= 21){
+        	GBoardSCom[i] = DialogControlCreate(GSelectBoard, c_triggerControlTypeButton);
+
+        	if (i == 1){
+        		DataTableSetInt(true, c_Button_Different, GBoardSCom[i]-1);
+			}
+        	DialogControlSetPosition(GBoardSCom[i], PlayerGroupActive(), c_anchorTopLeft, 40 + 150*(GifI(ModI(i,7) == 0, 7,ModI(i,7)) -1), 235 + 160*((i-1)/7));
+        	DialogControlSetSize(GBoardSCom[i], PlayerGroupActive(), 150, 35);
+			DialogControlSetPropertyAsColor(GBoardSCom[i], c_triggerControlPropertyColor, PlayerGroupActive(), Color(106,240,14));
+			DialogControlSetVisible(GBoardSCom[i], PlayerGroupActive(), false);
+
+			i = i + 1;
+		}
+
+		DialogControlSetPosition(GBoardSComLabel, PlayerGroupActive(), c_anchorBottomLeft, 100, 130);
+		DialogControlSetSize(GBoardSComLabel, PlayerGroupActive(), 300, 50);
+        DialogControlSetPropertyAsText(GBoardSComLabel, c_triggerControlPropertyText, PlayerGroupActive(), TextWithColor(StringToText("Commander Data"),Color(255,255,0)));
+		DialogControlSetVisible(GBoardSComLabel, PlayerGroupActive(), false);
+
+		DialogControlSetPosition(GBoardSComIDLabel, PlayerGroupActive(), c_anchorBottomLeft, 100, 110);
+		DialogControlSetSize(GBoardSComIDLabel, PlayerGroupActive(), 100, 40);
+	    DialogControlSetPropertyAsText(GBoardSComIDLabel, c_triggerControlPropertyText, PlayerGroupActive(), StringToText("ID        : "));
+	    DialogControlSetPosition(GBoardSComID, PlayerGroupActive(), c_anchorBottomLeft, 205, 110);
+		DialogControlSetSize(GBoardSComID, PlayerGroupActive(), 400, 40);
+	    DialogControlSetVisible(GBoardSComIDLabel, PlayerGroupActive(), false);
+	    DialogControlSetVisible(GBoardSComID, PlayerGroupActive(), false);
+
+
+		DialogControlSetPosition(GBoardSComNameLabel, PlayerGroupActive(), c_anchorBottomLeft, 100, 90);
+		DialogControlSetSize(GBoardSComNameLabel, PlayerGroupActive(), 100, 40);
+        DialogControlSetPropertyAsText(GBoardSComNameLabel, c_triggerControlPropertyText, PlayerGroupActive(), StringToText("Name: "));
+		DialogControlSetPosition(GBoardSComName, PlayerGroupActive(), c_anchorBottomLeft, 205, 90);
+		DialogControlSetSize(GBoardSComName, PlayerGroupActive(), 400, 40);
+        DialogControlSetVisible(GBoardSComNameLabel, PlayerGroupActive(), false);
+        DialogControlSetVisible(GBoardSComName, PlayerGroupActive(), false);
+
+
+		DialogControlSetPosition(GBoardSComStyleLabel, PlayerGroupActive(), c_anchorBottomLeft, 100, 70);
+		DialogControlSetSize(GBoardSComStyleLabel, PlayerGroupActive(), 100, 40);
+        DialogControlSetPropertyAsText(GBoardSComStyleLabel, c_triggerControlPropertyText, PlayerGroupActive(), StringToText("Style  : "));
+		DialogControlSetPosition(GBoardSComStyle, PlayerGroupActive(), c_anchorBottomLeft, 205, 70);
+		DialogControlSetSize(GBoardSComStyle, PlayerGroupActive(), 400, 40);
+        DialogControlSetVisible(GBoardSComStyleLabel, PlayerGroupActive(), false);
+        DialogControlSetVisible(GBoardSComStyle, PlayerGroupActive(), false);
+
+
+		DialogControlSetPosition(GBoardSChoose, PlayerGroupActive(), c_anchorBottomLeft, 100, 37);
+		DialogControlSetSize(GBoardSChoose, PlayerGroupActive(), 150, 45);
+        DialogControlSetPropertyAsText(GBoardSChoose, c_triggerControlPropertyText, PlayerGroupActive(), StringToText("Choose"));
+        DialogControlSetVisible(GBoardSChoose, PlayerGroupActive(), false);
+        DialogControlSetPosition(GBoardSChooseInfo, PlayerGroupActive(), c_anchorBottomLeft, 255, 23);
+        DialogControlSetSize(GBoardSChooseInfo, PlayerGroupActive(), 600, 45);
+        DialogControlSetVisible(GBoardSChooseInfo, PlayerGroupActive(), false);
+    return;
+}
+
+void GTChangedButtonDefault(){
+	int i = 1;
+    while (i <= 21){
+    	DialogControlSetPropertyAsColor(GBoardSCom[i], c_triggerControlPropertyColor, PlayerGroupActive(), Color(106,240,14));
+		i = i + 1;
+	}
+}
+
+// Board Action
+bool GTSelectAI(bool checkConds, bool doActions){
+	int i;
+	int k = EventDialogControl() - DataTableGetInt(true, c_Button_Player);
+	if (PlayerType(k) != c_playerTypeComputer){
+		return false;
+	}
+	DataTableSetInt(true, c_AI_ID, k);
+	DialogControlSetVisible(GBoardSComIDLabel, PlayerGroupActive(), false);
+    DialogControlSetVisible(GBoardSComID, PlayerGroupActive(), false);
+	DialogControlSetVisible(GBoardSComNameLabel, PlayerGroupActive(), false);
+    DialogControlSetVisible(GBoardSComName, PlayerGroupActive(), false);
+    DialogControlSetVisible(GBoardSComStyleLabel, PlayerGroupActive(), false);
+    DialogControlSetVisible(GBoardSComStyle, PlayerGroupActive(), false);
+	DialogControlSetVisible(GBoardSComLabel, PlayerGroupActive(), false);
+	DialogControlSetVisible(GBoardSChoose, PlayerGroupActive(), false);
+	DialogControlSetVisible(GBoardSChooseInfo, PlayerGroupActive(), false);
+
+	GTChangedButtonDefault();
+	if (gtbuildselect[k] > 0){
+		DialogControlSetVisible(GBoardSChooseInfo, PlayerGroupActive(), true);
+		DialogControlSetPropertyAsText(GBoardSChooseInfo, c_triggerControlPropertyText, PlayerGroupActive(), StringToText("Player " + IntToString(k) +" has chosen ") + TextWithColor( StringToText(GTC[GRaceNumber(PlayerRace(k))][gtbuildselect[k]].name),Color(255,255,0)) + StringToText(" commander."));
+		DialogControlSetPropertyAsColor(GBoardSCom[gtbuildselect[k]], c_triggerControlPropertyColor, PlayerGroupActive(), Color(106,0,148));
+	}
+	DialogControlSetVisible(GBoardSPic[0], PlayerGroupActive(), false);
+	DialogControlSetPropertyAsText(GBoardSInfo, c_triggerControlPropertyText, PlayerGroupActive(), StringToText("Please select Commander for Player ") + TextWithColor(IntToText(k), Color(255,255,0)));
+	DialogControlSetVisible(GBoardSPic[1], PlayerGroupActive(), true);
+	DialogControlSetVisible(GBoardSPic[2], PlayerGroupActive(), false);
+	DialogControlSetVisible(GBoardSPic[3], PlayerGroupActive(), false);
+	DialogControlSetVisible(GBoardSPic[4], PlayerGroupActive(), true);
+	i = 1;
+	while (i <= 21){
+		DialogControlSetVisible(GBoardSCom[i], PlayerGroupActive(), true);
+		if (i <= 20){
+			DialogControlSetPropertyAsText(GBoardSCom[i], c_triggerControlPropertyText, PlayerGroupActive(), StringToText(GTC[GRaceNumber(PlayerRace(k))][i].name));
+		}
+		else{
+			DialogControlSetPropertyAsText(GBoardSCom[i], c_triggerControlPropertyText, PlayerGroupActive(), StringToText("Random"));
+		}
+		i = i + 1;
+	}
+	if (PlayerRace(k) == "Terr"){
+		DialogControlSetPropertyAsString(GBoardSPic[1], c_triggerControlPropertyImage, PlayerGroupActive(), "Assets/Textures/ui_trial_frame_screenbackgroundimage.dds");
+		DialogControlSetPropertyAsString(GBoardSPic[2], c_triggerControlPropertyImage, PlayerGroupActive(), "Assets/Textures/hellionportrait_static.dds");
+		DialogControlSetPropertyAsString(GBoardSPic[3], c_triggerControlPropertyImage, PlayerGroupActive(), "Assets/Textures/siegetankportrait_static.dds");
+		DialogControlSetPropertyAsString(GBoardSPic[4], c_triggerControlPropertyImage, PlayerGroupActive(), "Assets/Textures/ui_glues_helpmenu_gamemechanics_xelnaga.dds");
+
+	}
+	else if (PlayerRace(k) == "Zerg"){
+		DialogControlSetPropertyAsString(GBoardSPic[1], c_triggerControlPropertyImage, PlayerGroupActive(), "Assets/Textures/ui_bnet_singleplayer_intro_bg_hots.dds");
+		DialogControlSetPropertyAsString(GBoardSPic[2], c_triggerControlPropertyImage, PlayerGroupActive(), "Assets/Textures/ultraliskportrait_static.dds");
+		DialogControlSetPropertyAsString(GBoardSPic[3], c_triggerControlPropertyImage, PlayerGroupActive(), "Assets/Textures/hydraliskportrait_static.dds");
+		DialogControlSetPropertyAsString(GBoardSPic[4], c_triggerControlPropertyImage, PlayerGroupActive(), "Assets/Textures/ui_glues_helpmenu_gamemechanics_xelnaga.dds");
+	}
+	else{
+		DialogControlSetPropertyAsString(GBoardSPic[1], c_triggerControlPropertyImage, PlayerGroupActive(), "Assets/Textures/mainmenuswarmbg_low.dds");
+		DialogControlSetPropertyAsString(GBoardSPic[2], c_triggerControlPropertyImage, PlayerGroupActive(), "Assets/Textures/darktemplar2portrait_static.dds");
+		DialogControlSetPropertyAsString(GBoardSPic[3], c_triggerControlPropertyImage, PlayerGroupActive(), "Assets/Textures/archonportrait_static.dds");
+		DialogControlSetPropertyAsString(GBoardSPic[4], c_triggerControlPropertyImage, PlayerGroupActive(), "Assets/Textures/ui_glues_helpmenu_gamemechanics_xelnaga.dds");
+	}
+	return true;
+}
+
+
+
+bool GTClickCom(bool checkConds, bool doActions){
+	int k = EventDialogControl() - DataTableGetInt(true, c_Button_Different);
+	int player = DataTableGetInt(true, c_AI_ID);
+
+	if (checkConds){
+		if (PlayerType(player) != c_playerTypeComputer){
+			return false;
+		}
+		if (k < 1 || k > 21){
+			return false;
+		}
+
+	}
+	GTChangedButtonDefault();
+	DialogControlSetVisible(GBoardSChooseInfo, PlayerGroupActive(), false);
+	if (!DialogControlIsVisible(GBoardSComNameLabel, EventPlayer())){
+		DialogControlSetVisible(GBoardSComNameLabel, PlayerGroupActive(), true);
+		DialogControlSetVisible(GBoardSComName, PlayerGroupActive(), true);
+        DialogControlSetVisible(GBoardSComStyleLabel, PlayerGroupActive(), true);
+        DialogControlSetVisible(GBoardSComStyle, PlayerGroupActive(), true);
+        DialogControlSetVisible(GBoardSComLabel, PlayerGroupActive(), true);
+        DialogControlSetVisible(GBoardSChoose, PlayerGroupActive(), true);
+	    DialogControlSetVisible(GBoardSComIDLabel, PlayerGroupActive(), true);
+	    DialogControlSetVisible(GBoardSComID, PlayerGroupActive(), true);
+
+	}
+	if (k < 21){
+		DialogControlSetPropertyAsText(GBoardSComName, c_triggerControlPropertyText, PlayerGroupActive(), StringToText(GTC[GRaceNumber(PlayerRace(player))][k].name));
+		DialogControlSetPropertyAsText(GBoardSComStyle, c_triggerControlPropertyText, PlayerGroupActive(), StringToText(GTC[GRaceNumber(PlayerRace(player))][k].style));
+		DialogControlSetPropertyAsText(GBoardSComID, c_triggerControlPropertyText, PlayerGroupActive(), IntToText(k));
+		DataTableSetInt(true, c_ChooseID, k);
+		DialogControlSetPropertyAsColor(GBoardSCom[k], c_triggerControlPropertyColor, PlayerGroupActive(), Color(106,0,148));
+
+	}
+
+	else {
+		k = RandomInt(1, 20);
+		DialogControlSetPropertyAsText(GBoardSComName, c_triggerControlPropertyText, PlayerGroupActive(), StringToText(GTC[GRaceNumber(PlayerRace(player))][k].name));
+		DialogControlSetPropertyAsText(GBoardSComStyle, c_triggerControlPropertyText, PlayerGroupActive(), StringToText(GTC[GRaceNumber(PlayerRace(player))][k].style));
+		DialogControlSetPropertyAsColor(GBoardSCom[k], c_triggerControlPropertyColor, PlayerGroupActive(), Color(106,0,148));
+		DialogControlSetPropertyAsText(GBoardSComID, c_triggerControlPropertyText, PlayerGroupActive(), IntToText(k));
+		DataTableSetInt(true, c_ChooseID, k);
+		return true;
+	}
+    return true;
+}
+
+bool GTClickClose(bool checkConds, bool doActions){
+    DialogSetVisible(DialogControlGetDialog(EventDialogControl()), PlayerGroupActive(), false);
+    if (DialogIsVisible(GOpenMenu, EventPlayer())){
+    	return false;
+    }
+    AITimePause(false);
+    TimerPause(GTRoundTime, false);
+	UnitPauseAll(false);
+    CameraLockInput(EventPlayer(),false);
+    if (!g_showbuild){
+    	PlayerSetAlliance(1, c_allianceIdVision, 1, true);
+    	PlayerSetAlliance(EventPlayer(), c_allianceIdVision, EventPlayer(), true);
+    }
+    return true;
+}
+
+
+bool GTClickChoose(bool checkConds, bool doActions){
+	 int k = DataTableGetInt(true, c_AI_ID);
+
+	 gtbuildselect[k]  =  DataTableGetInt(true, c_ChooseID);
+	 BankValueSetFromInt(GTBank, c_BS_StartMenu, c_BK_CommanderSelect + PlayerRace(k) , DataTableGetInt(true, c_ChooseID) );
+	 if(!DialogControlIsVisible(GBoardSChooseInfo, EventPlayer())){
+		 DialogControlSetVisible(GBoardSChooseInfo, PlayerGroupActive(), true);
+	 }
+	  DialogControlSetPropertyAsColor(GBoardSP[k], c_triggerControlPropertyColor, PlayerGroupActive(), Color(212,0,42));
+	  DialogControlSetPropertyAsText(GBoardSChooseInfo, c_triggerControlPropertyText, PlayerGroupActive(), StringToText("Player " + IntToString(k) +" has chosen ") + TextWithColor(DialogControlGetPropertyAsText(GBoardSComName, c_triggerControlPropertyText, EventPlayer()),Color(255,255,0)) + StringToText(" commander."));
+	  BankSave(GTBank);
+    return true;
+}
+
+
+
+
+//---------------------------------------------------------------------
+// Option
+//---------------------------------------------------------------------
+
+
+void GOptionSetup(){
+	int i;
+	DialogSetVisible(GOptionBoard, PlayerGroupActive(), false);
+
+	GOptionDetail = DialogControlCreate(GOptionBoard, c_triggerControlTypeLabel);
+	DialogControlSetPosition(GOptionDetail, PlayerGroupActive(), c_anchorTopLeft, 35,  75);
+	DialogControlSetSize(GOptionDetail, PlayerGroupActive(), 400, 35);
+	DialogControlSetPropertyAsText(GOptionDetail, c_triggerControlPropertyText, PlayerGroupActive(), StringToText("To save setting, player 1 must be human"));
+
+	DialogControlSetPosition(GOptionStart, PlayerGroupActive(), c_anchorTopLeft, 30, 100);
+	DialogControlSetSize(GOptionStart, PlayerGroupActive(), 320, 45);
+	if (g_start == 0){
+		DialogControlSetPropertyAsText(GOptionStart, c_triggerControlPropertyText, PlayerGroupActive(), StringToText("Startup: GT Start Menu"));
+	}
+	else if (g_start == 1){
+		DialogControlSetPropertyAsText(GOptionStart, c_triggerControlPropertyText, PlayerGroupActive(), StringToText("Startup: Random General"));
+	}
+	else if (g_start == 2){
+		DialogControlSetPropertyAsText(GOptionStart, c_triggerControlPropertyText, PlayerGroupActive(), StringToText("Startup: Select General"));
+	}
+	else if (g_start == 3){
+		DialogControlSetPropertyAsText(GOptionStart, c_triggerControlPropertyText, PlayerGroupActive(), StringToText("Startup: Saved General"));
+	}
+	else{
+		DialogControlSetPropertyAsText(GOptionStart, c_triggerControlPropertyText, PlayerGroupActive(), StringToText("Startup: BO Menu"));
+	}
+
+    // Close Button
+	DialogSetTitle(GOptionBoard, TextWithColor(StringToText("GT OPTION"), Color(42,212,0)));
+    DialogControlSetPosition(GOptionClose, PlayerGroupActive(), c_anchorTopRight, 27, 27);
+    DialogControlSetSize(GOptionClose, PlayerGroupActive(), 40, 40);
+    DialogControlSetPropertyAsText(GOptionClose, c_triggerControlPropertyText, PlayerGroupActive(), StringToText("X"));
+
+
+	i = 0;
+	while (i <= 9){
+			GOptionCheck[i] = DialogControlCreate(GOptionBoard, c_triggerControlTypeCheckBox);
+			DialogControlSetPosition(GOptionCheck[i], PlayerGroupActive(), c_anchorTopLeft, 35,  147 + 35*i);
+			DialogControlSetSize(GOptionCheck[i], PlayerGroupActive(), 35, 35);
+
+        	GOptionName[i] = DialogControlCreate(GOptionBoard, c_triggerControlTypeLabel);
+        	DialogControlSetPosition(GOptionName[i], PlayerGroupActive(), c_anchorTopLeft, 75,  155 + 35*i);
+        	DialogControlSetSize(GOptionName[i], PlayerGroupActive(), 400, 35);
+			DialogControlSetPropertyAsText(GOptionName[i], c_triggerControlPropertyText, PlayerGroupActive(), StringToText("Option " + IntToString(i)));
+			if (i == 5){
+				DialogControlSetSize(GOptionName[i], PlayerGroupActive(), 200, 35);
+				DialogControlSetPosition(GOptionAPM, PlayerGroupActive(), c_anchorTopLeft, 190,  150 + 35*i);
+        		DialogControlSetSize(GOptionAPM, PlayerGroupActive(), 155, 35);
+
+        		DialogControlSetPropertyAsFixed(GOptionAPM, c_triggerControlPropertyMinValue, PlayerGroupActive(), IntToFixed(400));
+        		DialogControlSetPropertyAsFixed(GOptionAPM, c_triggerControlPropertyMaxValue, PlayerGroupActive(), IntToFixed (2000));
+				DialogControlSetPropertyAsFixed(GOptionAPM, c_triggerControlPropertyValue, PlayerGroupActive(), IntToFixed (1200));
+        		DialogControlSetPosition(GOptionAPMNum, PlayerGroupActive(), c_anchorTopLeft, 350,  155 + 35*i);
+        		DialogControlSetSize(GOptionAPMNum, PlayerGroupActive(), 90, 35);
+        		DialogControlSetPropertyAsText(GOptionAPMNum, c_triggerControlPropertyText, PlayerGroupActive(), IntToText(600));
+    	   		DialogControlSetVisible(GOptionAPM, PlayerGroupActive(), g_limitAPM);
+    	   		DialogControlSetVisible(GOptionAPMNum, PlayerGroupActive(),  g_limitAPM);
+
+			}
+
+			i = i + 1;
+		}
+
+
+
+
+
+	DialogControlSetPropertyAsText(GOptionName[0], c_triggerControlPropertyText, PlayerGroupActive(), StringToText("AI Chat"));
+	DialogControlSetPropertyAsBool(GOptionCheck[0], c_triggerControlPropertyChecked, PlayerGroupActive(), gttalk);
+	DialogControlSetPropertyAsText(GOptionName[1], c_triggerControlPropertyText, PlayerGroupActive(), StringToText("AI Wall"));
+	DialogControlSetPropertyAsBool(GOptionCheck[1], c_triggerControlPropertyChecked, PlayerGroupActive(), g_walling);
+	DialogControlSetPropertyAsText(GOptionName[2], c_triggerControlPropertyText, PlayerGroupActive(), StringToText("Show AI Harvest Rate"));
+	DialogControlSetPropertyAsBool(GOptionCheck[2], c_triggerControlPropertyChecked, PlayerGroupActive(), gtshowhr);
+	DialogControlSetPropertyAsText(GOptionName[3], c_triggerControlPropertyText, PlayerGroupActive(), StringToText("Check this for FFA game"));
+	DialogControlSetPropertyAsBool(GOptionCheck[3], c_triggerControlPropertyChecked, PlayerGroupActive(), gtFFA);
+	if(g_useNewAVS){
+		DialogControlSetPropertyAsText(GOptionName[4], c_triggerControlPropertyText, PlayerGroupActive(), StringToText("Uncheck=> Switch to Defensive Mode"));
+	}
+	else{
+		DialogControlSetPropertyAsText(GOptionName[4], c_triggerControlPropertyText, PlayerGroupActive(), StringToText("Check=> Switch to Aggressive Mode"));
+	}
+	DialogControlSetPropertyAsBool(GOptionCheck[4], c_triggerControlPropertyChecked, PlayerGroupActive(), g_useNewAVS);
+	DialogControlSetPropertyAsText(GOptionName[5], c_triggerControlPropertyText, PlayerGroupActive(), StringToText("APM Limit"));
+	DialogControlSetPropertyAsBool(GOptionCheck[5], c_triggerControlPropertyChecked, PlayerGroupActive(), g_limitAPM);
+	DialogControlSetPropertyAsText(GOptionName[6], c_triggerControlPropertyText, PlayerGroupActive(), StringToText("Record Build Order"));
+	DialogControlSetPropertyAsBool(GOptionCheck[6], c_triggerControlPropertyChecked, PlayerGroupActive(), g_record);
+	DialogControlSetPropertyAsText(GOptionName[7], c_triggerControlPropertyText, PlayerGroupActive(), StringToText("Show Round Timer"));
+	DialogControlSetPropertyAsBool(GOptionCheck[7], c_triggerControlPropertyChecked, PlayerGroupActive(), g_truetime);
+	DialogControlSetPropertyAsText(GOptionName[8], c_triggerControlPropertyText, PlayerGroupActive(), StringToText("GT Reminder"));
+	DialogControlSetPropertyAsBool(GOptionCheck[8], c_triggerControlPropertyChecked, PlayerGroupActive(), g_reminder);
+    
+    DialogControlSetPropertyAsText(GOptionName[9], c_triggerControlPropertyText, PlayerGroupActive(), StringToText("[Beta] 2on2 (Massive CPU Consume!!)"));
+	DialogControlSetPropertyAsBool(GOptionCheck[9], c_triggerControlPropertyChecked, PlayerGroupActive(), g_isTeamGame);
+
+
+	return;
+}
+
+// Board Action
+bool GTAPMClick(bool checkConds, bool doActions){
+	int i;
+	DialogControlSetPropertyAsText(GOptionAPMNum, c_triggerControlPropertyText, PlayerGroupActive(), FixedToText(DialogControlGetPropertyAsFixed(GOptionAPM, c_triggerControlPropertyValue, EventPlayer())/2, 0));
+	i = 1;
+	    while (i <= 15){
+	    	AISetAPM(i, FixedToInt(DialogControlGetPropertyAsFixed(GOptionAPM, c_triggerControlPropertyValue, EventPlayer())));
+	    	i = i + 1;
+	    }
+	return true;
+}
+bool GTCheckOption(bool checkConds, bool doActions){
+	int i;
+	if (EventDialogControl() == GOptionCheck[0]){
+   		gttalk = DialogControlGetPropertyAsBool(EventDialogControl(), c_triggerControlPropertyChecked, EventPlayer());
+   	}
+	if (EventDialogControl() == GOptionCheck[1]){
+   		g_walling = DialogControlGetPropertyAsBool(EventDialogControl(), c_triggerControlPropertyChecked, EventPlayer());
+	}
+	if (EventDialogControl() == GOptionCheck[2]){
+	   	gtshowhr = DialogControlGetPropertyAsBool(EventDialogControl(), c_triggerControlPropertyChecked, EventPlayer());
+	}
+	if (EventDialogControl() == GOptionCheck[3]){
+	   	gtFFA = DialogControlGetPropertyAsBool(EventDialogControl(), c_triggerControlPropertyChecked, EventPlayer());
+	}
+	if (EventDialogControl() == GOptionCheck[4]){
+	   	g_useNewAVS = DialogControlGetPropertyAsBool(EventDialogControl(), c_triggerControlPropertyChecked, EventPlayer());
+			if(g_useNewAVS){
+		DialogControlSetPropertyAsText(GOptionName[4], c_triggerControlPropertyText, PlayerGroupActive(), StringToText("Uncheck => Switch to Defensive Mode"));
+	}
+	else{
+		DialogControlSetPropertyAsText(GOptionName[4], c_triggerControlPropertyText, PlayerGroupActive(), StringToText("Check => Switch to Agressive Mode"));
+	}
+	}
+	if (EventDialogControl() == GOptionCheck[5]){
+	   	g_limitAPM = DialogControlGetPropertyAsBool(EventDialogControl(), c_triggerControlPropertyChecked, EventPlayer());
+	    i = 1;
+	    while (i <= 15){
+	    	AISetDifficulty(i, c_diffLimitAPM,  g_limitAPM );
+	    	i = i + 1;
+	    }
+
+	   		DialogControlSetVisible(GOptionAPM, PlayerGroupActive(), DialogControlGetPropertyAsBool(EventDialogControl(), c_triggerControlPropertyChecked, EventPlayer()));
+	   		DialogControlSetVisible(GOptionAPMNum, PlayerGroupActive(), DialogControlGetPropertyAsBool(EventDialogControl(), c_triggerControlPropertyChecked, EventPlayer()));
+	}
+	if (EventDialogControl() == GOptionCheck[6]){
+		if(PlayerType(1) != c_playerTypeUser){
+			DialogControlSetPropertyAsText(GOptionDetail, c_triggerControlPropertyText, PlayerGroupActive(), TextWithColor(StringToText("To record BO, player 1 must be human"),Color (255, 0,0 )));
+			DialogControlSetPropertyAsBool(EventDialogControl(), c_triggerControlPropertyChecked, PlayerGroupActive(), false);
+		}
+	    else{
+	   		g_record = DialogControlGetPropertyAsBool(EventDialogControl(), c_triggerControlPropertyChecked, EventPlayer());
+	   		DialogSetVisible(GRecordStep, PlayerGroupActive(), g_record);
+	   	}
+	}
+	if (EventDialogControl() == GOptionCheck[7]){
+	    g_truetime = DialogControlGetPropertyAsBool(EventDialogControl(), c_triggerControlPropertyChecked, EventPlayer());
+	    DialogSetVisible(GTrueTimer, PlayerGroupActive(), g_truetime);
+	}
+	if (EventDialogControl() == GOptionCheck[8]){
+		if(PlayerType(1) != c_playerTypeUser){
+			DialogControlSetPropertyAsText(GOptionDetail, c_triggerControlPropertyText, PlayerGroupActive(), TextWithColor(StringToText("To use Reminder,player 1 must be human"),Color (255, 0,0 )));
+			DialogControlSetPropertyAsBool(EventDialogControl(), c_triggerControlPropertyChecked, PlayerGroupActive(), false);
+		}
+	    else{
+	    	g_reminder = DialogControlGetPropertyAsBool(EventDialogControl(), c_triggerControlPropertyChecked, EventPlayer());
+	    	if (g_reminder == false){
+	    		DialogSetVisible(GReminderBoard, PlayerGroupActive(), g_reminder);
+	    	}
+	    }
+	}
+    if (EventDialogControl() == GOptionCheck[9]){
+        if(PlayerType(1) != c_playerTypeUser){
+			DialogControlSetPropertyAsText(GOptionDetail, c_triggerControlPropertyText, PlayerGroupActive(), TextWithColor(StringToText("To use Teamplay, player 1 must be human"),Color (255, 0,0 )));			
+            DialogControlSetPropertyAsBool(EventDialogControl(), c_triggerControlPropertyChecked, PlayerGroupActive(), false);
+		}
+	    else{	    	
+            g_isTeamGame = DialogControlGetPropertyAsBool(EventDialogControl(), c_triggerControlPropertyChecked, EventPlayer());	    
+            if (g_isTeamGame) {                
+                TriggerDebugOutput(1, StringToText("Teamplay is active, dont complain about massive cpu lags"), true);
+            }
+            else {
+                TriggerDebugOutput(1, StringToText("Teamplay is not active, your cpu is free now"), true);
+            }
+	    }	    
+	}
+
+	BankValueSetFromInt(GTBank,c_BS_OptionMenu, c_BK_Talk, BoolToInt(gttalk));
+	BankValueSetFromInt(GTBank,c_BS_OptionMenu, c_BK_Wall , BoolToInt(g_walling));
+	BankValueSetFromInt(GTBank,c_BS_OptionMenu, c_BK_Showhr, BoolToInt(gtshowhr));
+	BankValueSetFromInt(GTBank,c_BS_OptionMenu, c_BK_FFA, BoolToInt(gtFFA));
+	BankValueSetFromInt(GTBank,c_BS_OptionMenu, c_BK_newAVS, BoolToInt(g_useNewAVS));
+	BankValueSetFromInt(GTBank,c_BS_OptionMenu, c_BK_limitAPM, BoolToInt(g_limitAPM));
+	BankValueSetFromInt(GTBank,c_BS_OptionMenu, c_BK_record, BoolToInt(g_record));
+	BankValueSetFromInt(GTBank,c_BS_OptionMenu, c_BK_truetime, BoolToInt(g_truetime));
+	BankValueSetFromInt(GTBank,c_BS_OptionMenu, c_BK_reminder, BoolToInt(g_reminder));
+
+	BankSave(GTBank);
+    return true;
+}
+
+bool GTStartup(bool checkConds, bool doActions){
+	if (g_start == 4){
+		DialogControlSetPropertyAsText(GOptionStart, c_triggerControlPropertyText, PlayerGroupActive(), StringToText("Startup: GT Start Menu"));
+		g_start = 0;
+	}
+	else if (g_start == 0){
+		DialogControlSetPropertyAsText(GOptionStart, c_triggerControlPropertyText, PlayerGroupActive(), StringToText("Startup: Random General"));
+		g_start = 1;
+	}
+	else if (g_start == 1){
+		DialogControlSetPropertyAsText(GOptionStart, c_triggerControlPropertyText, PlayerGroupActive(), StringToText("Startup: Select General"));
+		g_start = 2;
+	}
+	else if (g_start == 2 ){
+		DialogControlSetPropertyAsText(GOptionStart, c_triggerControlPropertyText, PlayerGroupActive(), StringToText("Startup: Saved General"));
+		g_start = 3;
+	}
+	else{
+		DialogControlSetPropertyAsText(GOptionStart, c_triggerControlPropertyText, PlayerGroupActive(), StringToText("Startup: BO Menu"));
+		g_start = 4;
+	}
+
+	BankValueSetFromInt(GTBank, c_BS_OptionMenu, c_GStartup, g_start);
+	BankSave(GTBank);
+	return true;
+}
+
+//--------------------------------------------
+// Build Board
+//------------------------------------------------
+int GTBoard = BoardCreate (5, 1,  StringToText("AI Resources"), Color(100, 200, 0));
+int GHVBoard = DialogCreate(148, 80, c_anchorTop, 0, 50, true);
+int GHVRate = DialogControlCreate(GHVBoard, c_triggerControlTypeLabel);
+
+void GHVBoardSetup(){
+	DialogSetVisible(GHVBoard, PlayerGroupActive(), false);
+	DialogControlSetSize(GHVRate, PlayerGroupActive(), 100, 50);
+	DialogControlSetPosition(GHVRate, PlayerGroupActive(), c_anchorTopLeft, 32, 32);
+    return;
+}
+
+
+void GBoardSetup(){
+	BoardSetState  (GTBoard, PlayerGroupActive(), c_boardStateShowing, false);
+	BoardSetPosition(GTBoard, 1590, 100);
+		BoardItemSetText(GTBoard, 1, -1, StringToText("Min"));
+		BoardItemSetText(GTBoard, 2, -1, StringToText("Gas"));
+		BoardItemSetText(GTBoard, 3, -1, StringToText("Supply"));
+		BoardItemSetText(GTBoard, 4, -1, StringToText("Worker"));
+	return;
+}
+
+//------------------------------------------
+// Save Custom Board
+//--------------------------------------------
+
+int GStepBoard = DialogCreate(450, 690, c_anchorTopLeft, 0, 75, true);
+int GStepList = DialogControlCreate(GStepBoard, c_triggerControlTypeListBox);
+int GStepClose = DialogControlCreate(GStepBoard, c_triggerControlTypeButton);
+int GStepIndex = DialogControlCreate(GStepBoard, c_triggerControlTypeLabel);
+int GStepLabel = DialogControlCreate(GStepBoard, c_triggerControlTypeLabel);
+int GStepNum = DialogControlCreate(GStepBoard, c_triggerControlTypeEditBox);
+int GStepAction = DialogControlCreate(GStepBoard, c_triggerControlTypePulldown);
+int GStepType = DialogControlCreate(GStepBoard, c_triggerControlTypePulldown);
+int GStepCount = DialogControlCreate(GStepBoard, c_triggerControlTypeEditBox);
+int GStepWorker = DialogControlCreate(GStepBoard, c_triggerControlTypeEditBox);
+int GStepSupply = DialogControlCreate(GStepBoard, c_triggerControlTypeEditBox);
+int GStepEdit = DialogControlCreate(GStepBoard, c_triggerControlTypeButton);
+int GStepAdd = DialogControlCreate(GStepBoard, c_triggerControlTypeButton);
+int GStepDel = DialogControlCreate(GStepBoard, c_triggerControlTypeButton);
+int GStepPlay = DialogControlCreate(GStepBoard, c_triggerControlTypeButton);
+int GStepPause = DialogControlCreate(GStepBoard, c_triggerControlTypeButton);
+int GStepRestart = DialogControlCreate(GStepBoard, c_triggerControlTypeButton);
+
+
+int GSaveBoard = DialogCreate(870, 600, c_anchorCenter, 70, -170, true);
+int GSaveClose = DialogControlCreate(GSaveBoard, c_triggerControlTypeButton);
+int GSaveLabel = DialogControlCreate(GSaveBoard, c_triggerControlTypeLabel);
+int GSaveMatch = DialogControlCreate(GSaveBoard, c_triggerControlTypeLabel);
+int GSaveUsedSlot = DialogControlCreate(GSaveBoard, c_triggerControlTypeLabel);
+int GSaveIDLabel = DialogControlCreate(GSaveBoard, c_triggerControlTypeLabel);
+int GSaveID = DialogControlCreate(GSaveBoard, c_triggerControlTypeLabel);
+int GSaveNameLabel = DialogControlCreate(GSaveBoard, c_triggerControlTypeLabel);
+int GSaveName = DialogControlCreate(GSaveBoard, c_triggerControlTypeEditBox);
+int GSaveDetailLabel = DialogControlCreate(GSaveBoard, c_triggerControlTypeLabel);
+int GSaveDetail = DialogControlCreate(GSaveBoard, c_triggerControlTypeEditBox);
+int GSaveButton = DialogControlCreate(GSaveBoard, c_triggerControlTypeButton);
+int GSaveInfo = DialogControlCreate(GSaveBoard, c_triggerControlTypeLabel);
+int GSaveOYes = DialogControlCreate(GSaveBoard, c_triggerControlTypeButton);
+int GSaveONo = DialogControlCreate(GSaveBoard, c_triggerControlTypeButton);
+int GLoadPYes = DialogControlCreate(GSaveBoard, c_triggerControlTypeButton);
+int GLoadPNo = DialogControlCreate(GSaveBoard, c_triggerControlTypeButton);
+int GPracticeAttack = DialogControlCreate(GSaveBoard, c_triggerControlTypeButton);
+int GLoadPracticeButton = DialogControlCreate(GSaveBoard, c_triggerControlTypeButton);
+
+
+
+int [16] GSaveSlot;
+
+void GSaveSetup(){
+	int numplayer = PlayerGroupCount(PlayerGroupActive());
+	string section;
+	string match;
+	int i;
+
+	DialogSetTitle(GStepBoard, TextWithColor(StringToText("Build Order Step"), Color(63,212,42)));
+	DialogSetVisible(GStepBoard, PlayerGroupActive(), false);
+	DialogControlSetPosition(GStepIndex, PlayerGroupActive(), c_anchorTopLeft, 30, 75);
+    DialogControlSetSize(GStepIndex, PlayerGroupActive(), 390, 40);
+	DialogControlSetPosition(GStepList, PlayerGroupActive(), c_anchorTopLeft, 30, 100);
+    DialogControlSetSize(GStepList, PlayerGroupActive(), 390, 430);
+    DialogControlSetPosition(GStepClose, PlayerGroupActive(), c_anchorTopRight, 27, 27);
+    DialogControlSetSize(GStepClose, PlayerGroupActive(), 40, 40);
+    DialogControlSetPropertyAsText(GStepClose, c_triggerControlPropertyText, PlayerGroupActive(), StringToText("X"));
+
+	DialogControlSetPosition(GStepLabel, PlayerGroupActive(), c_anchorTopLeft, 30, 535);
+    DialogControlSetSize(GStepLabel, PlayerGroupActive(), 390, 40);
+    DialogControlSetPropertyAsText(GStepLabel, c_triggerControlPropertyText, PlayerGroupActive(), StringToText(" N.     Act      C                Type                		W     S"));
+	DialogControlSetPosition(GStepNum, PlayerGroupActive(), c_anchorTopLeft, 20, 560);
+    DialogControlSetSize(GStepNum, PlayerGroupActive(), 55, 50);
+	DialogControlSetPosition(GStepAction, PlayerGroupActive(), c_anchorTopLeft, 60, 560);
+    DialogControlSetSize(GStepAction, PlayerGroupActive(), 85, 50);
+    DialogControlAddItem(GStepAction, PlayerGroupActive(), StringToText("Tr"));
+    DialogControlAddItem(GStepAction, PlayerGroupActive(), StringToText("Bu"));
+    DialogControlAddItem(GStepAction, PlayerGroupActive(), StringToText("Re"));
+    DialogControlAddItem(GStepAction, PlayerGroupActive(), StringToText("Up"));
+
+    DialogControlSetPosition(GStepCount, PlayerGroupActive(), c_anchorTopLeft, 120, 560);
+    DialogControlSetSize(GStepCount, PlayerGroupActive(), 65, 50);
+
+    DialogControlSetPosition(GStepType, PlayerGroupActive(), c_anchorTopLeft, 168, 560);
+    DialogControlSetSize(GStepType, PlayerGroupActive(), 162, 50);
+
+	DialogControlSetPosition(GStepWorker, PlayerGroupActive(), c_anchorTopLeft, 310, 560);
+    DialogControlSetSize(GStepWorker, PlayerGroupActive(), 65, 50);
+    DialogControlSetPosition(GStepSupply, PlayerGroupActive(), c_anchorTopLeft, 367, 560);
+    DialogControlSetSize(GStepSupply, PlayerGroupActive(), 65, 50);
+
+    DialogControlSetPosition(GStepEdit, PlayerGroupActive(), c_anchorBottomLeft, 30, 30);
+    DialogControlSetSize(GStepEdit, PlayerGroupActive(), 60, 45);
+    DialogControlSetPropertyAsText(GStepEdit, c_triggerControlPropertyText, PlayerGroupActive(), StringToText("Edit"));
+
+    DialogControlSetPosition(GStepAdd, PlayerGroupActive(), c_anchorBottomLeft, 95, 30);
+    DialogControlSetSize(GStepAdd, PlayerGroupActive(), 60, 45);
+    DialogControlSetPropertyAsText(GStepAdd, c_triggerControlPropertyText, PlayerGroupActive(), StringToText("Add"));
+
+    DialogControlSetPosition(GStepDel, PlayerGroupActive(), c_anchorBottomLeft, 160, 30);
+    DialogControlSetSize(GStepDel, PlayerGroupActive(), 60, 45);
+    DialogControlSetPropertyAsText(GStepDel, c_triggerControlPropertyText, PlayerGroupActive(), StringToText("Del"));
+
+    DialogControlSetPosition(GStepPause, PlayerGroupActive(), c_anchorBottomRight, 30, 35);
+    DialogControlSetSize(GStepPause, PlayerGroupActive(), 40, 40);
+    DialogControlSetPropertyAsText(GStepPause, c_triggerControlPropertyText, PlayerGroupActive(), StringToText(" II"));
+
+    DialogControlSetPosition(GStepPlay, PlayerGroupActive(), c_anchorBottomRight, 80, 35);
+    DialogControlSetSize(GStepPlay, PlayerGroupActive(), 40, 40);
+    DialogControlSetPropertyAsText(GStepPlay, c_triggerControlPropertyText, PlayerGroupActive(), StringToText(" I>"));
+
+    DialogControlSetPosition(GStepRestart, PlayerGroupActive(), c_anchorTopRight, 30, 65);
+    DialogControlSetSize(GStepRestart, PlayerGroupActive(), 100, 40);
+    DialogControlSetPropertyAsText(GStepRestart, c_triggerControlPropertyText, PlayerGroupActive(), StringToText("Restart"));
+
+    DialogControlSetVisible(GStepRestart, PlayerGroupActive(), false);
+    DialogControlSetVisible(GStepLabel, PlayerGroupActive(), false);
+    DialogControlSetVisible(GStepNum, PlayerGroupActive(), false);
+    DialogControlSetVisible(GStepAction, PlayerGroupActive(), false);
+    DialogControlSetVisible(GStepType, PlayerGroupActive(), false);
+    DialogControlSetVisible(GStepCount, PlayerGroupActive(), false);
+    DialogControlSetVisible(GStepWorker, PlayerGroupActive(), false);
+    DialogControlSetVisible(GStepSupply, PlayerGroupActive(), false);
+
+    DialogControlSetVisible(GStepEdit, PlayerGroupActive(), false);
+    DialogControlSetVisible(GStepAdd, PlayerGroupActive(), false);
+    DialogControlSetVisible(GStepDel, PlayerGroupActive(), false);
+    DialogControlSetVisible(GStepPlay, PlayerGroupActive(), false);
+    DialogControlSetVisible(GStepPause, PlayerGroupActive(), false);
+
+	DialogSetVisible(GSaveBoard, PlayerGroupActive(), false);
+	DialogSetTitle(GSaveBoard, TextWithColor(StringToText("Build Order Practice"), Color(63,212,42)));
+
+	DialogControlSetPosition(GSaveClose, PlayerGroupActive(), c_anchorTopRight, 27, 27);
+    DialogControlSetSize(GSaveClose, PlayerGroupActive(), 40, 40);
+    DialogControlSetPropertyAsText(GSaveClose, c_triggerControlPropertyText, PlayerGroupActive(), StringToText("X"));
+
+
+	match = "GTBO" + "-" + GTShortRace(PlayerRace(1)) + "v" + GTShortRace(GERace(1));
+
+	DialogControlSetPosition(GSaveMatch, PlayerGroupActive(), c_anchorTopLeft, 40, 90);
+	DialogControlSetSize(GSaveMatch, PlayerGroupActive(), 160, 40);
+	DialogControlSetPropertyAsText(GSaveMatch, c_triggerControlPropertyText, PlayerGroupActive(), TextWithColor(StringToText(PlayerRace(1)), Color(0,155, 100)) + StringToText(" VS ") + TextWithColor(StringToText(GERace(1)),Color(255,63,0)));
+
+	DialogControlSetPosition(GSaveUsedSlot, PlayerGroupActive(), c_anchorTopLeft, 210, 90);
+	DialogControlSetSize(GSaveUsedSlot, PlayerGroupActive(), 160, 40);
+	DialogControlSetPropertyAsText(GSaveUsedSlot, c_triggerControlPropertyText, PlayerGroupActive(), StringToText("Slot Used: " + IntToString(BankValueGetAsInt(GTBank, match, "num"))));
+
+
+    i = 1;
+    while (i <= 10){
+    	GSaveSlot[i] = DialogControlCreate(GSaveBoard, c_triggerControlTypeButton);
+
+    	if (i == 1){
+    		DataTableSetInt(true, c_Slot1_Different, GSaveSlot[i]-1);
+		}
+    	DialogControlSetPosition(GSaveSlot[i], PlayerGroupActive(), c_anchorTopLeft, 40 + 160*(GifI(ModI(i,5) == 0, 5,ModI(i,5)) -1), 120 + 100*((i-1)/5));
+    	DialogControlSetSize(GSaveSlot[i], PlayerGroupActive(), 150, 80);
+    	section = match + "-Build" + IntToString(i);
+    	if (BankSectionExists(GTBank, section)){
+    		DialogControlSetPropertyAsText(GSaveSlot[i], c_triggerControlPropertyText, PlayerGroupActive(), TextWithColor(StringToText(BankValueGetAsString(GTBank, section, "name")), Color(255,255,0)));
+    	}
+    	else{
+    		DialogControlSetPropertyAsText(GSaveSlot[i], c_triggerControlPropertyText, PlayerGroupActive(), StringToText("Slot ") + IntToText(i));
+    	}
+
+
+		i = i + 1;
+	}
+				DialogControlSetPosition(GSaveLabel, PlayerGroupActive(), c_anchorBottomLeft, 50, 250);
+    			DialogControlSetSize(GSaveLabel, PlayerGroupActive(), 300, 40);
+    		    DialogControlSetPropertyAsText(GSaveLabel, c_triggerControlPropertyText, PlayerGroupActive(), TextWithColor(StringToText("Build Order Data"), Color (255, 255, 0)));
+				DialogControlSetVisible(GSaveLabel, PlayerGroupActive(), false);
+
+				DialogControlSetPosition(GSaveIDLabel, PlayerGroupActive(), c_anchorBottomLeft, 50, 210);
+    			DialogControlSetSize(GSaveIDLabel, PlayerGroupActive(), 80, 40);
+    		    DialogControlSetPropertyAsText(GSaveIDLabel, c_triggerControlPropertyText, PlayerGroupActive(), StringToText("Slot    : "));
+				DialogControlSetVisible(GSaveIDLabel, PlayerGroupActive(), false);
+
+				DialogControlSetPosition(GSaveID, PlayerGroupActive(), c_anchorBottomLeft, 127, 210);
+    			DialogControlSetSize(GSaveID, PlayerGroupActive(), 50, 40);
+    		    DialogControlSetVisible(GSaveID, PlayerGroupActive(), false);
+
+				DialogControlSetPosition(GSaveNameLabel, PlayerGroupActive(), c_anchorBottomLeft, 50, 160);
+    			DialogControlSetSize(GSaveNameLabel, PlayerGroupActive(), 80, 40);
+    		    DialogControlSetPropertyAsText(GSaveNameLabel, c_triggerControlPropertyText, PlayerGroupActive(), StringToText("Name: "));
+				DialogControlSetVisible(GSaveNameLabel, PlayerGroupActive(), false);
+
+				DialogControlSetPosition(GSaveName, PlayerGroupActive(), c_anchorBottomLeft, 120, 160);
+    			DialogControlSetSize(GSaveName, PlayerGroupActive(), 300, 60);
+				DialogControlSetVisible(GSaveName, PlayerGroupActive(), false);
+
+				DialogControlSetPosition(GPracticeAttack, PlayerGroupActive(), c_anchorBottomLeft, 450, 165);
+				DialogControlSetSize(GPracticeAttack, PlayerGroupActive(), 300, 50);
+        		DialogControlSetPropertyAsText(GPracticeAttack, c_triggerControlPropertyText, PlayerGroupActive(), StringToText("AI Attack Control: Off"));
+				DialogControlSetVisible(GPracticeAttack, PlayerGroupActive(), false);
+
+
+    		    DialogControlSetPosition(GSaveDetailLabel, PlayerGroupActive(), c_anchorBottomLeft, 50, 100);
+    			DialogControlSetSize(GSaveDetailLabel, PlayerGroupActive(), 80, 40);
+    		    DialogControlSetPropertyAsText(GSaveDetailLabel, c_triggerControlPropertyText, PlayerGroupActive(), StringToText("Detail : "));
+				DialogControlSetVisible(GSaveDetailLabel, PlayerGroupActive(), false);
+
+				DialogControlSetPosition(GSaveDetail, PlayerGroupActive(), c_anchorBottomLeft, 120, 100);
+    			DialogControlSetSize(GSaveDetail, PlayerGroupActive(), 600, 60);
+				DialogControlSetVisible(GSaveDetail, PlayerGroupActive(), false);
+
+		DialogControlSetPosition(GSaveButton, PlayerGroupActive(), c_anchorBottomLeft, 50, 37);
+		DialogControlSetSize(GSaveButton, PlayerGroupActive(), 100, 50);
+        DialogControlSetPropertyAsText(GSaveButton, c_triggerControlPropertyText, PlayerGroupActive(), StringToText("Save"));
+		DialogControlSetVisible(GSaveButton, PlayerGroupActive(), false);
+
+        DialogControlSetPosition(GSaveInfo, PlayerGroupActive(), c_anchorBottomLeft, 155, 25);
+        DialogControlSetSize(GSaveInfo, PlayerGroupActive(), 600, 45);
+
+		DialogControlSetPosition(GSaveOYes, PlayerGroupActive(), c_anchorBottomLeft, 450, 37);
+		DialogControlSetSize(GSaveOYes, PlayerGroupActive(), 80, 50);
+        DialogControlSetPropertyAsText(GSaveOYes, c_triggerControlPropertyText, PlayerGroupActive(), StringToText("Yes"));
+        DialogControlSetVisible(GSaveOYes, PlayerGroupActive(), false);
+
+		DialogControlSetPosition(GSaveONo, PlayerGroupActive(), c_anchorBottomLeft, 540, 37);
+		DialogControlSetSize(GSaveONo, PlayerGroupActive(), 80, 50);
+        DialogControlSetPropertyAsText(GSaveONo, c_triggerControlPropertyText, PlayerGroupActive(), StringToText("No"));
+        DialogControlSetVisible(GSaveONo, PlayerGroupActive(), false);
+
+		DialogControlSetPosition(GLoadPracticeButton, PlayerGroupActive(), c_anchorBottomLeft, 50, 37);
+		DialogControlSetSize(GLoadPracticeButton, PlayerGroupActive(), 100, 50);
+        DialogControlSetPropertyAsText(GLoadPracticeButton, c_triggerControlPropertyText, PlayerGroupActive(), StringToText("Choose"));
+		DialogControlSetVisible(GLoadPracticeButton, PlayerGroupActive(), false);
+
+		DialogControlSetPosition(GLoadPYes, PlayerGroupActive(), c_anchorBottomLeft, 470, 37);
+		DialogControlSetSize(GLoadPYes, PlayerGroupActive(), 80, 50);
+        DialogControlSetPropertyAsText(GLoadPYes, c_triggerControlPropertyText, PlayerGroupActive(), StringToText("Yes"));
+        DialogControlSetVisible(GLoadPYes, PlayerGroupActive(), false);
+
+		DialogControlSetPosition(GLoadPNo, PlayerGroupActive(), c_anchorBottomLeft, 560, 37);
+		DialogControlSetSize(GLoadPNo, PlayerGroupActive(), 80, 50);
+        DialogControlSetPropertyAsText(GLoadPNo, c_triggerControlPropertyText, PlayerGroupActive(), StringToText("No"));
+        DialogControlSetVisible(GLoadPNo, PlayerGroupActive(), false);
+
+}
+
+bool GTClickSlot1(bool checkConds, bool doActions){
+	int k = EventDialogControl() - DataTableGetInt(true, c_Slot1_Different);
+	string section;
+	if (checkConds){
+		if (k < 1 || k > 10){
+			return false;
+		}
+	}
+	DialogControlSetVisible(GSaveOYes, PlayerGroupActive(), false);
+	DialogControlSetVisible(GSaveONo, PlayerGroupActive(), false);
+	DialogControlSetVisible(GLoadPYes, PlayerGroupActive(), false);
+	DialogControlSetVisible(GLoadPNo, PlayerGroupActive(), false);
+	DialogSetVisible(GStepBoard, PlayerGroupActive(), false);
+	   if (g_boardchoice == 1){
+		    	DialogControlSetVisible(GSaveButton, PlayerGroupActive(), true);
+		    	DialogControlSetVisible(GLoadPracticeButton, PlayerGroupActive(), false);
+		    	DialogControlSetVisible(GPracticeAttack, PlayerGroupActive(), false);
+		    }
+		    else{
+		    	DialogControlSetVisible(GLoadPracticeButton, PlayerGroupActive(), true);
+		    	DialogControlSetVisible(GPracticeAttack, PlayerGroupActive(), true);
+		      	DialogControlSetVisible(GSaveButton, PlayerGroupActive(), false);
+		    }
+
+    DialogControlSetPropertyAsText(GSaveInfo, c_triggerControlPropertyText, PlayerGroupActive(), StringToText("" ));
+
+	if (!DialogControlIsVisible(GSaveLabel, EventPlayer())){
+		DialogControlSetVisible(GSaveLabel, PlayerGroupActive(), true);
+		DialogControlSetVisible(GSaveIDLabel, PlayerGroupActive(), true);
+        DialogControlSetVisible(GSaveID, PlayerGroupActive(), true);
+        DialogControlSetVisible(GSaveNameLabel, PlayerGroupActive(), true);
+        DialogControlSetVisible(GSaveName, PlayerGroupActive(), true);
+        DialogControlSetVisible(GSaveDetailLabel, PlayerGroupActive(), true);
+	    DialogControlSetVisible(GSaveDetail, PlayerGroupActive(), true);
+
+	}
+		DialogControlSetPropertyAsText(GSaveID, c_triggerControlPropertyText, PlayerGroupActive(), IntToText(k));
+		section = "GTBO" + "-" + GTShortRace(PlayerRace(1)) + "v" + GTShortRace(GERace(1)) + "-Build" + IntToString(k);
+
+		DialogControlSetPropertyAsString(GSaveName, c_triggerControlPropertyEditText, PlayerGroupActive(), BankValueGetAsString(GTBank, section, "name"));
+		DialogControlSetPropertyAsString(GSaveDetail, c_triggerControlPropertyEditText, PlayerGroupActive(), BankValueGetAsString(GTBank, section, "detail"));
+		DataTableSetInt(true, c_SaveSlot, k);
+
+    return true;
+}
+
+bool GTClickSave(bool checkConds, bool doActions){
+	int slot = DataTableGetInt(true, c_SaveSlot);
+	string match = "GTBO" + "-" + GTShortRace(PlayerRace(1)) + "v" + GTShortRace(GERace(1));
+	string section = match + "-Build" + IntToString(slot);
+	int step;
+
+	if (slot > BankValueGetAsInt(GTBank, match, "num") + 1){
+		DialogControlSetPropertyAsText(GSaveInfo, c_triggerControlPropertyText, PlayerGroupActive(), StringToText("Please save to slot " + IntToString(BankValueGetAsInt(GTBank, match, "num") + 1) + " first." ));
+		return false;
+	}
+	if (slot <= BankValueGetAsInt(GTBank, match, "num")){
+		DialogControlSetPropertyAsText(GSaveInfo, c_triggerControlPropertyText, PlayerGroupActive(), StringToText("Do you want to overwrite data ?" ));
+        DialogControlSetVisible(GSaveOYes, PlayerGroupActive(), true);
+        DialogControlSetVisible(GSaveONo, PlayerGroupActive(), true);
+		return false;
+	}
+	if (DialogControlGetPropertyAsString(GSaveName, c_triggerControlPropertyEditText, EventPlayer()) == ""){
+		DialogControlSetPropertyAsText(GSaveInfo, c_triggerControlPropertyText, PlayerGroupActive(), StringToText("Please enter Name and Detail to Build Order." ));
+		return false;
+	}
+
+	step = 0;
+	BankSectionRemove(GTBank, section);
+	BankValueSetFromString(GTBank, section, "name", DialogControlGetPropertyAsString(GSaveName, c_triggerControlPropertyEditText, EventPlayer()));
+	BankValueSetFromString(GTBank, section, "detail", DialogControlGetPropertyAsString(GSaveDetail, c_triggerControlPropertyEditText, EventPlayer()));
+	DialogControlRemoveAllItems(GStepList, PlayerGroupActive());
+	while (GBO[step].what != null){
+		BankValueSetFromString(GTBank, section, "s" + IntToString(step), GBO[step].type
+				+ " " + GBO[step].what
+				+ " " + IntToString(GBO[step].count)
+				+ " " + IntToString(GBO[step].worker)
+				+ " " + IntToString(GBO[step].supply));
+		DialogControlAddItem(GStepList, PlayerGroupActive(), StringToText("["+ IntToString(step+ 1)+ "] W" + IntToString(GBO[step].worker)
+					+ "/" + IntToString(GBO[step].supply)
+				    + " - " + GBO[step].what + " "+ IntToString(GBO[step].count)));
+		step = step + 1;
+	}
+	    BankValueSetFromInt(GTBank, section, "step", step );
+	    BankValueSetFromInt(GTBank, match, "num", MaxI(slot, BankValueGetAsInt(GTBank, match, "num")) );
+	    DialogControlSetPropertyAsText(GSaveInfo, c_triggerControlPropertyText, PlayerGroupActive(), StringToText("Slot " + IntToString(DataTableGetInt(true, c_SaveSlot)) + " is saved."));
+		DialogControlSetPropertyAsText(GSaveSlot[DataTableGetInt(true, c_SaveSlot)], c_triggerControlPropertyText, PlayerGroupActive(), TextWithColor(StringToText(BankValueGetAsString(GTBank, section, "name")), Color(255,255,0)));
+		DialogControlSetPropertyAsText(GSaveUsedSlot, c_triggerControlPropertyText, PlayerGroupActive(), StringToText("Slot Used: " + IntToString(BankValueGetAsInt(GTBank, match, "num"))));
+		DialogControlSetPropertyAsText(GStepIndex, c_triggerControlPropertyText, PlayerGroupActive(), TextWithColor(StringToText(PlayerRace(1)), Color(0,155, 100)) + StringToText(" vs ") + TextWithColor(StringToText(GERace(1)),Color(255,63,0)) + StringToText("          Slot: ") + TextWithColor(IntToText(DataTableGetInt(true, c_SaveSlot)),Color(255, 255, 0)));
+		DialogSetVisible(GStepBoard, PlayerGroupActive(), true);
+
+		BankSave(GTBank);
+
+	return true;
+}
+bool GTClickSaveONo(bool checkConds, bool doActions){
+
+	DialogControlSetVisible(GSaveOYes, PlayerGroupActive(), false);
+	DialogControlSetVisible(GSaveONo, PlayerGroupActive(), false);
+    DialogControlSetPropertyAsText(GSaveInfo, c_triggerControlPropertyText, PlayerGroupActive(), StringToText("" ));
+    return true;
+}
+
+bool GTClickSaveOYes(bool checkConds, bool doActions){
+	int slot = DataTableGetInt(true, c_SaveSlot);
+	string match = "GTBO" + "-" + GTShortRace(PlayerRace(1)) + "v" + GTShortRace(GERace(1));
+	string section = match + "-Build" + IntToString(slot);
+	int step;
+
+	DialogControlSetVisible(GSaveOYes, PlayerGroupActive(), false);
+	DialogControlSetVisible(GSaveONo, PlayerGroupActive(), false);
+   	if (DialogControlGetPropertyAsString(GSaveName, c_triggerControlPropertyEditText, EventPlayer()) == ""){
+		DialogControlSetPropertyAsText(GSaveInfo, c_triggerControlPropertyText, PlayerGroupActive(), StringToText("Please enter Name and Detail to Build Order." ));
+		return false;
+	}
+
+	step = 0;
+	BankSectionRemove(GTBank, section);
+	BankValueSetFromString(GTBank, section, "name", DialogControlGetPropertyAsString(GSaveName, c_triggerControlPropertyEditText, EventPlayer()));
+	BankValueSetFromString(GTBank, section, "detail", DialogControlGetPropertyAsString(GSaveDetail, c_triggerControlPropertyEditText, EventPlayer()));
+	DialogControlRemoveAllItems(GStepList, PlayerGroupActive());
+	while (GBO[step].what != null){
+		BankValueSetFromString(GTBank, section, "s" + IntToString(step), GBO[step].type
+				+ " " + GBO[step].what
+				+ " " + IntToString(GBO[step].count)
+				+ " " + IntToString(GBO[step].worker)
+				+ " " + IntToString(GBO[step].supply));
+		DialogControlAddItem(GStepList, PlayerGroupActive(), StringToText("["+ IntToString(step+ 1)+ "] W" + IntToString(GBO[step].worker)
+					+ "/" + IntToString(GBO[step].supply)
+				    + " - " + GBO[step].what + " "+ IntToString(GBO[step].count)));
+		step = step + 1;
+	}
+	    BankValueSetFromInt(GTBank, section, "step", step );
+	    BankValueSetFromInt(GTBank, match, "num", MaxI(slot, BankValueGetAsInt(GTBank, match, "num")) );
+	    DialogControlSetPropertyAsText(GSaveInfo, c_triggerControlPropertyText, PlayerGroupActive(), StringToText("Slot " + IntToString(DataTableGetInt(true, c_SaveSlot)) + " is saved."));
+		DialogControlSetPropertyAsText(GSaveSlot[DataTableGetInt(true, c_SaveSlot)], c_triggerControlPropertyText, PlayerGroupActive(), TextWithColor(StringToText(BankValueGetAsString(GTBank, section, "name")), Color(255,255,0)));
+		DialogControlSetPropertyAsText(GSaveUsedSlot, c_triggerControlPropertyText, PlayerGroupActive(), StringToText("Slot Used: " + IntToString(BankValueGetAsInt(GTBank, match, "num"))));
+		DialogControlSetPropertyAsText(GStepIndex, c_triggerControlPropertyText, PlayerGroupActive(), TextWithColor(StringToText(PlayerRace(1)), Color(0,155, 100)) + StringToText(" vs ") + TextWithColor(StringToText(GERace(1)),Color(255,63,0)) + StringToText("          Slot: ") + TextWithColor(IntToText(DataTableGetInt(true, c_SaveSlot)),Color(255, 255, 0)));
+		DialogSetVisible(GStepBoard, PlayerGroupActive(), true);
+		BankSave(GTBank);
+
+    return true;
+}
+
+bool GTClickSaveRecord(bool checkConds, bool doActions){
+	DialogSetVisible(GSaveBoard, PlayerGroupActive(), true);
+    PlayerSetAlliance( EventPlayer(), c_allianceIdVision, EventPlayer(), false);
+    g_boardchoice = 1;
+	DialogControlSetVisible(GLoadPracticeButton, PlayerGroupActive(), false);
+	DialogControlSetVisible(GPracticeAttack, PlayerGroupActive(), false);
+	DialogSetTitle(GSaveBoard, TextWithColor(StringToText("Build Order Save"), Color(63,212,42)));
+
+    GPauseAll();
+    return true;
+}
+
+bool GTClickListShow(bool checkConds, bool doActions){
+	int step;
+	string section  = "GTBO" + "-" +  GTShortRace(GERace(1)) + "v" + GTShortRace(PlayerRace(1)) + "-Build" + IntToString( GTableGetInt(2, "CustomBuild"));
+    string 	code;
+
+	DialogControlRemoveAllItems(GStepList, PlayerGroupActive());
+	while (step < BankValueGetAsInt(GTBank, section, "step")){
+		code = BankValueGetAsString(GTBank, section, "s" +IntToString( step));
+		DialogControlAddItem(GStepList, PlayerGroupActive(), StringToText(GifS( step >= 9, "", "0") +IntToString(step + 1) + "/ " + code));
+		step = step + 1;
+	}
+	DialogControlSetPropertyAsText(GStepIndex, c_triggerControlPropertyText, PlayerGroupActive(), TextWithColor(StringToText(GERace(1)), Color(0,155, 100)) + StringToText(" vs ") + TextWithColor(StringToText(PlayerRace(1)),Color(255,63,0)) + StringToText("          Slot: ") + TextWithColor(IntToText(GTableGetInt(2, "CustomBuild")),Color(255, 255, 0)));
+    DialogControlSelectItem(GStepList, PlayerGroupActive(), GTableGetInt(2, "OrderStep") + 1);
+	DialogSetVisible(GStepBoard, PlayerGroupActive(), true);
+    return true;
+}
+
+
+bool GTClickClose2(bool checkConds, bool doActions){
+    DialogSetVisible(DialogControlGetDialog(EventDialogControl()), PlayerGroupActive(), false);
+    return true;
+}
+
+bool GTClickPractice(bool checkConds, bool doActions){
+	 if (PlayerType(1) != c_playerTypeUser){
+	 	DialogControlSetPropertyAsText(GVSInfo , c_triggerControlPropertyText, PlayerGroupActive(), StringToText("Player 1 must be human player"));
+	 	return false;
+	 }
+	 DialogSetVisible(GOpenMenu, PlayerGroupActive(), false);
+	 DialogSetVisible(GOptionBoard, PlayerGroupActive(), false);
+	 DialogSetVisible(GSaveBoard, PlayerGroupActive(), true);
+	 CameraLockInput(EventPlayer(), false);
+	 return true;
+}
+
+bool GTClickViewPractice(bool checkConds, bool doActions){
+	int step;
+	string section  = "GTBO" + "-" + GTShortRace(PlayerRace(1)) + "v" + GTShortRace(GERace(1)) + "-Build" + IntToString( DataTableGetInt(true, c_SaveSlot));
+    string 	code;
+    string type;
+	string what;
+	string count ;
+	string worker;
+	string supply;
+	if ( DataTableGetInt(true, c_SaveSlot) > BankValueGetAsInt(GTBank, "GTBO" + "-" + GTShortRace(PlayerRace(1)) + "v" + GTShortRace(GERace(1)), "num")){
+		DialogControlSetPropertyAsText(GSaveInfo, c_triggerControlPropertyText, PlayerGroupActive(), StringToText("No data in this slot." ));
+		return false;
+	}
+	DialogControlRemoveAllItems(GStepList, PlayerGroupActive());
+	while (step < BankValueGetAsInt(GTBank, section, "step")){
+		code = BankValueGetAsString(GTBank, section, "s" +IntToString( step));
+		type = StringWord(code, 1);
+		what  =	StringWord(code, 2);
+		count = StringWord(code, 3);
+		worker = StringWord(code, 4);
+		supply = StringWord(code, 5);
+		DialogControlAddItem(GStepList, PlayerGroupActive(), StringToText("[" + GifS( step >= 9, "", "0")+ IntToString(step+ 1)+ "] W" + worker
+					+ "/" + supply
+				    + " - " + what + " "+ count));
+		step = step + 1;
+	}
+	DialogControlSetPropertyAsText(GStepIndex, c_triggerControlPropertyText, PlayerGroupActive(), TextWithColor(StringToText(PlayerRace(1)), Color(0,155, 100)) + StringToText(" vs ") + TextWithColor(StringToText(GERace(1)),Color(255,63,0)) + StringToText("          Slot: ") + TextWithColor(IntToText(DataTableGetInt(true, c_SaveSlot)),Color(255, 255, 0)));
+    DialogControlSelectItem(GStepList, PlayerGroupActive(), GTableGetInt(2, "OrderStep") + 1);
+	DialogSetVisible(GStepBoard, PlayerGroupActive(), true);
+    DialogControlSetVisible(GLoadPYes, PlayerGroupActive(), true);
+    DialogControlSetVisible(GLoadPNo, PlayerGroupActive(), true);
+    DialogControlSetPropertyAsText(GSaveInfo, c_triggerControlPropertyText, PlayerGroupActive(), StringToText("Do you want to Practice this BO ?" ));
+
+	return true;
+}
+bool GTClickLoadPNo(bool checkConds, bool doActions){
+
+	DialogControlSetVisible(GLoadPYes, PlayerGroupActive(), false);
+	DialogControlSetVisible(GLoadPNo, PlayerGroupActive(), false);
+    DialogControlSetPropertyAsText(GSaveInfo, c_triggerControlPropertyText, PlayerGroupActive(), StringToText("" ));
+    return true;
+}
+
+bool GTClickLoadPYes(bool checkConds, bool doActions){
+	int slot = DataTableGetInt(true, c_SaveSlot);
+	string match = "GTBO" + "-" + GTShortRace(PlayerRace(1)) + "v" + GTShortRace(GERace(1));
+	string section = match + "-Build" + IntToString(slot);
+	int step;
+    string code;
+    string type;
+	string what;
+	string count ;
+	string worker;
+	string supply;
+	DialogControlSetVisible(GLoadPYes, PlayerGroupActive(), false);
+	DialogControlSetVisible(GLoadPNo, PlayerGroupActive(), false);
+	DialogControlSetPropertyAsText(GSaveInfo, c_triggerControlPropertyText, PlayerGroupActive(), StringToText("" ));
+	DialogSetVisible(GStepBoard, PlayerGroupActive(), false);
+    DialogSetVisible(DialogControlGetDialog(EventDialogControl()), PlayerGroupActive(), false);
+    if (DialogIsVisible(GOpenMenu, EventPlayer())){
+    	return false;
+    }
+    AITimePause(false);
+    TimerPause(GTRoundTime, false);
+	UnitPauseAll(false);
+    CameraLockInput(EventPlayer(),false);
+    if (!g_showbuild){
+    	PlayerSetAlliance(1, c_allianceIdVision, 1, true);
+    	PlayerSetAlliance(EventPlayer(), c_allianceIdVision, EventPlayer(), true);
+    }
+
+	step = 0;
+	while (step < BankValueGetAsInt(GTBank, section, "step")){
+		code = BankValueGetAsString(GTBank, section, "s" +IntToString( step));
+		type = StringWord(code, 1);
+		what  =	StringWord(code, 2);
+		count = StringWord(code, 3);
+		worker = StringWord(code, 4);
+		supply = StringWord(code, 5);
+		ObjectiveCreate( StringToText("[" + GifS( step >= 9, "", "0")+ IntToString(step+ 1)+ "] W" + worker
+					+ "/" + supply +" - " + what + " "+ count),
+					 StringToText("[" + GifS( step >= 9, "", "0")+ IntToString(step+ 1)+ "]Worker " + worker
+					+ "/" + supply +" - " + what + " "+ count),
+				     c_objectiveStateActive, true);
+		step = step + 1;
+		if (step > 6){
+			break;
+		}
+	}
+	g_practice = true;
+	GTableSetInt(EventPlayer(), "PracticeStep", 1 );
+    return true;
+}
+
+bool GTClickAIAttackControl(bool checkConds, bool doActions){
+	if (DialogIsVisible(GAttackBoard, EventPlayer())){
+		DialogControlSetPropertyAsText(GPracticeAttack, c_triggerControlPropertyText, PlayerGroupActive(), StringToText("AI Attack Control: Off"));
+		DialogSetVisible(GAttackBoard, PlayerGroupActive(), false);
+	}
+	else{
+		DialogControlSetPropertyAsText(GPracticeAttack, c_triggerControlPropertyText, PlayerGroupActive(), StringToText("AI Attack Control: On"));
+		DialogSetVisible(GAttackBoard, PlayerGroupActive(), true);
+	}
+    return true;
+}
+
+bool GTClickAIAttack(bool checkConds, bool doActions){
+	if (g_canattack){
+		DialogControlSetPropertyAsText(GAttackButton, c_triggerControlPropertyText, PlayerGroupActive(), StringToText("AI Attack: Off"));
+		g_canattack = false;
+	}
+	else{
+		DialogControlSetPropertyAsText(GAttackButton, c_triggerControlPropertyText, PlayerGroupActive(), StringToText("AI Attack: On"));
+		g_canattack = true;
+	}
+    return true;
+}
+
+//------------------------------------------
+// Load Custom Board
+//--------------------------------------------
+
+
+int GEditBoard = DialogCreate(400, 200, c_anchorCenter, 0, -150, true);
+int GEditName = DialogControlCreate(GEditBoard, c_triggerControlTypeEditBox);
+int GEditLabel = DialogControlCreate(GEditBoard, c_triggerControlTypeEditBox);
+
+int GLoadBoard = DialogCreate(870, 550, c_anchorCenter, 0, -150, true);
+int GLoadClose = DialogControlCreate(GLoadBoard, c_triggerControlTypeButton);
+int GLoadLabel = DialogControlCreate(GLoadBoard, c_triggerControlTypeLabel);
+int GLoadMatch = DialogControlCreate(GLoadBoard, c_triggerControlTypeLabel);
+int GLoadUsedSlot = DialogControlCreate(GLoadBoard, c_triggerControlTypeLabel);
+int GLoadIDLabel = DialogControlCreate(GLoadBoard, c_triggerControlTypeLabel);
+int GLoadID = DialogControlCreate(GLoadBoard, c_triggerControlTypeLabel);
+int GLoadNameLabel = DialogControlCreate(GLoadBoard, c_triggerControlTypeLabel);
+int GLoadName = DialogControlCreate(GLoadBoard, c_triggerControlTypeEditBox);
+int GLoadDetailLabel = DialogControlCreate(GLoadBoard, c_triggerControlTypeLabel);
+int GLoadDetail = DialogControlCreate(GLoadBoard, c_triggerControlTypeEditBox);
+int GLoadButton = DialogControlCreate(GLoadBoard, c_triggerControlTypeButton);
+int GLoadInfo = DialogControlCreate(GLoadBoard, c_triggerControlTypeLabel);
+int GLoadTest = DialogControlCreate(GLoadBoard, c_triggerControlTypeButton);
+
+
+int [16] GLoadSlot;
+
+void GLoadSetup(){
+	int numplayer = PlayerGroupCount(PlayerGroupActive());
+	string section;
+	string match;
+	int i;
+
+	DialogSetVisible(GLoadBoard, PlayerGroupActive(), false);
+	DialogSetTitle(GLoadBoard, TextWithColor(StringToText("Build Order Load"), Color(63,212,42)));
+	DialogControlSetPosition(GLoadClose, PlayerGroupActive(), c_anchorTopRight, 27, 27);
+    DialogControlSetSize(GLoadClose, PlayerGroupActive(), 40, 40);
+    DialogControlSetPropertyAsText(GLoadClose, c_triggerControlPropertyText, PlayerGroupActive(), StringToText("X"));
+
+
+	match = "GTBO" + "-" +  GTShortRace(GERace(1)) + "v" + GTShortRace(PlayerRace(1));
+
+	DialogControlSetPosition(GLoadMatch, PlayerGroupActive(), c_anchorTopLeft, 40, 90);
+	DialogControlSetSize(GLoadMatch, PlayerGroupActive(), 160, 40);
+	DialogControlSetPropertyAsText(GLoadMatch, c_triggerControlPropertyText, PlayerGroupActive(), TextWithColor(StringToText(GERace(1)), Color(0,155, 100)) + StringToText(" VS ") + TextWithColor(StringToText(PlayerRace(1)),Color(255,63,0)));
+
+	DialogControlSetPosition(GLoadUsedSlot, PlayerGroupActive(), c_anchorTopLeft, 210, 90);
+	DialogControlSetSize(GLoadUsedSlot, PlayerGroupActive(), 160, 40);
+	DialogControlSetPropertyAsText(GLoadUsedSlot, c_triggerControlPropertyText, PlayerGroupActive(), StringToText("Slot Used: " + IntToString(BankValueGetAsInt(GTBank, match, "num"))));
+
+
+    i = 1;
+    while (i <= 10){
+    	GLoadSlot[i] = DialogControlCreate(GLoadBoard, c_triggerControlTypeButton);
+
+    	if (i == 1){
+    		DataTableSetInt(true, c_Slot2_Different, GLoadSlot[i]-1);
+		}
+    	DialogControlSetPosition(GLoadSlot[i], PlayerGroupActive(), c_anchorTopLeft, 40 + 160*(GifI(ModI(i,5) == 0, 5,ModI(i,5)) -1), 120 + 100*((i-1)/5));
+    	DialogControlSetSize(GLoadSlot[i], PlayerGroupActive(), 150, 80);
+    	section = match + "-Build" + IntToString(i);
+    	if (BankSectionExists(GTBank, section)){
+    		DialogControlSetPropertyAsText(GLoadSlot[i], c_triggerControlPropertyText, PlayerGroupActive(), TextWithColor(StringToText(BankValueGetAsString(GTBank, section, "name")), Color(255,255,0)));
+    	}
+    	else{
+    		DialogControlSetPropertyAsText(GLoadSlot[i], c_triggerControlPropertyText, PlayerGroupActive(), StringToText("Slot ") + IntToText(i));
+    	}
+
+
+		i = i + 1;
+	}
+				DialogControlSetPosition(GLoadLabel, PlayerGroupActive(), c_anchorBottomLeft, 50, 200);
+    			DialogControlSetSize(GLoadLabel, PlayerGroupActive(), 300, 35);
+    		    DialogControlSetPropertyAsText(GLoadLabel, c_triggerControlPropertyText, PlayerGroupActive(), TextWithColor(StringToText("Build Order Data"), Color (255, 255, 0)));
+				DialogControlSetVisible(GLoadLabel, PlayerGroupActive(), false);
+
+				DialogControlSetPosition(GLoadIDLabel, PlayerGroupActive(), c_anchorBottomLeft, 50, 165);
+    			DialogControlSetSize(GLoadIDLabel, PlayerGroupActive(), 80, 35);
+    		    DialogControlSetPropertyAsText(GLoadIDLabel, c_triggerControlPropertyText, PlayerGroupActive(), StringToText("Slot    : "));
+				DialogControlSetVisible(GLoadIDLabel, PlayerGroupActive(), false);
+
+				DialogControlSetPosition(GLoadID, PlayerGroupActive(), c_anchorBottomLeft, 120, 165);
+    			DialogControlSetSize(GLoadID, PlayerGroupActive(), 50, 35);
+    		    DialogControlSetVisible(GLoadID, PlayerGroupActive(), false);
+
+				DialogControlSetPosition(GLoadNameLabel, PlayerGroupActive(), c_anchorBottomLeft, 50, 130);
+    			DialogControlSetSize(GLoadNameLabel, PlayerGroupActive(), 80, 35);
+    		    DialogControlSetPropertyAsText(GLoadNameLabel, c_triggerControlPropertyText, PlayerGroupActive(), StringToText("Name: "));
+				DialogControlSetVisible(GLoadNameLabel, PlayerGroupActive(), false);
+
+				DialogControlSetPosition(GLoadName, PlayerGroupActive(), c_anchorBottomLeft, 120, 130);
+    			DialogControlSetSize(GLoadName, PlayerGroupActive(), 300, 50);
+				DialogControlSetVisible(GLoadName, PlayerGroupActive(), false);
+
+    		    DialogControlSetPosition(GLoadDetailLabel, PlayerGroupActive(), c_anchorBottomLeft, 50, 95);
+    			DialogControlSetSize(GLoadDetailLabel, PlayerGroupActive(), 80, 35);
+    		    DialogControlSetPropertyAsText(GLoadDetailLabel, c_triggerControlPropertyText, PlayerGroupActive(), StringToText("Detail : "));
+				DialogControlSetVisible(GLoadDetailLabel, PlayerGroupActive(), false);
+
+				DialogControlSetPosition(GLoadDetail, PlayerGroupActive(), c_anchorBottomLeft, 120, 95);
+    			DialogControlSetSize(GLoadDetail, PlayerGroupActive(), 600, 50);
+				DialogControlSetVisible(GLoadDetail, PlayerGroupActive(), false);
+
+		DialogControlSetPosition(GLoadButton, PlayerGroupActive(), c_anchorBottomLeft, 50, 35);
+		DialogControlSetSize(GLoadButton, PlayerGroupActive(), 80, 50);
+        DialogControlSetPropertyAsText(GLoadButton, c_triggerControlPropertyText, PlayerGroupActive(), StringToText("Play"));
+		DialogControlSetVisible(GLoadButton, PlayerGroupActive(), false);
+
+		DialogControlSetPosition(GLoadTest, PlayerGroupActive(), c_anchorBottomLeft, 135, 35);
+		DialogControlSetSize(GLoadTest, PlayerGroupActive(), 150, 50);
+	    DialogControlSetPropertyAsText(GLoadTest, c_triggerControlPropertyText, PlayerGroupActive(), StringToText("Edit/Test"));
+	    DialogControlSetVisible(GLoadTest, PlayerGroupActive(), false);
+
+        DialogControlSetPosition(GLoadInfo, PlayerGroupActive(), c_anchorBottomLeft, 290, 30);
+        DialogControlSetSize(GLoadInfo, PlayerGroupActive(), 600, 45);
+
+
+
+
+}
+
+bool GTClickSlot2(bool checkConds, bool doActions){
+	int k = EventDialogControl() - DataTableGetInt(true, c_Slot2_Different);
+	string section;
+	int Slotnum  = BankValueGetAsInt(GTBank, "GTBO" + "-" +  GTShortRace(GERace(1)) + "v" + GTShortRace(PlayerRace(1)), "num");
+	if (checkConds){
+		if (k < 1 || k > 10){
+			return false;
+		}
+	}
+
+    DialogControlSetPropertyAsText(GLoadInfo, c_triggerControlPropertyText, PlayerGroupActive(), StringToText("" ));
+
+	if (!DialogControlIsVisible(GLoadLabel, EventPlayer())){
+		DialogControlSetVisible(GLoadLabel, PlayerGroupActive(), true);
+		DialogControlSetVisible(GLoadIDLabel, PlayerGroupActive(), true);
+        DialogControlSetVisible(GLoadID, PlayerGroupActive(), true);
+        DialogControlSetVisible(GLoadNameLabel, PlayerGroupActive(), true);
+        DialogControlSetVisible(GLoadName, PlayerGroupActive(), true);
+        DialogControlSetVisible(GLoadTest, PlayerGroupActive(), true);
+        DialogControlSetVisible(GLoadDetailLabel, PlayerGroupActive(), true);
+	    DialogControlSetVisible(GLoadDetail, PlayerGroupActive(), true);
+	    DialogControlSetVisible(GLoadButton, PlayerGroupActive(), true);
+	}
+		DialogControlSetPropertyAsText(GLoadID, c_triggerControlPropertyText, PlayerGroupActive(), IntToText(k));
+		section = "GTBO" + "-" +  GTShortRace(GERace(1)) + "v" + GTShortRace(PlayerRace(1)) + "-Build" + IntToString(k);
+		if (k > Slotnum){
+			DialogControlSetPropertyAsText(GLoadTest, c_triggerControlPropertyText, PlayerGroupActive(), StringToText("Create new"));
+		}
+		else{
+			DialogControlSetPropertyAsText(GLoadTest, c_triggerControlPropertyText, PlayerGroupActive(), StringToText("Edit/Test"));
+		}
+
+		DialogControlSetPropertyAsString(GLoadName, c_triggerControlPropertyEditText, PlayerGroupActive(), BankValueGetAsString(GTBank, section, "name"));
+		DialogControlSetPropertyAsString(GLoadDetail, c_triggerControlPropertyEditText, PlayerGroupActive(), BankValueGetAsString(GTBank, section, "detail"));
+		DataTableSetInt(true, c_LoadSlot, k);
+
+    return true;
+}
+
+bool GTClickLoad(bool checkConds, bool doActions){
+	int slot = DataTableGetInt(true, c_LoadSlot);
+	if (slot > BankValueGetAsInt(GTBank, "GTBO" + "-" +  GTShortRace(GERace(1)) + "v" + GTShortRace(PlayerRace(1)), "num")){
+		DialogControlSetPropertyAsText(GLoadInfo, c_triggerControlPropertyText, PlayerGroupActive(), StringToText("No data in this slot." ));
+		return false;
+	}
+	GTableSetInt(2, "CustomBuild", slot);
+	DialogSetVisible(GRecordStep, PlayerGroupActive(), false);
+    DialogSetVisible(DialogControlGetDialog(EventDialogControl()), PlayerGroupActive(), false);
+    AITimePause(false);
+    TimerPause(GTRoundTime, false);
+	UnitPauseAll(false);
+    CameraLockInput(EventPlayer(),false);
+    PlayerSetAlliance(1, c_allianceIdVision, 1, true);
+	PlayerSetAlliance(EventPlayer(), c_allianceIdVision, EventPlayer(), true);
+	return true;
+}
+
+bool GTClickLoadTest(bool checkConds, bool doActions){
+	int slot = DataTableGetInt(true, c_LoadSlot);
+	string match = "GTBO" + "-" +  GTShortRace(GERace(1)) + "v" + GTShortRace(PlayerRace(1));
+
+	if (slot > BankValueGetAsInt(GTBank,match, "num") + 1){
+			DialogControlSetPropertyAsText(GLoadInfo, c_triggerControlPropertyText, PlayerGroupActive(), StringToText("Create new BO in slot " + IntToString(BankValueGetAsInt(GTBank, "GTBO" + "-" +  GTShortRace(GERace(1)) + "v" + GTShortRace(PlayerRace(1)), "num") + 1) + " first."  ));
+			return false;
+		}
+
+	if ( DialogControlGetPropertyAsString(GLoadName, c_triggerControlPropertyEditText, 1) == ""){
+		DialogControlSetPropertyAsText(GLoadInfo, c_triggerControlPropertyText, PlayerGroupActive(), StringToText("Please type Name and Detail for the BO." ));
+		return false;
+	}
+
+	 GTableSetInt(2, "CustomBuild", slot);
+	 g_viewbuild = true;
+     g_showbuild = true;
+     g_autobuild = false;
+
+     DialogControlSetVisible(GStepRestart, PlayerGroupActive(), true);
+     DialogControlSetVisible(GStepLabel, PlayerGroupActive(), true);
+     DialogControlSetVisible(GStepNum, PlayerGroupActive(), true);
+      DialogControlSetVisible(GStepAction, PlayerGroupActive(), true);
+      DialogControlSetVisible(GStepType, PlayerGroupActive(), true);
+      DialogControlSetVisible(GStepCount, PlayerGroupActive(), true);
+      DialogControlSetVisible(GStepWorker, PlayerGroupActive(), true);
+      DialogControlSetVisible(GStepSupply, PlayerGroupActive(), true);
+
+     DialogControlSetVisible(GStepEdit, PlayerGroupActive(), true);
+     DialogControlSetVisible(GStepAdd, PlayerGroupActive(), true);
+     DialogControlSetVisible(GStepDel, PlayerGroupActive(), true);
+     DialogControlSetVisible(GStepPlay, PlayerGroupActive(), true);
+     DialogControlSetVisible(GStepPause, PlayerGroupActive(), true);
+
+     PlayerSetAlliance(2, c_allianceIdVision, 1, true);
+     PlayerSetAlliance(1, c_allianceIdVision, 1, false);
+     PlayerSetAlliance(EventPlayer(), c_allianceIdVision, EventPlayer(), false);
+     DialogSetVisible(GRecordShow, PlayerGroupActive(), true);
+     BoardSetState  (GTBoard, PlayerGroupSingle(1), c_boardStateShowing, true);
+     DialogSetVisible(GRecordStep, PlayerGroupActive(), false);
+     DialogSetVisible(DialogControlGetDialog(EventDialogControl()), PlayerGroupActive(), false);
+     AITimePause(false);
+     TimerPause(GTRoundTime, false);
+     UnitPauseAll(false);
+     CameraLockInput(EventPlayer(),false);
+     CameraSetBounds(PlayerGroupSingle(1), RegionCircle(PlayerStartLocation(2), 0.1), false);
+     if (slot == BankValueGetAsInt(GTBank, match, "num") + 1){
+		 UnitPauseAll(true);
+		 DialogSetVisible(GRecordStep, PlayerGroupActive(), false);
+         DialogSetVisible(GStepBoard, PlayerGroupActive(), true);
+       	 BankValueSetFromInt(GTBank, match, "num", BankValueGetAsInt(GTBank, match, "num") + 1);
+
+	}
+     CameraSetBounds(PlayerGroupSingle(1), RegionPlayableMap(), false);
+  	 BankValueSetFromString(GTBank, match + "-Build" + IntToString(slot), "name", DialogControlGetPropertyAsString(GLoadName, c_triggerControlPropertyEditText, 1));
+  	 BankValueSetFromString(GTBank, match + "-Build" + IntToString(slot), "detail", DialogControlGetPropertyAsString(GLoadDetail, c_triggerControlPropertyEditText, 1));
+   	 BankSave(GTBank);
+  	 return true;
+}
+
+bool GTClickLoadCustom(bool checkConds, bool doActions){
+	 if (PlayerType(1) != c_playerTypeUser){
+	 	DialogControlSetPropertyAsText(GVSInfo , c_triggerControlPropertyText, PlayerGroupActive(), StringToText("Player 1 must be human player"));
+	 	return false;
+	 }
+	 DialogSetVisible(GOpenMenu, PlayerGroupActive(), false);
+	 DialogSetVisible(GOptionBoard, PlayerGroupActive(), false);
+	 DialogSetVisible(GLoadBoard, PlayerGroupActive(), true);
+	 CameraLockInput(EventPlayer(), false);
+	 return true;
+}
+
+bool GTimerDisplay (bool checkConds, bool doActions){
+    DialogControlSetPropertyAsText(GTrueTimerDigit, c_triggerControlPropertyText, PlayerGroupActive(), TextTimeFormat(StringToText("<hour/>:<min2/>:<sec2/>"), 700));
+
+	 return true;
+}
+
+bool GTClickAct(bool checkConds, bool doActions){
+	 int i;
+	 string section  = "GTBO" + "-" +  GTShortRace(PlayerRace(2)) + "v" + GTShortRace(PlayerRace(1)) + "-Build" + IntToString( GTableGetInt(2, "CustomBuild"));
+	 string code = BankValueGetAsString(GTBank, section, "s" +IntToString( DialogControlGetSelectedItem(GStepList, 1) - 1));
+
+	 DialogControlRemoveAllItems(GStepType, PlayerGroupActive());
+	 i = 1;
+	 while (GTypeList(GERace(1), DialogControlGetSelectedItem(EventDialogControl(), 1), i) != null){
+	 	DialogControlAddItem(GStepType, PlayerGroupActive(), StringToText(GTypeList(GERace(1), DialogControlGetSelectedItem(EventDialogControl(), 1), i)));
+		i = i + 1;
+	 }
+	 return true;
+}
+
+bool GTClickListStep(bool checkConds, bool doActions){
+	int i;
+	int step  = DialogControlGetSelectedItem(GStepList, 1);
+	string section  = "GTBO" + "-" +  GTShortRace(PlayerRace(2)) + "v" + GTShortRace(PlayerRace(1)) + "-Build" + IntToString( GTableGetInt(2, "CustomBuild"));
+    string 	code;
+    string type;
+	string what;
+	string count ;
+	string worker;
+	string supply;
+	if (step == 0){
+		return false;
+	}
+	code = BankValueGetAsString(GTBank, section, "s" +IntToString( step - 1));
+	if (code == null){
+		return false;
+	}
+	type = StringWord(code, 1);
+	what  =	StringWord(code, 2);
+	count = StringWord(code, 3);
+	worker = StringWord(code, 4);
+	supply = StringWord(code, 5);
+
+	DialogControlSetPropertyAsString(GStepNum, c_triggerControlPropertyEditText, PlayerGroupActive(), IntToString(step));
+    if (type == "t"){
+    	DialogControlSelectItem(GStepAction, PlayerGroupActive(), 1);
+    	i = 1;
+    }
+    else if (type == "b"){
+    	DialogControlSelectItem(GStepAction, PlayerGroupActive(), 2);
+    	i = 2;
+    }
+    else if (type == "r"){
+    	if (StringContains(what, PlayerRace(2), 0,true) && what != "TerranBuildingArmor"){
+    		DialogControlSelectItem(GStepAction, PlayerGroupActive(), 4);
+    		i = 4;
+    	}
+    	else {
+    		DialogControlSelectItem(GStepAction, PlayerGroupActive(), 3);
+    		i = 3;
+    	}
+    }
+    DialogControlSetPropertyAsString(GStepCount, c_triggerControlPropertyEditText, PlayerGroupActive(), count);
+    DialogControlSetPropertyAsString(GStepWorker, c_triggerControlPropertyEditText, PlayerGroupActive(), worker);
+	DialogControlSetPropertyAsString(GStepSupply, c_triggerControlPropertyEditText, PlayerGroupActive(), supply);
+	Wait(0.1, c_timeAI);
+	DialogControlSelectItem(GStepType, PlayerGroupActive(), GTypeSelect(PlayerRace(2),  i, StringWord(code, 2)));
+    return true;
+}
+
+bool GTClickStepEdit(bool checkConds, bool doActions){
+	int i;
+	string section  = "GTBO" + "-" +  GTShortRace(GERace(1)) + "v" + GTShortRace(PlayerRace(1)) + "-Build" + IntToString( GTableGetInt(2, "CustomBuild"));
+	int step = StringToInt(DialogControlGetPropertyAsString(GStepNum, c_triggerControlPropertyEditText, 1));
+    string 	code;
+	string act = GStringAct(DialogControlGetSelectedItem(GStepAction, 1));
+	string type =  GTypeList(GERace(1), DialogControlGetSelectedItem(GStepAction, 1), DialogControlGetSelectedItem(GStepType, 1) );
+	string count =  DialogControlGetPropertyAsString(GStepCount, c_triggerControlPropertyEditText, 1);
+	string worker =  DialogControlGetPropertyAsString(GStepWorker, c_triggerControlPropertyEditText, 1);
+	string supply =  DialogControlGetPropertyAsString(GStepSupply, c_triggerControlPropertyEditText, 1);
+	BankValueSetFromString(GTBank, section, "s" +  IntToString(step-1), act + " "+ type + " " +  count + " " + worker + " " + supply);
+
+
+	DialogControlRemoveAllItems(GStepList, PlayerGroupActive());
+	while (i < BankValueGetAsInt(GTBank, section, "step")){
+		code = BankValueGetAsString(GTBank, section, "s" +IntToString( i));
+		DialogControlAddItem(GStepList, PlayerGroupActive(), StringToText(GifS( i >= 9, "", "0") +IntToString(i + 1) + "/ " + code));
+		i = i + 1;
+	}
+	DialogControlSelectItem(GStepList, PlayerGroupActive(), GTableGetInt(2, "OrderStep") + 1);
+	BankSave(GTBank);
+    return true;
+}
+
+bool GTClickStepAdd(bool checkConds, bool doActions){
+	string section  = "GTBO" + "-" +  GTShortRace(GERace(1)) + "v" + GTShortRace(PlayerRace(1)) + "-Build" + IntToString( GTableGetInt(2, "CustomBuild"));
+	int step = BankValueGetAsInt(GTBank, section, "step");
+	string act = GStringAct(DialogControlGetSelectedItem(GStepAction, 1));
+	string type =  GTypeList(GERace(1), DialogControlGetSelectedItem(GStepAction, 1), DialogControlGetSelectedItem(GStepType, 1) );
+	string count =  DialogControlGetPropertyAsString(GStepCount, c_triggerControlPropertyEditText, 1);
+	string worker =  DialogControlGetPropertyAsString(GStepWorker, c_triggerControlPropertyEditText, 1);
+	string supply =  DialogControlGetPropertyAsString(GStepSupply, c_triggerControlPropertyEditText, 1);
+	BankValueSetFromString(GTBank, section, "s" +  IntToString(step), act + " "+ type + " " +  count + " " + worker + " " + supply);
+	BankValueSetFromInt(GTBank, section, "step", step + 1);
+	DialogControlAddItem(GStepList, PlayerGroupActive(), StringToText(GifS( step + 1 >= 9, "", "0") +IntToString(step + 1) + "/ " + BankValueGetAsString(GTBank, section, "s" +IntToString( step))));
+	DialogControlSelectItem(GStepList, PlayerGroupActive(), step + 1);
+	BankSave(GTBank);
+    return true;
+}
+
+bool GTClickStepDel(bool checkConds, bool doActions){
+	string section  = "GTBO" + "-" +  GTShortRace(GERace(1)) + "v" + GTShortRace(PlayerRace(1)) + "-Build" + IntToString( GTableGetInt(2, "CustomBuild"));
+	int step = BankValueGetAsInt(GTBank, section, "step");
+	DialogControlRemoveItem(GStepList, PlayerGroupActive(), step);
+	BankKeyRemove(GTBank, section, "s" +  IntToString(step - 1));
+	BankValueSetFromInt(GTBank, section, "step", step - 1);
+	DialogControlSelectItem(GStepList, PlayerGroupActive(), step - 1);
+	BankSave(GTBank);
+    return true;
+}
+
+bool GTClickStepPlay(bool checkConds, bool doActions){
+	UnitPauseAll(false);
+    return true;
+}
+
+bool GTClickStepPause(bool checkConds, bool doActions){
+	UnitPauseAll(true);
+    return true;
+}
+
+bool GTClickRestart(bool checkConds, bool doActions){
+	PlayerSetState(EventPlayer(), c_playerStateRestartEnabled, true);
+	RestartGame (PlayerGroupActive());
+    return true;
+}
+
+
+
+
+
+//---------------------------------------------
+// Trigger Call
+//----------------------------------------------
+
+trigger GT2SelectAI = TriggerCreate("GTSelectAI");
+trigger GT2ClickCom = TriggerCreate("GTClickCom");
+trigger GT2ClickSlot1 = TriggerCreate("GTClickSlot1");
+trigger GT2ClickSlot2 = TriggerCreate("GTClickSlot2");
+trigger GT2ClickClose = TriggerCreate("GTClickClose");
+trigger GT2ClickClose2 = TriggerCreate("GTClickClose2");
+trigger GT2ClickChoose = TriggerCreate("GTClickChoose");
+trigger GT2CheckOption = TriggerCreate("GTCheckOption");
+trigger GT2ClickVSRandom = TriggerCreate("GTClickVSRandom");
+trigger GT2ClickVSRandom1 = TriggerCreate("GTClickVSRandom1");
+trigger GT2ClickVSRandom2 = TriggerCreate("GTClickVSRandom2");
+trigger GT2ClickVSSelect = TriggerCreate("GTClickVSSelect");
+trigger GT2ClickVSLastSaved = TriggerCreate("GTClickVSLastSaved");
+trigger GT2ClickOpenOption = TriggerCreate("GTClickOpenOption");
+trigger GT2ClickPractice = TriggerCreate("GTClickPractice");
+trigger GT2APMClick = TriggerCreate("GTAPMClick");
+trigger GT2Respond = TriggerCreate("GTRespond");
+trigger GT2ClickSave = TriggerCreate("GTClickSave");
+trigger GT2ClickLoad = TriggerCreate("GTClickLoad");
+trigger GT2ClickSaveRecord = TriggerCreate("GTClickSaveRecord");
+trigger GT2ClickSaveONo = TriggerCreate("GTClickSaveONo");
+trigger GT2ClickLoadPNo = TriggerCreate("GTClickLoadPNo");
+trigger GT2ClickLoadPYes = TriggerCreate("GTClickLoadPYes");
+trigger GT2ClickSaveOYes = TriggerCreate("GTClickSaveOYes");
+trigger GT2ClickLoadCustom = TriggerCreate("GTClickLoadCustom");
+trigger GT2ClickLoadTest = TriggerCreate("GTClickLoadTest");
+trigger GT2ClickListShow = TriggerCreate("GTClickListShow");
+trigger GT2ClickAct = TriggerCreate("GTClickAct");
+trigger GT2ClickListStep = TriggerCreate("GTClickListStep");
+trigger GT2ClickStepEdit = TriggerCreate("GTClickStepEdit");
+trigger GT2ClickStepAdd = TriggerCreate("GTClickStepAdd");
+trigger GT2ClickStepDel = TriggerCreate("GTClickStepDel");
+trigger GT2ClickStepPlay = TriggerCreate("GTClickStepPlay");
+trigger GT2ClickStepPause = TriggerCreate("GTClickStepPause");
+trigger GT2ClickRestart = TriggerCreate("GTClickRestart");
+trigger GT2ResearchAdd = TriggerCreate("GTResearchAdd");
+trigger GT2Startup = TriggerCreate("GTStartup");
+trigger GT2ClickViewPractice = TriggerCreate("GTClickViewPractice");
+trigger GT2ClickAIAttack = TriggerCreate("GTClickAIAttack");
+trigger GT2ClickAIAttackControl = TriggerCreate("GTClickAIAttackControl");
+
+//-------------------------------------------------------
+// All Board Setup
+//-------------------------------------------------------
+
+
+
+void GAllBoard(){
+int i;
+		TimerStart(GTRoundTime, c_timerDurationInfinite, false, c_timeAI);
+   	    TimerStart(GTAttackTime, 600, false, c_timeAI);
+   	    TimerWindowSetPosition(GtimeA, 1600, 640);
+   	    TimerWindowSetFormat(GtimeA, StringToText("<min2/>:<sec2/>"));
+   	    i = 1;
+   	    while(i <= 21){
+   	    	TriggerAddEventDialogControl(GT2ClickCom, -1, GBoardSCom[i], c_triggerControlEventTypeClick);
+   	    	i = i + 1;
+   	    }
+		i = 1;
+		while (i <= 16){
+			TriggerAddEventDialogControl(GT2SelectAI , -1, GBoardSP[i], c_triggerControlEventTypeClick);
+			i = i + 1;
+		}
+
+   	   GOpenMenuSetup();
+   	   GBoardSetup();
+   	   GHVBoardSetup();
+   	   GSelectSetup();
+   	   GOptionSetup();
+   	   GSaveSetup();
+   	   GLoadSetup();
+
+	   TriggerAddEventDialogControl(GT2ClickOpenOption, -1, GOpenOption, c_triggerControlEventTypeClick);
+   	   TriggerAddEventDialogControl(GT2ClickVSRandom, -1, GVSRandom, c_triggerControlEventTypeClick);
+   	   TriggerAddEventDialogControl(GT2ClickVSSelect, -1, GVSSelect, c_triggerControlEventTypeClick);
+ 	   TriggerAddEventDialogControl(GT2ClickVSLastSaved, -1, GVSLastSaved, c_triggerControlEventTypeClick);
+	   TriggerAddEventDialogControl(GT2ClickLoadCustom, -1, GOpenLoad, c_triggerControlEventTypeClick);
+ 	   TriggerAddEventDialogControl(GT2APMClick, -1, GOptionAPM, c_triggerControlEventTypeValueChanged);
+ 	   TriggerAddEventDialogControl(GT2ClickVSRandom1, -1, GOpenRandom1, c_triggerControlEventTypeClick);
+ 	   TriggerAddEventDialogControl(GT2ClickVSRandom2, -1, GOpenRandom2, c_triggerControlEventTypeClick);
+
+   	   TriggerAddEventDialogControl(GT2ClickClose, -1, GBoardSClose, c_triggerControlEventTypeClick);
+   	   TriggerAddEventDialogControl(GT2ClickClose, -1, GOptionClose, c_triggerControlEventTypeClick);
+   	   TriggerAddEventDialogControl(GT2ClickClose, -1, GSaveClose, c_triggerControlEventTypeClick);
+   	   TriggerAddEventDialogControl(GT2ClickClose, -1, GLoadClose, c_triggerControlEventTypeClick);
+
+   	   TriggerAddEventDialogControl(GT2ClickVSLastSaved, -1, GVSLastSaved, c_triggerControlEventTypeClick);
+   	   TriggerAddEventDialogControl(GT2ClickSave, -1, GSaveButton, c_triggerControlEventTypeClick);
+   	   TriggerAddEventDialogControl(GT2ClickLoad, -1, GLoadButton, c_triggerControlEventTypeClick);
+   	   TriggerAddEventDialogControl(GT2ClickSaveRecord, -1, GRecordSave, c_triggerControlEventTypeClick);
+       TriggerAddEventDialogControl(GT2ClickSaveONo, -1, GSaveONo, c_triggerControlEventTypeClick);
+       TriggerAddEventDialogControl(GT2ClickLoadPNo, -1, GLoadPNo, c_triggerControlEventTypeClick);
+       TriggerAddEventDialogControl(GT2ClickLoadPYes, -1, GLoadPYes, c_triggerControlEventTypeClick);
+
+       TriggerAddEventDialogControl(GT2ClickSaveOYes, -1, GSaveOYes, c_triggerControlEventTypeClick);
+       TriggerAddEventDialogControl(GT2ClickClose2, -1, GStepClose, c_triggerControlEventTypeClick);
+       TriggerAddEventDialogControl(GT2ClickLoadTest, -1, GLoadTest, c_triggerControlEventTypeClick);
+       TriggerAddEventDialogControl(GT2ClickListShow, -1, GRecordShowList, c_triggerControlEventTypeClick);
+       TriggerAddEventDialogControl(GT2ClickPractice, -1, GOpenPractice, c_triggerControlEventTypeClick);
+       TriggerAddEventDialogControl(GT2ClickAIAttack, -1, GAttackButton, c_triggerControlEventTypeClick);
+       TriggerAddEventDialogControl(GT2ClickAIAttackControl, -1, GPracticeAttack, c_triggerControlEventTypeClick);
+
+
+  	   TriggerAddEventDialogControl(GT2ClickChoose, -1, GBoardSChoose, c_triggerControlEventTypeClick);
+	   TriggerAddEventDialogControl(GT2ClickAct, -1, GStepAction, c_triggerControlEventTypeAny);
+	   TriggerAddEventDialogControl(GT2ClickListStep, -1, GStepList, c_triggerControlEventTypeSelectionChanged);
+	   TriggerAddEventDialogControl(GT2ClickStepEdit, -1, GStepEdit, c_triggerControlEventTypeClick);
+	   TriggerAddEventDialogControl(GT2ClickStepAdd, -1, GStepAdd, c_triggerControlEventTypeClick);
+	   TriggerAddEventDialogControl(GT2ClickStepDel, -1, GStepDel, c_triggerControlEventTypeClick);
+	   TriggerAddEventDialogControl(GT2ClickStepPlay, -1, GStepPlay, c_triggerControlEventTypeClick);
+	   TriggerAddEventDialogControl(GT2ClickStepPause, -1, GStepPause, c_triggerControlEventTypeClick);
+	   TriggerAddEventDialogControl(GT2ClickRestart, -1, GStepRestart, c_triggerControlEventTypeClick);
+	   TriggerAddEventDialogControl(GT2Startup, -1, GOptionStart, c_triggerControlEventTypeClick);
+	   TriggerAddEventDialogControl(GT2ClickViewPractice, -1,  GLoadPracticeButton, c_triggerControlEventTypeClick);
+
+
+
+
+
+
+       i = 1;
+   	    while(i <= 10){
+   	    	TriggerAddEventDialogControl(GT2ClickSlot1, -1, GSaveSlot[i], c_triggerControlEventTypeClick);
+   	    	TriggerAddEventDialogControl(GT2ClickSlot2, -1, GLoadSlot[i], c_triggerControlEventTypeClick);
+   	    	i = i + 1;
+   	    }
+	   i = 0;
+	   while(i <= 9){
+   	   		TriggerAddEventDialogControl(GT2CheckOption, -1, GOptionCheck[i], c_triggerControlEventTypeChecked);
+   	 		i = i + 1;
+	   }
+
+	   if (g_start > 0){
+	   	 DialogSetVisible(GOpenMenu, PlayerGroupActive(), false);
+	   	 DialogSetVisible(GOptionBoard, PlayerGroupActive(), false);
+	   	 CameraLockInput(1, false);
+	   	 if (g_start == 1){
+	        AITimePause(false);
+	        TimerPause(GTRoundTime, false);
+	        UnitPauseAll(false);
+	        PlayerSetAlliance(1, c_allianceIdVision, 1, true);
+	   	 }
+	   	 if (g_start == 2){
+	   		DialogSetVisible(GSelectBoard, PlayerGroupActive(), true);
+	   	    AITimePause(true);
+	   		TimerPause(GTRoundTime, true);
+	   		UnitPauseAll(true);
+	   		PlayerSetAlliance(1, c_allianceIdVision, 1, false);
+	   	 }
+	   	 if (g_start == 3){
+	   		 i = 1;
+		   	 while(PlayerRace(i) != null){
+		   	 	gtbuildselect[i] = BankValueGetAsInt(GTBank, c_BS_StartMenu, c_BK_CommanderSelect + PlayerRace(i));
+		   	 	i = i + 1;
+		   	 }
+		     AITimePause(false);
+		   	 TimerPause(GTRoundTime, false);
+		   	 UnitPauseAll(false);
+		   	 PlayerSetAlliance(1, c_allianceIdVision, 1, true);
+	   	 }
+	 	 if (g_start == 4){
+			    DialogSetVisible(GLoadBoard, PlayerGroupActive(), true);
+		   	    AITimePause(true);
+		   		TimerPause(GTRoundTime, true);
+		   		UnitPauseAll(true);
+		   		PlayerSetAlliance(1, c_allianceIdVision, 1, false);
+		   	 }
+
+	   }
+
+
+
+
+
+	    TriggerAddEventChatMessage(GT2Respond, -1, "-", false);
+
+
+
+}

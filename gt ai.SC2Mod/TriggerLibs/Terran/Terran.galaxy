@@ -1,0 +1,490 @@
+
+//==================================================================================================
+//  Terran Melee AI
+//==================================================================================================
+
+include "TriggerLibs/Green Tea Main/GTZFunction"
+include "TriggerLibs/Commander/Terran/TerranCounter"
+include "TriggerLibs/Commander/Terran/Terran0"
+include "TriggerLibs/Commander/Terran/Terran1"
+include "TriggerLibs/Commander/Terran/Terran2"
+include "TriggerLibs/Commander/Terran/Terran3"
+include "TriggerLibs/Commander/Terran/Terran4"
+include "TriggerLibs/Commander/Terran/Terran5"
+include "TriggerLibs/Commander/Terran/Terran6"
+include "TriggerLibs/Commander/Terran/Terran7"
+include "TriggerLibs/Commander/Terran/Terran8"
+include "TriggerLibs/Commander/Terran/Terran9"
+include "TriggerLibs/Commander/Terran/Terran10"
+include "TriggerLibs/Commander/Terran/Terran11"
+include "TriggerLibs/Commander/Terran/Terran12"
+include "TriggerLibs/Commander/Terran/Terran13"
+include "TriggerLibs/Commander/Terran/Terran14"
+include "TriggerLibs/Commander/Terran/Terran15"
+include "TriggerLibs/Commander/Terran/Terran16"
+include "TriggerLibs/Commander/Terran/Terran17"
+include "TriggerLibs/Commander/Terran/Terran18"
+include "TriggerLibs/Commander/Terran/Terran19"
+include "TriggerLibs/Commander/Terran/TerranCustom"
+include "TriggerLibs/Commander/Terran/TTBoss"
+include "TriggerLibs/Commander/Terran/TTEco"
+include "TriggerLibs/Commander/Terran/TPBoss"
+include "TriggerLibs/Commander/Terran/TPEco"
+include "TriggerLibs/Commander/Terran/TZBoss"
+include "TriggerLibs/Commander/Terran/TZEco"
+//--------------------------------------------------------------------------------------------------
+//  Counter-Attack Units
+//--------------------------------------------------------------------------------------------------
+static void InitCounters (int player) {
+	 return;
+	 AICounterUnitSetup(player, c_PU_Zealot,             1.00, c_TU_Marauder,    1.00, c_TU_Marauder);
+}
+static void GInitCounters2 (int player) {
+    // versus Protoss
+    AICounterUnitSetup(player, c_PU_Zealot,             3.00, c_TU_Marine,      0.80, c_TU_Hellion);
+    AICounterUnitSetup(player, c_PU_Stalker,            1.00, c_TU_Marauder,    0.50, c_TU_SiegeTank);
+    AICounterUnitSetup(player, c_PU_Sentry,             1.00, c_TU_Marauder,    1.00, c_TU_Marauder);
+    AICounterUnitSetup(player, c_PU_HighTemplar,        1.00, c_TU_Marauder,    1.00, c_TU_Banshee);
+    AICounterUnitSetup(player, c_PU_DarkTemplar,        1.00, c_TU_Marauder,    1.00, c_TU_Banshee);
+    AICounterUnitSetup(player, c_PU_Archon,             1.00, c_TU_Banshee,     1.00, c_TU_Banshee);
+    AICounterUnitSetup(player, c_PU_Immortal,           5.00, c_TU_Marine,      1.00, c_TU_Banshee);
+    AICounterUnitSetup(player, c_PU_Colossus,           3.00, c_TU_Viking,  	3.00, c_TU_Viking);
+    AICounterUnitSetup(player, c_PU_Phoenix,            2.00, c_TU_Marine,      2.00, c_TU_Marine);
+    AICounterUnitSetup(player, c_PU_VoidRay,            4.00, c_TU_Marine,      4.00, c_TU_Marine);
+    AICounterUnitSetup(player, c_PU_Carrier,            3.00, c_TU_Viking,      3.00, c_TU_Viking);
+    AICounterUnitSetup(player, c_PB_PhotonCannon,       0.50, c_TU_SiegeTank,   0.80, c_TU_Battlecruiser);
+
+    // versus Terran
+    AICounterUnitSetup(player, c_TU_Marine,             1.00, c_TU_Marine,      0.25, c_TU_SiegeTank);
+    AICounterUnitSetup(player, c_TU_Marauder,           1.00, c_TU_Marauder,    1.00, c_TU_Marauder);
+    AICounterUnitSetup(player, c_TU_Reaper,             0.60, c_TU_Marauder,    0.60, c_TU_Marauder);
+    AICounterUnitSetup(player, c_TU_Ghost,              2.00, c_TU_Marine,      2.00, c_TU_Marine);
+    AICounterUnitSetup(player, c_TU_Hellion,            1.00, c_TU_Marauder,    1.00, c_TU_Marauder);
+    AICounterUnitSetup(player, c_TU_SiegeTank_Alias,    2.00, c_TU_Banshee,     2.00, c_TU_Banshee);
+    AICounterUnitSetup(player, c_TU_Thor,               4.00, c_TU_Marauder,    1.00, c_TU_Battlecruiser);
+    AICounterUnitSetup(player, c_TU_Viking_Alias,       1.00, c_TU_Viking,      1.00, c_TU_Viking);
+    AICounterUnitSetup(player, c_TU_Medivac,            1.00, c_TU_Viking,      1.00, c_TU_Viking);
+    AICounterUnitSetup(player, c_TU_Raven,              1.00, c_TU_Viking,      1.00, c_TU_Viking);
+    AICounterUnitSetup(player, c_TU_Banshee,            2.00, c_TU_Viking,      2.00, c_TU_Viking);
+    AICounterUnitSetup(player, c_TU_Battlecruiser,      3.00, c_TU_Viking,      3.00, c_TU_Viking);
+    AICounterUnitSetup(player, c_TB_Bunker,             0.50, c_TU_SiegeTank,   0.60, c_TU_Battlecruiser);
+
+    // versus Zerg
+    AICounterUnitSetup(player, c_ZU_Zergling,           0.80, c_TU_Marine,      0.50, c_TU_Hellion);
+    AICounterUnitSetup(player, c_ZU_Baneling,           1.00, c_TU_Marauder,    1.00, c_TU_Marauder);
+    AICounterUnitSetup(player, c_ZU_Roach,              1.20, c_TU_Marauder,    0.50, c_TU_SiegeTank);
+    AICounterUnitSetup(player, c_ZU_Hydralisk,          2.00, c_TU_Marine,      0.50, c_TU_SiegeTank);
+    AICounterUnitSetup(player, c_ZU_Infestor,           1.00, c_TU_SiegeTank,   1.00, c_TU_SiegeTank);
+    AICounterUnitSetup(player, c_ZU_Mutalisk,           4.00, c_TU_Marine,      0.50, c_TU_Thor);
+    AICounterUnitSetup(player, c_ZU_Corruptor,          1.00, c_TU_Viking,      1.00, c_TU_Viking);
+    AICounterUnitSetup(player, c_ZU_Ultralisk,          1.00, c_TU_Banshee,     1.00, c_TU_Banshee);
+    AICounterUnitSetup(player, c_ZU_BroodLord,          1.00, c_TU_Viking,      1.00, c_TU_Viking);
+    AICounterUnitSetup(player, c_ZB_SpineCrawler,       0.50, c_TU_SiegeTank,   0.50, c_TU_Battlecruiser);
+}
+
+//--------------------------------------------------------------------------------------------------
+//  TerranSubStateName
+//--------------------------------------------------------------------------------------------------
+string TerranSubStateName (int state) {
+    // TODO Call the individual difficulties to return a real substate name
+    return "-" + IntToString(state) + "-";
+
+}
+
+//--------------------------------------------------------------------------------------------------
+//  DebugCallbackTerr
+//--------------------------------------------------------------------------------------------------
+void DebugCallbackTerr (int player) {
+    DebugAI("=====TERRAN=====\n");
+    DebugMelee(player);
+    DebugAI("e_mainState = "        + MainStateName(AIState(player, e_mainState))           +
+            ", e_mainSubState = "   + TerranSubStateName(AIState(player, e_mainSubState))   +
+            ", e_attackState = "    + AttackStateName(AIState(player, e_attackState))
+    );
+}
+
+//--------------------------------------------------------------------------------------------------
+//  AINewUnitTerr
+//--------------------------------------------------------------------------------------------------
+void AINewUnitTerr (int player, unit u) {
+    wave w;
+    string type = UnitGetType(u);
+
+
+
+    if (UnitTypeTestAttribute(type, c_unitAttributeStructure)) {
+        return;
+    }
+    if (UnitTypeTestFlag(type, c_unitFlagWorker)) {
+        return;
+    }
+    
+    // detector
+    //
+//    if (type == c_TU_Raven) {
+//        AINewDetector(player, u, false);
+//        return;
+//    }
+
+  
+
+    // clear obstacle units
+    //
+
+
+    // diversion units
+//    if (AIGetFlag(player, e_flagsDiversion)) {
+//        if (type == c_TU_Reaper) {
+//            AIMergeUnit(player, u, AIWaveGet(player, c_waveDivert1));
+//            return;
+//        }
+//        if (type == c_TU_Banshee) {
+//            AIMergeUnit(player, u, AIWaveGet(player, c_waveDivert2));
+//            return;
+//        }
+//    }
+
+    // medivac
+    //
+
+
+    // main wave units
+    //
+    AINewUnitDefault(player, u);
+}
+
+//--------------------------------------------------------------------------------------------------
+//  AIGetScoutTerr
+//--------------------------------------------------------------------------------------------------
+unit AIGetScoutTerr (int player, int index, unit prev, bool allowWorkers) {
+    unit medivac;
+    
+    if (!AIGetFlag(player, e_flagsScouting)) {
+        return c_nullUnit;
+    }
+    if (UnitGetType(prev) == c_TU_Medivac) {
+        return prev;
+    }
+    medivac = AIGrabUnit(player, c_TU_Medivac, c_prioScout, null);
+    if (medivac) {
+        return medivac;
+    }
+    if (prev) {
+        return prev;
+    }
+    // back to allowing workers as late scouts
+    //if (AIGetFlag(player, e_flagsLateScout)) {
+    //    return c_nullUnit;
+    //}
+    if (!allowWorkers) {
+        return c_nullUnit;
+    }
+    return AIGrabUnit(player, c_TU_SCV, c_prioScout, null);
+}
+
+//--------------------------------------------------------------------------------------------------
+//  AIEarlyDefScoutTerr
+//--------------------------------------------------------------------------------------------------
+unit AIEarlyDefScoutTerr (int player, unit prev, bool allowWorkers) {
+    unit obs;
+    string prevType;
+    
+    if (!AIGetFlag(player, e_flagsEarlyDefScout)) {
+        return c_nullUnit;
+    }
+    prevType = UnitGetType(prev);
+    if (prevType == c_TU_Medivac) {
+        return prev;
+    }
+    obs = AIGrabUnit(player, c_TU_Medivac, c_prioScout, null);
+    if (obs) {
+        return obs;
+    }
+    if (prevType == c_TU_Marine) {
+        return prev;
+    }
+    obs = AIGrabUnit(player, c_TU_Marine, c_prioScout, null);
+    if (obs) {
+        return obs;
+    }
+    if (prev) {
+        return prev;
+    }
+    if (!allowWorkers) {
+        return c_nullUnit;
+    }
+    return AIGrabUnit(player, c_TU_SCV, c_prioScout, null);
+}
+
+
+//--------------------------------------------------------------------------------------------------
+//  AIWaveThinkTerr
+//--------------------------------------------------------------------------------------------------
+void AIWaveThinkTerr (int player, wave w, int type) {
+    GTWaveThinkDefault(player, w, type);
+}
+
+//--------------------------------------------------------------------------------------------------
+//  Terran Init
+//--------------------------------------------------------------------------------------------------
+static void TerranInit (int player) {
+    int state;
+    int rnd;
+    int rnd2 = RandomInt(1, 2);
+    int rstyle = DataTableGetInt(true, c_RandomStyle);
+    string section;
+
+    if ( DialogIsVisible(GOpenMenu,  player) && AIGetTime() < 2){
+   		AITimePause(true);
+   	    TimerPause(GTRoundTime, true);
+   	    PlayerSetAlliance(1, c_allianceIdVision, 1, false);
+   	    UnitPauseAll(true);
+   	    return;
+    }
+   if (gtbuildselect[player] == 0 && PlayerDifficulty(player) < c_skirHard_VH && !g_showbuild){
+    	UIDisplayMessage(PlayerGroupAlliance(1, player), c_messageAreaChat, StringToText("[") + PlayerColorName(PlayerGetColorIndex(player, false)) + StringToText("] ") + StringToText(GTGreet ()));
+    }
+    if (!g_micro && g_alertnomicro && AIGetTime() > 2){
+		 DebugAI("Cannot find 'unitdata.xml'.");
+		 DebugAI("Disable AI Micro.");
+		 g_alertnomicro = false;
+	 }
+
+	GInitCounters2(player);
+	GTInitCounterArrays();          // init Counter Array for later purpose
+	//GTC_Init(player);				// init commander config
+    AISetNumScouts(player, 1);
+    AISetFlag(player, e_flagsEarlyDefScout, false);
+    AITechCountFixupEither(player, c_TB_CommandCenter, c_TB_OrbitalCommand, c_TB_PlanetaryFortress);
+	GTTrain(player, 2, 0, GTWorker(player) , 8);
+
+    if(AIGetEnemyRaceVal(player) == c_raceTerran){
+        if (PlayerDifficulty(player) >= c_skirHard_VH){
+            rnd = RandomInt(5, 9);
+        }
+        else{
+    		rnd = RandomInt(0, 4);
+        }
+    }
+    else if (AIGetEnemyRaceVal(player) == c_raceProtoss ){
+        if (PlayerDifficulty(player) >= c_skirHard_VH){
+            rnd = RandomInt(15, 19);
+        }
+        else{
+            rnd = RandomInt(10, 14);
+    	}
+    }
+    else{
+        if (PlayerDifficulty(player) >= c_skirHard_VH){
+            rnd = RandomInt(25, 29);
+        }
+        else{
+    		rnd = RandomInt(20, 24);
+    	}
+    }
+
+    if (rstyle == 1 || (rstyle == 2 && rnd2 == 1)){
+    	section = "GTBO" + "-" + GTShortRace(PlayerRace(player)) + "v" + GTShortRace(GERace(player));
+    	GTableSetInt(player, "CustomBuild", RandomInt(1, BankValueGetAsInt(GTBank, section, "num")));
+    	TriggerDebugOutput(1, StringToText("[") + PlayerColorName(PlayerGetColorIndex(player, false)) + StringToText("] ") + StringToText("Choose Random"), true);
+    	AISetMainState(player, -2, e_mainSubState_Unset);
+    }
+
+
+
+	if (GTableGetInt(player, "CustomBuild") > 0 ){
+		section = "GTBO" + "-" + GTShortRace(PlayerRace(player)) + "v" + GTShortRace(GERace(player)) + "-Build" + IntToString( GTableGetInt(player, "CustomBuild"));
+
+		if (BankSectionExists(GTBank, section)){
+			if (rstyle == 0){
+				TriggerDebugOutput(1, StringToText("[") + PlayerColorName(PlayerGetColorIndex(player, false)) + StringToText("] ") + StringToText("Choose BO ") + TextWithColor(StringToText(BankValueGetAsString(GTBank, section, "name")),Color(42,212,0))  , true);
+			}
+				AISetMainState(player, -2, e_mainSubState_Unset);
+
+		}
+	}
+	else{
+	if (gtbuildselect[player] > 0 ){
+		rnd = gtbuildselect[player];
+		TriggerDebugOutput(1, StringToText("[") + PlayerColorName(PlayerGetColorIndex(player, false)) + StringToText("] ") + StringToText("Choose ") + TextWithColor(StringToText(GTC[0][rnd].name),Color(42,212,0)) + StringToText(" commander.") , true);
+	}
+	else {
+		TriggerDebugOutput(1, StringToText("[") + PlayerColorName(PlayerGetColorIndex(player, false)) + StringToText("] ") + StringToText("Choose Random"), true);
+	}
+//TvT
+        if (rnd == 0){
+            GTChat("TIME: hf&gl");
+            AISetMainState(player, GTState(rnd), e_mainSubState_Unset);
+		}
+        else if (rnd == 1){
+            GTChat("MarineLorD: hf gg");
+            AISetMainState(player, GTState(rnd), e_mainSubState_Unset);
+		}
+        else if (rnd == 2){
+            GTChat("Seither: hfgl");
+            AISetMainState(player, GTState(rnd), e_mainSubState_Unset);
+		}
+        else if (rnd == 3){
+            GTChat("MaSa: gg gl");
+            AISetMainState(player, GTState(rnd), e_mainSubState_Unset);
+		}
+        else if (rnd == 4){
+            GTChat("souL: hf");
+            AISetMainState(player, GTState(rnd), e_mainSubState_Unset);
+        }
+        else if (rnd == 5){
+            GTChat("Clem: hf gl");
+            AISetMainState(player, GTState(rnd), e_mainSubState_Unset);
+        }
+        else if (rnd == 6){
+            GTChat("Kelazhur: glhf");
+            AISetMainState(player, GTState(rnd), e_mainSubState_Unset);
+		}
+        else if (rnd == 7){
+            GTChat("uThermal: hf gl");
+            AISetMainState(player, GTState(rnd), e_mainSubState_Unset);
+		}
+        else if (rnd == 8){
+            GTChat("HeRoMaRinE: gl & hf");
+            AISetMainState(player, GTState(rnd), e_mainSubState_Unset);
+        }
+        else if (rnd == 9){
+            GTChat("SpeCial: gl & hf");
+            AISetMainState(player, GTState(rnd), e_mainSubState_Unset);
+        }
+//TvP
+        else if (rnd == 10){
+            GTChat("TIME: hf&gl");
+            AISetMainState(player, GTState(rnd), e_mainSubState_Unset);
+		}
+        else if (rnd == 11){
+            GTChat("MarineLorD: hf gg");
+            AISetMainState(player, GTState(rnd), e_mainSubState_Unset);
+		}
+        else if (rnd == 12){
+            GTChat("Seither: hfgl");
+            AISetMainState(player, GTState(rnd), e_mainSubState_Unset);
+		}
+        else if (rnd == 13){
+            GTChat("MaSa: gg gl");
+            AISetMainState(player, GTState(rnd), e_mainSubState_Unset);
+		}
+        else if (rnd == 14){
+            GTChat("souL: hf");
+            AISetMainState(player, GTState(rnd), e_mainSubState_Unset);
+        }
+        else if (rnd == 15){
+            GTChat("Clem: hf gl");
+            AISetMainState(player, GTState(rnd), e_mainSubState_Unset);
+        }
+        else if (rnd == 16){
+            GTChat("Kelazhur: glhf");
+            AISetMainState(player, GTState(rnd), e_mainSubState_Unset);
+		}
+        else if (rnd == 17){
+            GTChat("uThermal: hf gl");
+            AISetMainState(player, GTState(rnd), e_mainSubState_Unset);
+		}
+        else if (rnd == 18){
+            GTChat("HeRoMaRinE: gl & hf");
+            AISetMainState(player, GTState(rnd), e_mainSubState_Unset);
+        }
+        else if (rnd == 19){
+            GTChat("SpeCial: gl & hf");
+            AISetMainState(player, GTState(rnd), e_mainSubState_Unset);
+        }
+//TvZ
+        else if (rnd == 20){
+            GTChat("TIME: hf&gl");
+            AISetMainState(player, GTState(rnd), e_mainSubState_Unset);
+		}
+        else if (rnd == 21){
+            GTChat("MarineLorD: hf gg");
+            AISetMainState(player, GTState(rnd), e_mainSubState_Unset);
+		}
+        else if (rnd == 22){
+            GTChat("Seither: hfgl");
+            AISetMainState(player, GTState(rnd), e_mainSubState_Unset);
+		}
+        else if (rnd == 23){
+            GTChat("MaSa: gg gl");
+            AISetMainState(player, GTState(rnd), e_mainSubState_Unset);
+		}
+        else if (rnd == 24){
+            GTChat("souL: hf");
+            AISetMainState(player, GTState(rnd), e_mainSubState_Unset);
+		}
+        else if (rnd == 25){
+            GTChat("Clem: hf gl");
+            AISetMainState(player, GTState(rnd), e_mainSubState_Unset);
+        }
+        else if (rnd == 26){
+            GTChat("Kelazhur: glhf");
+            AISetMainState(player, GTState(rnd), e_mainSubState_Unset);
+		}
+        else if (rnd == 27){
+            GTChat("uThermal: hf gl");
+            AISetMainState(player, GTState(rnd), e_mainSubState_Unset);
+		}
+        else if (rnd == 28){
+            GTChat("HeRoMaRinE: gl hf");
+            AISetMainState(player, GTState(rnd), e_mainSubState_Unset);
+        }
+        else if (rnd == 29){
+            GTChat("SpeCial: gl&hf");
+            AISetMainState(player, GTState(rnd), e_mainSubState_Unset);
+        }
+	}
+}
+
+
+//--------------------------------------------------------------------------------------------------
+//  AIMeleeTerr
+//--------------------------------------------------------------------------------------------------
+void AIMeleeTerr (int player) {
+    int mainState = AIState(player, e_mainState);
+
+
+    if (mainState == e_mainState_Init)              { TerranInit(player);     }
+    else if (mainState == -3)     		  { TerranCounter(player); }
+    else if (mainState == -2)     		  { TerranCustom(player); }
+    else if (mainState == GTState(0))     { TVTeco(player);   }
+    else if (mainState == GTState(1))     { TVTeco(player);   }
+    else if (mainState == GTState(2))     { TVTeco(player);   }
+    else if (mainState == GTState(3))     { TVTeco(player);   }
+    else if (mainState == GTState(4))     { TVTeco(player);   }
+    else if (mainState == GTState(5))     { TVTeco(player);   }
+    else if (mainState == GTState(6))     { TVTeco(player);   }
+    else if (mainState == GTState(7))     { TVTeco(player);   }
+    else if (mainState == GTState(8))     { TVTeco(player);  }
+    else if (mainState == GTState(9))     { TVTboss(player); }
+
+    else if (mainState == GTState(10))    { TVPeco(player);  }
+    else if (mainState == GTState(11))    { TVPeco(player);  }
+    else if (mainState == GTState(12))    { TVPeco(player);  }
+    else if (mainState == GTState(13))    { TVPeco(player);  }
+    else if (mainState == GTState(14))    { TVPeco(player);  }
+    else if (mainState == GTState(15))    { TVPeco(player);  }
+    else if (mainState == GTState(16))    { TVPeco(player);  }
+    else if (mainState == GTState(17))    { TVPeco(player);  }
+    else if (mainState == GTState(18))    { TVPeco(player);  }
+    else if (mainState == GTState(19))    { TVPboss(player); }
+
+    else if (mainState == GTState(20))    { TVZeco(player);  }
+    else if (mainState == GTState(21))    { TVZeco(player);  }
+    else if (mainState == GTState(22))    { TVZeco(player);  }
+    else if (mainState == GTState(23))    { TVZeco(player);  }
+    else if (mainState == GTState(24))    { TVZeco(player);  }
+    else if (mainState == GTState(25))    { TVZeco(player);  }
+    else if (mainState == GTState(26))    { TVZeco(player);  }
+    else if (mainState == GTState(27))    { TVZeco(player);  }
+    else if (mainState == GTState(28))    { TVZeco(player);  }
+    else if (mainState == GTState(29))    { TVZboss(player); }
+//  else if (mainState == e_mainState_Late2)        { TerranOpenBoss(player); }
+
+
+    else if (mainState == e_mainState_Off)          { EndMeleeScript(player); }
+    else if (mainState == e_mainState_Disabled)     {                         }
+    
+    else { ErrorMeleeScript(player, "Invalid mainState"); }
+}

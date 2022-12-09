@@ -1,0 +1,531 @@
+
+
+
+void GTChangePlayer (int player1, int player2) {
+   
+    unitgroup group1 = UnitGroup(null, player1, RegionEntireMap(), null, 0);
+	unitgroup group2 = UnitGroup(null, player2, RegionEntireMap(), null, 0);
+	AITimePause(true);
+    UnitGroupLoopBegin(group2);
+    while (!UnitGroupLoopDone()) {
+	    UnitSetOwner(UnitGroupLoopCurrent(), player1, true );
+        UnitGroupLoopStep();
+    }
+    UnitGroupLoopEnd();
+	UnitGroupLoopBegin(group1);
+    while (!UnitGroupLoopDone()) {
+	    
+	    UnitSetOwner(UnitGroupLoopCurrent(), player2, true );
+        UnitGroupLoopStep();
+    }
+    UnitGroupLoopEnd();
+    AITimePause(false);
+    UnitPauseAll(false);
+}
+
+void GTResetTech (int player) {
+    TechTreeUpgradeAddLevel(player, "BansheeCloak", -1);
+    TechTreeUpgradeAddLevel(player, "SiegeTech", -1);
+    TechTreeUpgradeAddLevel(player, "haltech", -1);
+    TechTreeUpgradeAddLevel(player, "PersonalCloaking", -1);
+    TechTreeUpgradeAddLevel(player, "HighCapacityBarrels", -1);
+    TechTreeUpgradeAddLevel(player, "BlinkTech", -1);
+    TechTreeUpgradeAddLevel(player, "PsiStormTech", -1);
+    TechTreeUpgradeAddLevel(player, "NeuralParasite", -1);
+    TechTreeUpgradeAddLevel(player, "HunterSeeker", -1);
+    TechTreeUpgradeAddLevel(player, "Stimpack", -1);
+    TechTreeUpgradeAddLevel(player, "StrikeCannons", -1);
+    TechTreeUpgradeAddLevel(player, "InfestorPeristalsis", -1);
+    TechTreeUpgradeAddLevel(player, "ReaperSpeed", -1);
+    TechTreeUpgradeAddLevel(player, "TerranInfantryWeaponsLevel2", -1);
+    TechTreeUpgradeAddLevel(player, "ProtossGroundWeaponsLevel1", -1);
+    TechTreeUpgradeAddLevel(player, "TerranVehicleWeaponsLevel1", -1);
+    TechTreeUpgradeAddLevel(player, "ZergFlyerWeaponsLevel1", -1);
+    TechTreeUpgradeAddLevel(player, "ZergMissileWeaponsLevel1", -1);
+    TechTreeUpgradeAddLevel(player, "TerranInfantryWeaponsLevel1", -1);
+    TechTreeUpgradeAddLevel(player, "ProtossAirWeaponsLevel1", -1);
+    TechTreeUpgradeAddLevel(player, "ZergMeleeWeaponsLevel1", -1);
+    TechTreeUpgradeAddLevel(player, "TerranShipWeaponsLevel1", -1);
+    TechTreeUpgradeAddLevel(player, "ProtossGroundWeaponsLevel2", -1);
+    TechTreeUpgradeAddLevel(player, "TerranVehicleWeaponsLevel2", -1);
+    TechTreeUpgradeAddLevel(player, "ZergFlyerWeaponsLevel2", -1);
+    TechTreeUpgradeAddLevel(player, "ProtossAirWeaponsLevel2", -1);
+    TechTreeUpgradeAddLevel(player, "ZergMeleeWeaponsLevel2", -1);
+    TechTreeUpgradeAddLevel(player, "TerranShipWeaponsLevel2", -1);
+    TechTreeUpgradeAddLevel(player, "ProtossGroundWeaponsLevel3", -1);
+    TechTreeUpgradeAddLevel(player, "TerranVehicleWeaponsLevel3", -1);
+    TechTreeUpgradeAddLevel(player, "ZergFlyerWeaponsLevel3", -1);
+    TechTreeUpgradeAddLevel(player, "ZergMissileWeaponsLevel3", -1);
+    TechTreeUpgradeAddLevel(player, "TerranInfantryWeaponsLevel3", -1);
+    TechTreeUpgradeAddLevel(player, "ProtossAirWeaponsLevel3", -1);
+    TechTreeUpgradeAddLevel(player, "ZergMeleeWeaponsLevel3", -1);
+    TechTreeUpgradeAddLevel(player, "TerranShipWeaponsLevel3", -1);
+    TechTreeUpgradeAddLevel(player, "VikingJotunBoosters", -1);
+    TechTreeUpgradeAddLevel(player, "TerranBuildingArmor", -1);
+    TechTreeUpgradeAddLevel(player, "ZergGroundArmorsLevel1", -1);
+    TechTreeUpgradeAddLevel(player, "ProtossGroundArmorsLevel1", -1);
+    TechTreeUpgradeAddLevel(player, "TerranVehicleArmorsLevel1", -1);
+    TechTreeUpgradeAddLevel(player, "ZergFlyerArmorsLevel1", -1);
+    TechTreeUpgradeAddLevel(player, "TerranInfantryArmorsLevel1", -1);
+    TechTreeUpgradeAddLevel(player, "ProtossAirArmorsLevel1", -1);
+    TechTreeUpgradeAddLevel(player, "TerranShipArmorsLevel1", -1);
+    TechTreeUpgradeAddLevel(player, "ProtossShieldsLevel1", -1);
+    TechTreeUpgradeAddLevel(player, "ZergGroundArmorsLevel2", -1);
+    TechTreeUpgradeAddLevel(player, "ProtossGroundArmorsLevel2", -1);
+    TechTreeUpgradeAddLevel(player, "TerranVehicleArmorsLevel2", -1);
+    TechTreeUpgradeAddLevel(player, "ZergFlyerArmorsLevel2", -1);
+    TechTreeUpgradeAddLevel(player, "TerranInfantryArmorsLevel2", -1);
+    TechTreeUpgradeAddLevel(player, "ProtossAirArmorsLevel2", -1);
+    TechTreeUpgradeAddLevel(player, "TerranShipArmorsLevel2", -1);
+    TechTreeUpgradeAddLevel(player, "ProtossShieldsLevel2", -1);
+    TechTreeUpgradeAddLevel(player, "ZergGroundArmorsLevel3", -1);
+    TechTreeUpgradeAddLevel(player, "ProtossGroundArmorsLevel3", -1);
+    TechTreeUpgradeAddLevel(player, "TerranVehicleArmorsLevel3", -1);
+    TechTreeUpgradeAddLevel(player, "ZergFlyerArmorsLevel3", -1);
+    TechTreeUpgradeAddLevel(player, "TerranInfantryArmorsLevel3", -1);
+    TechTreeUpgradeAddLevel(player, "ProtossAirArmorsLevel3", -1);
+    TechTreeUpgradeAddLevel(player, "TerranShipArmorsLevel3", -1);
+    TechTreeUpgradeAddLevel(player, "ProtossShieldsLevel3", -1);
+    TechTreeUpgradeAddLevel(player, "HiSecAutoTracking", -1);
+    TechTreeUpgradeAddLevel(player, "ObserverGraviticBooster", -1);
+    TechTreeUpgradeAddLevel(player, "Charge", -1);
+    TechTreeUpgradeAddLevel(player, "AbdominalFortitude", -1);
+    TechTreeUpgradeAddLevel(player, "CentrificalHooks", -1);
+    TechTreeUpgradeAddLevel(player, "NeosteelFrame", -1);
+    TechTreeUpgradeAddLevel(player, "Burrow", -1);
+    TechTreeUpgradeAddLevel(player, "GhostMoebiusReactor", -1);
+    TechTreeUpgradeAddLevel(player, "HighTemplarKhaydarinAmulet", -1);
+    TechTreeUpgradeAddLevel(player, "hydraliskspeed", -1);
+    TechTreeUpgradeAddLevel(player, "ExtendedThermalLance", -1);
+    TechTreeUpgradeAddLevel(player, "PunisherGrenades", -1);
+    TechTreeUpgradeAddLevel(player, "MedivacCaduceusReactor", -1);
+    TechTreeUpgradeAddLevel(player, "overlordtransport", -1);
+    TechTreeUpgradeAddLevel(player, "overlordspeed", -1);
+    TechTreeUpgradeAddLevel(player, "VoidRaySpeedUpgrade", -1);
+    TechTreeUpgradeAddLevel(player, "DurableMaterials", -1);
+    TechTreeUpgradeAddLevel(player, "RavenCorvidReactor", -1);
+    TechTreeUpgradeAddLevel(player, "GlialReconstitution", -1);
+    TechTreeUpgradeAddLevel(player, "TunnelingClaws", -1);
+    TechTreeUpgradeAddLevel(player, "OrganicCarapace", -1);
+    TechTreeUpgradeAddLevel(player, "BattlecruiserBehemothReactor", -1);
+    TechTreeUpgradeAddLevel(player, "BattlecruiserEnableSpecializations", -1);
+    TechTreeUpgradeAddLevel(player, "ShieldWall", -1);
+    TechTreeUpgradeAddLevel(player, "CarrierLaunchSpeedUpgrade", -1);
+    TechTreeUpgradeAddLevel(player, "ChitinousPlating", -1);
+    TechTreeUpgradeAddLevel(player, "AnabolicSynthesis", -1);
+    TechTreeUpgradeAddLevel(player, "InfestorEnergyUpgrade", -1);
+    TechTreeUpgradeAddLevel(player, "GraviticDrive", -1);
+    TechTreeUpgradeAddLevel(player, "zerglingattackspeed", -1);
+    TechTreeUpgradeAddLevel(player, "ObverseIncubation", -1);
+    TechTreeUpgradeAddLevel(player, "zerglingmovementspeed", -1);
+    TechTreeUpgradeAddLevel(player, "WarpGateResearch", -1);
+}
+
+void GTRemoveNatural () {
+    UnitGroupLoopBegin(UnitGroup(null, 0, RegionEntireMap(), null, 0));
+        while (!UnitGroupLoopDone()) {
+        	if(UnitGetType(UnitGroupLoopCurrent()) != c_NU_VespeneGeyser){
+            UnitRemove(UnitGroupLoopCurrent());
+        	}
+
+        UnitGroupLoopStep();
+
+    }
+    UnitGroupLoopEnd();
+
+}
+
+void GTRemoveAll (int player) {
+    UnitGroupLoopBegin(UnitGroup(null, player, RegionEntireMap(), null, 0));
+        while (!UnitGroupLoopDone()) {
+        UnitRemove(UnitGroupLoopCurrent());
+        UnitGroupLoopStep();
+		
+    }
+    UnitGroupLoopEnd();
+
+}
+
+void GTResetGas () {
+
+    UnitGroupLoopBegin(UnitGroup(c_NU_VespeneGeyser, 0, RegionPlayableMap(), null, 0));
+    while (!UnitGroupLoopDone()) {
+        UnitSetPropertyFixed(UnitGroupLoopCurrent(), c_unitPropResources, 2500.0);
+        UnitGroupLoopStep();
+    }
+    UnitGroupLoopEnd();
+
+}
+
+void GTAddLarva () {
+    UnitGroupLoopBegin(UnitGroup(c_ZB_Hatchery, c_playerAny, RegionEntireMap(), null, 0));
+    while (!UnitGroupLoopDone()) {
+    	UnitCreate(1, c_ZU_Queen, c_unitCreateConstruct, UnitGetOwner(UnitGroupLoopCurrent()), PointWithOffset(UnitGetPosition(UnitGroupLoopCurrent()), 0, -1 ), 0.0 );
+    	UnitCreateEffectUnit(UnitLastCreated(), "SpawnMutantLarvaApplySpawnBehavior", UnitGroupLoopCurrent());
+    	UnitRemove(UnitLastCreated());
+    	Wait(0.14, c_timeReal);
+    	UnitRemove(UnitGroupUnit(UnitGroup(c_ZU_Larva, UnitGetOwner(UnitGroupLoopCurrent()), RegionCircle(UnitGetPosition(UnitGroupLoopCurrent()), 10), null, 0), 1 ));
+    	UnitGroupLoopStep();
+    }
+    UnitGroupLoopEnd();
+}
+
+
+void GTResetAll(int player) {
+         GTRemoveAll(player);
+         GTResetTech(player);
+         if (AIGetUserInt(player, 10) < 1){
+         		AISetUserInt(player, 10, 1);
+         	}
+         MeleeInitResourcesForPlayer(player, PlayerRace(player));
+		 }
+
+
+// void testfunc(int player) {
+	// unitgroup group = UnitGroup(null, player, RegionEntireMap(), null, 0); 
+	// unitgroup transports = UnitGroupFilterPlane(group, c_planeAir, 200);
+	// int index = 1;
+	// if (UnitGroupCount(transports, c_unitCountAll) > 0) {
+		// while (index <= UnitGroupCount(transports, c_unitCountAll)) {		
+			// DebugAI("es is was da >" + UnitGetType(UnitGroupUnit(transports,index)));		
+			// index += 1;
+		// }
+	// }
+	// else {
+		// DebugAI("nix da");
+	// }
+// }
+//
+//void testfunc(int player) {
+//    // wave defWave = AIWaveGet(player, c_waveStateDefend);
+//
+//    // AIWaveMerge(player, c_waveDefend, c_waveAttack);
+//    // AIWaveMerge(player, c_waveMain,  c_waveAttack);
+//
+//    // AIWaveSetType(AIWaveGet(player, c_waveAttack), c_waveStateDropAttack,  AIWaveTargetMeleeDrop (player, RegionRandomPoint(RegionCircle(PlayerStartLocation(GTEnemyID(player)),10)) , PlayerStartLocation(GTEnemyID(player)) ) );
+//    int index = 1;
+//    while(index < 5) {
+//        if (PlayerGetAlliance(player, c_allianceIdVision, index)) {
+//            DebugAI("Shared Vision : " + IntToString(index));
+//            PlayerSetAlliance(player, c_allianceIdControl, index, true);
+//            PlayerSetAlliance(index, c_allianceIdControl, player, true);
+//        }
+//        index += 1;
+//    }
+//    g_isTeamGame = true;
+//    DebugAI("Teamplay active ! Prepare to DIE");
+//}
+
+//
+bool GTRespond (bool checkConds, bool doActions) {
+	playergroup group;
+	string command;
+	string choice;
+	string section;
+	order ord;
+	int playernum;
+	int i;
+	int j;
+	 if (!doActions) {
+        return false;
+    }
+	command = StringWord(EventChatMessage(false), 1);
+	playernum = StringToInt(StringWord(EventChatMessage(false), 2));
+	choice = StringWord(EventChatMessage(false), 3);
+
+
+    if ( command == "-vision") {
+	    DebugAI("Hey, Cheating");
+        UIClearMessages(PlayerGroupAll(), c_messageAreaChat);
+
+        PlayerSetAlliance(playernum, c_allianceIdVision, 1, true);
+    }
+	   if (command == "-novision") {
+
+        UIClearMessages(PlayerGroupAll(), c_messageAreaChat);
+        PlayerSetAlliance(playernum, c_allianceIdVision, 1, false);
+    }
+	if (command == "-qr") {
+		DebugAI("Restart Map");
+	UIClearMessages(PlayerGroupAll(), c_messageAreaChat);
+	i = 0;
+	j = 0;
+	 AITimePause(true);
+	 GTRemoveNatural();
+	 while (i <= 14 ){
+		 i = i+1;
+		 if (PlayerRace(i) != null){
+			 GTResetAll(i);
+		 }
+		 else{
+			 break;
+		 }
+     }
+	  while (j < 700) {
+	        if (GTNU[j].unitType != null) {
+	        	if (GTNU[j].unitType != c_NU_VespeneGeyser){
+	            UnitCreate(1, GTNU[j].unitType, c_unitCreateIgnorePlacement, 0, GTNU[j].location, GTNU[j].angle);
+	        	}
+	        }
+	        else {
+	            break;
+	        }
+	        j = j + 1;
+	    }
+	MeleeInitUnits();
+	GTAddLarva ();
+	GTResetGas();
+	TimerRestart(GTRoundTime);
+	TimerRestart(GTAttackTime);
+	MeleeInitAI ();
+	DataTableClear(true);
+	PlayerSetAlliance(2, c_allianceIdVision, 1, false);
+    PlayerSetAlliance(1, c_allianceIdVision, 1, true);
+    BoardSetState  (GTBoard, PlayerGroupSingle(1), c_boardStateShowing, false);
+	g_showbuild = false;
+    AITimePause(false);
+
+
+
+
+    }
+	if (command == "-re") {
+		UIClearMessages(PlayerGroupAll(), c_messageAreaChat);
+		RestartGame (PlayerGroupActive());
+	}
+//	if (command == "-tst") {
+//		testfunc(playernum);
+//	}
+
+
+
+
+//	if (command == "-ch") {
+//	UIClearMessages(PlayerGroupAll(), c_messageAreaChat);
+//	UnitPauseAll(true);
+//	GTChangePlayer(1, playernum);
+//    }
+//	if (command == "-ffa") {
+//	DebugAI("AI using Free For All mode");
+//	UIClearMessages(PlayerGroupAll(), c_messageAreaChat);
+//    gtFFA = true;
+//	 }
+//	  if ( command == "-ec") {
+//	    DebugAI("You can control AI unit");
+//        UIClearMessages(PlayerGroupAll(), c_messageAreaChat);
+//        PlayerSetAlliance(playernum, c_allianceIdControl, EventPlayer(), true);
+//        PlayerSetAlliance(playernum, c_allianceIdSpend, EventPlayer(), true);
+//    }
+//	   if (command == "-dc") {
+//	   DebugAI("Disable AI Control");
+//        UIClearMessages(PlayerGroupAll(), c_messageAreaChat);
+//        PlayerSetAlliance(playernum, c_allianceIdControl, 1, false);
+//    }
+//
+//
+//	     if (command == "-s") {
+//            UIClearMessages(PlayerGroupAll(), c_messageAreaChat);
+//            if (GTime() > 15){
+//            	DebugAI("Select Commander can only use in the first 15 seconds");
+//            }
+//            if (StringWord(EventChatMessage(false), 2 )== null){
+//                     	DialogSetVisible(GOpenMenu, PlayerGroupActive(), false);
+//                     	DialogSetVisible(GOptionBoard, PlayerGroupActive(), false);
+//                    		DialogSetVisible(GSelectBoard, PlayerGroupActive(), true);
+//                    		CameraLockInput(EventPlayer(), false);
+//                    		return true;
+//                     }
+//            gtbuildselect[playernum]  =  StringToInt(StringWord(EventChatMessage(false), 3));
+//            if (StringToInt(StringWord(EventChatMessage(false), 3)) != 0 || StringToInt(StringWord(EventChatMessage(false), 4)) != 0)             {
+//                 gtbuildselect[StringToInt(StringWord(EventChatMessage(false), 4))] = StringToInt(StringWord(EventChatMessage(false), 5));
+//            }
+//		}
+//		if (command == "-go") {
+//			DebugAI("Random GO!");
+//			UIClearMessages(PlayerGroupAll(), c_messageAreaChat);
+//			GTClickVSRandom(true,true);
+//		}
+	     if (command == "-r"){
+	    	  UIClearMessages(PlayerGroupAll(), c_messageAreaChat);
+	            	DialogSetVisible(GOpenMenu, PlayerGroupActive(), false);
+	            	DialogSetVisible(GOptionBoard, PlayerGroupActive(), false);
+	            	CameraLockInput(EventPlayer(), false);
+	                AITimePause(false);
+	                TimerPause(GTRoundTime, false);
+	                UnitPauseAll(false);
+
+	                PlayerSetAlliance(1, c_allianceIdVision, 1, true);
+	                return true;
+
+	     }
+	    if (command == "-cr") {
+            UIClearMessages(PlayerGroupAll(), c_messageAreaChat);
+            UnitCreate(StringToInt(StringWord(EventChatMessage(false), 4)), StringWord(EventChatMessage(false), 3), c_unitCreateIgnorePlacement, playernum, PlayerStartLocation(playernum),  0.0 );
+	    }
+//		if (command == "-cr1") {
+//            UIClearMessages(PlayerGroupAll(), c_messageAreaChat);
+//            UnitCreate(StringToInt(StringWord(EventChatMessage(false), 4)), StringWord(EventChatMessage(false), 3), c_unitCreateIgnorePlacement, playernum, GTDO(playernum, 0),  0.0 );
+//	    }
+//	    if (command == "-cr2") {
+//            UIClearMessages(PlayerGroupAll(), c_messageAreaChat);
+//            UnitCreate(StringToInt(StringWord(EventChatMessage(false), 4)), StringWord(EventChatMessage(false), 3), c_unitCreateIgnorePlacement, playernum, GTDO(GTEnemyID(playernum), 0),  0.0 );
+//	    }
+	    if (command == "-cmd"){
+	    	UIClearMessages(PlayerGroupAll(), c_messageAreaChat);
+	        TriggerDebugOutput(1,StringToText("[") + StringToText(IntToString(playernum)) + StringToText("]") + StringToText("[") + PlayerColorName(PlayerGetColorIndex(playernum, false)) + StringToText("] ") + IntToText(GTableGetInt(playernum, "GTNameID")) + StringToText(" ") + StringToText(DataTableGetString(true, IntToString(playernum) + "GTName")), true);
+	   	}
+	    if (command == "-gold") {
+	    UIClearMessages(PlayerGroupAll(), c_messageAreaChat);
+	    PlayerModifyPropertyInt (playernum, c_playerPropMinerals , c_playerPropOperAdd , 1000);
+	    PlayerModifyPropertyInt (playernum, c_playerPropVespene , c_playerPropOperAdd , 1000);
+
+	    }
+
+        if (command == "-wave") {
+                    UIClearMessages(PlayerGroupAll(), c_messageAreaChat);
+
+                    DebugAI("A: " + IntToString(AIWaveUnitCount(AIWaveGet(playernum, c_waveAttack))));
+                    DebugAI("M: " + IntToString(AIWaveUnitCount(AIWaveGet(playernum, c_waveMain))));
+                    DebugAI("D: " + IntToString(AIWaveUnitCount(AIWaveGet(playernum, c_waveDefend))));
+                    DebugAI("O: " + IntToString(AIWaveUnitCount(AIWaveGet(playernum, c_waveClearObs))));
+        }
+
+        if (command == "-atk") {
+                    UIClearMessages(PlayerGroupAll(), c_messageAreaChat);
+                       AIWaveMerge(playernum, c_waveDefend, c_waveAttack);
+                       AIWaveMerge(playernum, c_waveMain,  c_waveAttack);
+                      AIWaveSetType(AIWaveGet(playernum, c_waveAttack), c_waveStateAttack, AIWaveTargetMelee(playernum));
+
+        }
+        if (command == "-drop") {
+                       AIWaveMerge(playernum, c_waveAttack, c_waveDefend);
+                       AIWaveMerge(playernum, c_waveMain, c_waveDefend);
+                       AIWaveSetType(AIWaveGet(playernum, c_waveDefend), c_waveStateDropAttack, AIWaveTargetMeleeDrop (playernum, AIGetBestTarget(playernum, PlayerGroupAlliance(c_playerGroupEnemy, playernum), AIGetGatherLocation(playernum, c_townMain), e_flagsDiversion), AIGetBestTarget(playernum, PlayerGroupAlliance(c_playerGroupEnemy, playernum), AIGetGatherLocation(playernum, c_townMain), e_flagsDiversion)));
+              }
+		if (command == "-rock") {
+                    UIClearMessages(PlayerGroupAll(), c_messageAreaChat);
+                    AIWaveMerge(playernum, c_waveAttack, c_waveClearObs);
+                    AIWaveMerge(playernum, c_waveMain,  c_waveClearObs);
+                    AIWaveSetType(AIWaveGet(playernum, c_waveClearObs), c_waveStateAttack, AIWaveTargetUnit(AIGetObstruction(playernum)));
+
+        }
+        if (command == "-har") {
+                            UIClearMessages(PlayerGroupAll(), c_messageAreaChat);
+                               AIWaveMerge(playernum, c_waveDefend, c_waveDivert2);
+                               AIWaveMerge(playernum, c_waveMain,  c_waveDivert2);
+                           AIWaveSetType(AIWaveGet(playernum, c_waveDivert2), c_waveStateAttack, AIWaveTargetMeleeHarass(playernum));
+        }
+//        if (command == "-con") {
+//                            UIClearMessages(PlayerGroupAll(), c_messageAreaChat);
+//                            if (playernum == 0) {
+//                            	g_postAI[1] = true;
+//                            	g_postAI[2] = true;
+//        					}
+//                            g_postAI[playernum] = true;
+//        }
+//		if (command == "-coff") {
+//                            UIClearMessages(PlayerGroupAll(), c_messageAreaChat);
+//                            if (playernum == 0) {
+//                            	g_postAI[1] = false;
+//                                g_postAI[2] = false;
+//        					}
+//		}
+		if (command == "-fscout") {
+                            UIClearMessages(PlayerGroupAll(), c_messageAreaChat);
+                            g_fakeScout = true;
+		}
+		if (command == "-newAV") {
+							UIClearMessages(PlayerGroupAll(), c_messageAreaChat);
+							DebugAI("Using new Army Value System now");
+							g_useNewAVS = false;
+		}
+
+
+        if (command == "-add") {
+                            UIClearMessages(PlayerGroupAll(), c_messageAreaChat);
+                              TechTreeUpgradeAddLevel(playernum, "BansheeCloak", 1);
+                              TechTreeUpgradeAddLevel(playernum, "SiegeTech", 1);
+                              TechTreeUpgradeAddLevel(playernum, "haltech", 1);
+                      //        TechTreeUpgradeAddLevel(playernum, "PersonalCloaking", 1);
+                              TechTreeUpgradeAddLevel(playernum, "HighCapacityBarrels", 1);
+                              TechTreeUpgradeAddLevel(playernum, "BlinkTech", 1);
+                              TechTreeUpgradeAddLevel(playernum, "PsiStormTech", 1);
+                              TechTreeUpgradeAddLevel(playernum, "NeuralParasite", 1);
+                              TechTreeUpgradeAddLevel(playernum, "HunterSeeker", 1);
+                              TechTreeUpgradeAddLevel(playernum, "Stimpack", 1);
+                              TechTreeUpgradeAddLevel(playernum, "StrikeCannons", 1);
+                              TechTreeUpgradeAddLevel(playernum, "InfestorPeristalsis", 1);
+                              TechTreeUpgradeAddLevel(playernum, "ReaperSpeed", 1);
+                              TechTreeUpgradeAddLevel(playernum, "VikingJotunBoosters", 1);
+                              TechTreeUpgradeAddLevel(playernum, "TerranBuildingArmor", 1);
+                              TechTreeUpgradeAddLevel(playernum, "HiSecAutoTracking", 1);
+                              TechTreeUpgradeAddLevel(playernum, "ObserverGraviticBooster", 1);
+                              TechTreeUpgradeAddLevel(playernum, "Charge", 1);
+                              TechTreeUpgradeAddLevel(playernum, "AbdominalFortitude", 1);
+                              TechTreeUpgradeAddLevel(playernum, "CentrificalHooks", 1);
+                              TechTreeUpgradeAddLevel(playernum, "NeosteelFrame", 1);
+                              TechTreeUpgradeAddLevel(playernum, "Burrow", 1);
+                              TechTreeUpgradeAddLevel(playernum, "GhostMoebiusReactor", 1);
+                              TechTreeUpgradeAddLevel(playernum, "HighTemplarKhaydarinAmulet", 1);
+                              TechTreeUpgradeAddLevel(playernum, "hydraliskspeed", 1);
+                              TechTreeUpgradeAddLevel(playernum, "ExtendedThermalLance", 1);
+                              TechTreeUpgradeAddLevel(playernum, "PunisherGrenades", 1);
+                              TechTreeUpgradeAddLevel(playernum, "MedivacCaduceusReactor", 1);
+                              TechTreeUpgradeAddLevel(playernum, "overlordtransport", 1);
+                              TechTreeUpgradeAddLevel(playernum, "overlordspeed", 1);
+                              TechTreeUpgradeAddLevel(playernum, "VoidRaySpeedUpgrade", 1);
+                              TechTreeUpgradeAddLevel(playernum, "DurableMaterials", 1);
+                              TechTreeUpgradeAddLevel(playernum, "RavenCorvidReactor", 1);
+                              TechTreeUpgradeAddLevel(playernum, "GlialReconstitution", 1);
+                              TechTreeUpgradeAddLevel(playernum, "TunnelingClaws", 1);
+                              TechTreeUpgradeAddLevel(playernum, "OrganicCarapace", 1);
+                              TechTreeUpgradeAddLevel(playernum, "BattlecruiserBehemothReactor", 1);
+                              TechTreeUpgradeAddLevel(playernum, "BattlecruiserEnableSpecializations", 1);
+                              TechTreeUpgradeAddLevel(playernum, "ShieldWall", 1);
+                              TechTreeUpgradeAddLevel(playernum, "CarrierLaunchSpeedUpgrade", 1);
+                              TechTreeUpgradeAddLevel(playernum, "ChitinousPlating", 1);
+                              TechTreeUpgradeAddLevel(playernum, "AnabolicSynthesis", 1);
+                              TechTreeUpgradeAddLevel(playernum, "InfestorEnergyUpgrade", 1);
+                              TechTreeUpgradeAddLevel(playernum, "GraviticDrive", 1);
+                              TechTreeUpgradeAddLevel(playernum, "zerglingattackspeed", 1);
+                              TechTreeUpgradeAddLevel(playernum, "ObverseIncubation", 1);
+                              TechTreeUpgradeAddLevel(playernum, "zerglingmovementspeed", 1);
+                              TechTreeUpgradeAddLevel(playernum, "WarpGateResearch", 1);
+        }
+
+		if (command == "-op") {
+			UIClearMessages(PlayerGroupAll(), c_messageAreaChat);
+            DialogSetVisible(GOptionBoard, PlayerGroupActive(), true);
+            PlayerSetAlliance(EventPlayer(), c_allianceIdVision, EventPlayer(), false);
+            GPauseAll();
+		}
+        if (command == "-kill") {
+        	UIClearMessages(PlayerGroupAll(), c_messageAreaChat);
+        	GTResetAll(playernum);
+        }
+
+
+
+
+
+
+
+        if (command == "-help") {
+        UIClearMessages(PlayerGroupAll(), c_messageAreaDebug);
+
+		DebugAI("COMMAND LIST");
+		DebugAI("-r   : Random AI (At Start)");
+		DebugAI("-s   : Select AI (At Start)");
+		DebugAI("-op  : GT Option");
+		DebugAI("-re  : Restart map");
+		DebugAI("-qr  : Quick restart (not complete)");
+
+
+		}
+
+	return true;
+
+}
+
+
+

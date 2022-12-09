@@ -1,0 +1,227 @@
+﻿DocInfo/DescLong=Allies share a fortress and nearby expansions can be taken fairly quickly.  Utilize the Xel'Naga Watch Towers to keep an eye on the center areas and prepare for large engagements.
+DocInfo/DescShort=4v4
+DocInfo/Name=Old Estate
+MapInfo/Player00/Name=Neutral
+MapInfo/Player01/Name=Player 1
+MapInfo/Player02/Name=Player 2
+MapInfo/Player03/Name=Player 3
+MapInfo/Player04/Name=Player 4
+MapInfo/Player05/Name=Player 5
+MapInfo/Player06/Name=Player 6
+MapInfo/Player07/Name=Player 7
+MapInfo/Player08/Name=Player 8
+MapInfo/Player09/Name=Player 9
+MapInfo/Player10/Name=Player 10
+MapInfo/Player11/Name=User
+MapInfo/Player12/Name=Hostile
+MapInfo/Player13/Name=Hostile
+MapInfo/Team00/Name=2v2a
+MapInfo/Team01/Name=2v2b
+MapInfo/Team02/Name=1v1a
+MapInfo/Team03/Name=1v1b
+MapInfo/Team04/Name=3v3a
+MapInfo/Team05/Name=3v3b
+Param/Expression/lib_1_00094671=Expansion Done
+Param/Expression/lib_1_03378DEF=DPS (5s): <c val="FF8000">~A~</c><n/>DPS (~B~s): <c val="485AFF ">~C~</c>
+Param/Expression/lib_1_0A4B6D51=Changing hotkey for <c val="FF8040">~A~</c> to <c val="FF8040">~B~</c>
+Param/Expression/lib_1_0CDA276A=Prod: ~A~
+Param/Expression/lib_1_0DF8E162=Food: ~A~
+Param/Expression/lib_1_0E94D380=period: ~A~
+Param/Expression/lib_1_10179BA7=Button: ~A~
+Param/Expression/lib_1_109AFCB3=~B~ ~A~
+Param/Expression/lib_1_16369B72=Main: ~A~
+Param/Expression/lib_1_1C3923AC=Effect: ~A~ | DMG: ~B~
+Param/Expression/lib_1_1C821FEC=~A~ (~B~) - hidden
+Param/Expression/lib_1_1D0CA078=UNIT DISARMED  ~A~ 
+Param/Expression/lib_1_1D51E1FE=Feel in danger
+Param/Expression/lib_1_26177C85=Button: ~A~ | Hotkey: ~B~
+Param/Expression/lib_1_265538F3=<c val="485AFF">Avg: ~A~</c><n/><c val="FF8000">Now: –</c>
+Param/Expression/lib_1_272B233A=APPLIED TO ENEMY: ~A~
+Param/Expression/lib_1_2A16D82D=any: ~A~ (~B~) – (~C~,~D~) ~E~
+Param/Expression/lib_1_2A1C2DE7=Combat: ~A~
+Param/Expression/lib_1_2ABDF189=<c val="FF8000">Timescale set to ~A~</c>
+Param/Expression/lib_1_2D13A06C=~B~ -hidden
+Param/Expression/lib_1_2D82D98A=~C~:~A~:~B~
+Param/Expression/lib_1_2E5BE931=Drop-off: ~A~
+Param/Expression/lib_1_2EB7A16D=Defenses: ~A~
+Param/Expression/lib_1_2EF377A7=<c val="FF8040">Removing all units at screen of player ~A~</c>
+Param/Expression/lib_1_314EA02D=Full saturation at ~A~
+Param/Expression/lib_1_3367DC08=Morphs: ~A~
+Param/Expression/lib_1_3428B512=~A~ for ~B~
+Param/Expression/lib_1_3617089A=Effect: ~A~
+Param/Expression/lib_1_3EB2026D=???: ~A~
+Param/Expression/lib_1_420F98B6=ABILITY MODIFY EFFECT: ~A~
+Param/Expression/lib_1_42EC7EA0=Pathing cost between points: ~B~<n/>Unit can path to point (1-1000): ~C~<n/>AI Pathing Cost Unit: ~G~<n/>Points connected by pathing: ~A~<n/>Point is passable: ~E~<n/>Ground type at point: ~D~<n/>---
+Param/Expression/lib_1_44F0F2C9=Want a new base
+Param/Expression/lib_1_45A4EA59=Behavior: ~A~
+Param/Expression/lib_1_45C2C9E9=<c val="FF8040">Setting sight range to selected units to: ~A~</c>
+Param/Expression/lib_1_480FFC8D=Currently Expansing
+Param/Expression/lib_1_49F8A080=Player: ~A~ (~D~) <c val="FF0000">Supply: ~B~</c> <c val="00FF00">Total Cost: ~C~</c>
+Param/Expression/lib_1_4BE89BCD=<s val="MapName"><c val="FF7700">~B~</c></s>  (preplaced units and structures: ~A~)
+Param/Expression/lib_1_4C2150FB=<c val="FF8000">Timescale set to ~A~</c>
+Param/Expression/lib_1_4CDBE4D3=Created: ~C~ (~D~) (~A~,~B~)
+Param/Expression/lib_1_4FCF183C=~A~ -missile
+Param/Expression/lib_1_5362D95D=~B~</n><c val="777777">~A~~C~~D~</c>
+Param/Expression/lib_1_57A6FFBC=Projectiles: ~A~
+Param/Expression/lib_1_5BD07045=APPLIED TO ENEMY: ~A~
+Param/Expression/lib_1_5D65976F=Expansion Done
+Param/Expression/lib_1_5D7BCAA9=Towns ~A~
+Param/Expression/lib_1_5DD6AB19=Combat: ~A~
+Param/Expression/lib_1_5E4C8E97=Behavior: ~A~ ~B~ on ~C~
+Param/Expression/lib_1_62F3C041=hidden: ~A~ (~B~) -- (~C~,~D~) -- cargo
+Param/Expression/lib_1_652320DD=UNIT DISARMED  ~A~ 
+Param/Expression/lib_1_6551235B=~A~ (~B~)
+Param/Expression/lib_1_658B0A90=~A~/~B~ at ~C~
+Param/Expression/lib_1_65C5261C=Upgrades: ~A~
+Param/Expression/lib_1_66580BF9=DAMAGE EFFECT: ~A~
+Param/Expression/lib_1_66F2BF27=~A~~B~~C~
+Param/Expression/lib_1_6A8BF94C=Requirement: ~A~
+Param/Expression/lib_1_6B47182F=Feel in danger
+Param/Expression/lib_1_6BB8118A=~A~:~B~
+Param/Expression/lib_1_6D62B637=hidden: ~A~ (~B~) -- (~C~,~D~)
+Param/Expression/lib_1_78BE631E=Units: ~A~
+Param/Expression/lib_1_7A59D871=<c val="B0B0B0">DPS (5s): ~A~<n/>DPS (~B~s): ~C~</c>
+Param/Expression/lib_1_7A6876F2=<c val="FF8040">Removing all unselectable units</c>
+Param/Expression/lib_1_7CCA264C=Validator: ~A~
+Param/Expression/lib_1_81C8B571=Workers Needed ~A~
+Param/Expression/lib_1_8331E7F5=Towns ~A~
+Param/Expression/lib_1_862025E1=<c val="777777"> (~A~s)</c>
+Param/Expression/lib_1_8D14B078=~A~ -dead
+Param/Expression/lib_1_8D383C0A=UNIT ARMED  ~A~ 
+Param/Expression/lib_1_8FD2DA06=Collecting Money For a New Base
+Param/Expression/lib_1_9488CD11=target is hidden: ~A~<n/>target is invulnerable: ~B~
+Param/Expression/lib_1_9611B058=Collecting Money For a New Base
+Param/Expression/lib_1_9C189A7F=Setting ability ~A~ range to ~C~
+Param/Expression/lib_1_A0A4AE24=Currently Expansing
+Param/Expression/lib_1_A0AA3032=~A~ (~B~,~C~)
+Param/Expression/lib_1_A3C9045E=Effect: ~A~
+Param/Expression/lib_1_A7627D80=damage point: ~A~
+Param/Expression/lib_1_A7A4F0E4=Setting ability ~A~ range to ~C~
+Param/Expression/lib_1_A959AEA5=Revived: ~C~ (~D~) (~A~,~B~)
+Param/Expression/lib_1_AA38F474=<c val="FF8000"> ~A~</c>
+Param/Expression/lib_1_ABA9AE4B=Upgrade: ~A~ ~B~ for ~C~
+Param/Expression/lib_1_ABCF74F2=Upgrade: ~A~
+Param/Expression/lib_1_ACEB896C=Refinery: ~A~
+Param/Expression/lib_1_AD357BA6=ABILITY ~A~ REMOVED from ~B~
+Param/Expression/lib_1_AD447025=Effect: ~A~
+Param/Expression/lib_1_AEF7B329=<c val="FF8000">Supply limit set to ~A~</c>
+Param/Expression/lib_1_B0755CEB=<c val="485AFF">Avg: ~A~</c><n/><c val="FF8000">Now: ~B~</c>
+Param/Expression/lib_1_B1CBA26E=<c val="FF0000">~A~</c>/<c val="00FF00">~B~</c>
+Param/Expression/lib_1_B4CC199E=vb: ~A~
+Param/Expression/lib_1_B62C3C97=Unit: ~A~
+Param/Expression/lib_1_B69385DF=Production: ~A~
+Param/Expression/lib_1_B69A406F=<c val="79B8F7">~A~</c> (~B~)
+Param/Expression/lib_1_B6EDDF9B=Worker: ~A~
+Param/Expression/lib_1_B97BD3F8=<c val="FF8000">ALL (~A~)</c>
+Param/Expression/lib_1_BD4A24F7=Transport: ~A~
+Param/Expression/lib_1_BDBCD62F=~A~ (~B~)
+Param/Expression/lib_1_BF77E86D=Race: ~A~
+Param/Expression/lib_1_C067DB8A=Workers Needed ~A~
+Param/Expression/lib_1_C09CC38F=~A~~B~~C~
+Param/Expression/lib_1_C6655192=Upgrades: ~A~
+Param/Expression/lib_1_C77DB418=Tech: ~A~
+Param/Expression/lib_1_C80317AA=<n/><s val="AchievementFrameName_Prot"><c val="668aff">~A~</c><c val="FFFFFF"> -</c> <c val="00CE00">~D~%</c><c val="8D8D8D"> (~C~)</c></s>
+Param/Expression/lib_1_CEDAA11B=Ability: ~A~ (~B~)
+Param/Expression/lib_1_D0941859=<c val="FF8040">Radius set to ~A~<n/>(Use negative value to reset)</c>
+Param/Expression/lib_1_D168EA67=Ability: ~A~
+Param/Expression/lib_1_D17AC720=Want a new base
+Param/Expression/lib_1_D25A4EFD=Total - <c val="FF0000">Supply: ~B~</c> <c val="00FF00">Total Cost: ~C~</c>
+Param/Expression/lib_1_D34D75E5=Need Geysers!
+Param/Expression/lib_1_D625A2EC=<n/><s val="AchievementFrameName_Prot"><c val="668aff">~A~</c><c val="FFFFFF"> -</c> <c val="FF9D3C">~D~%</c><c val="8D8D8D"> (~C~)</c></s>
+Param/Expression/lib_1_D808ED4B=Want to Attack!
+Param/Expression/lib_1_E0FEEEFB==============================================
+Param/Expression/lib_1_E5D0ECC8=Support: ~A~
+Param/Expression/lib_1_E6467609=Died: ~C~ (~D~) (~A~,~B~)
+Param/Expression/lib_1_E7803973=Need Geysers!
+Param/Expression/lib_1_E901D3BC=Weapon: ~A~
+Param/Expression/lib_1_EBED9FE4=Support: ~A~
+Param/Expression/lib_1_ED426392=~B~</n>~A~~C~~D~
+Param/Expression/lib_1_F205614B=missile: ~A~ (~B~) – (~C~,~D~)
+Param/Expression/lib_1_F3948993=Want to Attack!
+Param/Expression/lib_1_F9256E14=dead: ~A~ (~B~) – (~C~,~D~)
+Param/Expression/lib_1_FBEA82F0=BEHAVIOR  ~A~ REMOVED from ~B~
+Param/Expression/lib_1_FD302351=Tech: ~A~
+Param/Expression/lib_1_FD4022B9=~B~ ~A~
+Param/Expression/lib_1_FE3922A3= [~A~]
+Param/Expression/lib_1_FF9A4D5E=Requirement Node: ~A~
+Param/Value/lib_1_0B8E04FD= in the index 
+Param/Value/lib_1_0F2089B5= while the dynamic array has a size of 
+Param/Value/lib_1_1140A22E=<c val="FF8000">Starting to monitor buttons</c>
+Param/Value/lib_1_11B9F724=<c val="FF8000">Camera control disabled</c>
+Param/Value/lib_1_1725FDFE=<c val="485AFF">Avg: --</c><n/><c val="FF8000">Now: –</c>
+Param/Value/lib_1_1B7F2A7D=Building
+Param/Value/lib_1_1B8B1D89=<c val="FF8000">Fast build enabled</c>
+Param/Value/lib_1_1DFC24B2=Create
+Param/Value/lib_1_20D3CDA0=Unpathable
+Param/Value/lib_1_22153BA9=<c val="FF8000">Check pathing from selected unit to camera center with TAB key</c>
+Param/Value/lib_1_230BFDC4=Any
+Param/Value/lib_1_249C0C42=Destroy
+Param/Value/lib_1_265C1742=Refresh
+Param/Value/lib_1_2D7EAD32=<c val="FF8000">Logging stopped</c>
+Param/Value/lib_1_2DB85F54=<c val="FF8000">Disabling button monitoring</c>
+Param/Value/lib_1_2E252F8A=)</c></s>
+Param/Value/lib_1_2E4EFC70=<s val="ArmyCustomizationSelectedUnitDescriptionName"><c val="FFFFFF">Healing log</c></s> <s val="AchievementFrameName_Prot"><c val="FFFFFF">(total:
+Param/Value/lib_1_2F60937E=<c val="FF8040">Radius reset</c>
+Param/Value/lib_1_30B98A71=<c val="FF8000">Tracing enabled<n/>(works only when the map is launched from the editor)</c>
+Param/Value/lib_1_34E692CF=<c val="FF8000">MISSILE</c>
+Param/Value/lib_1_375938B5=<c val="FF8000">Copy-paste disabled.</c>
+Param/Value/lib_1_3CC2A1E6=<s val="ArmyCustomizationSelectedUnitDescriptionName"><c val="FFFFFF">Damage log</s></c> <s val="AchievementFrameName_Prot"><c val="FFFFFF">(total:
+Param/Value/lib_1_42D0F838=Activate
+Param/Value/lib_1_4796EC99=<img path="Assets\TwitchEmotes\goose.dds" alignment="absolutemiddle"/> Already honked recently! <img  path="Assets\TwitchEmotes\goose.dds"  alignment="absolutemiddle"/>
+Param/Value/lib_1_4F225CD7=<c val="FF8000">AI unpaused</c>
+Param/Value/lib_1_551BF50D=Cliff
+Param/Value/lib_1_55C47CB9=<c val="FF8000">Units unpaused</c>
+Param/Value/lib_1_5809308A=<c val="FF8000">Speed set to slower</c>
+Param/Value/lib_1_5CC7A239=Error at Dynamic Int Array - Pop Back: The array is already empty!
+Param/Value/lib_1_679C1976=Numbers hidden
+Param/Value/lib_1_6E9286A1=CLOSE
+Param/Value/lib_1_6E93EBC8=<c val="FF8000">Show/Hide UI with Ctrl+H</c>
+Param/Value/lib_1_71CA2486=<c val="FF8000">Speed set to slow</c>
+Param/Value/lib_1_71FCD523=<n/><n/>
+Param/Value/lib_1_723063AF=<c val="FF8000">PathCheck disabled</c>
+Param/Value/lib_1_74BF5D8E=<c val="FF8000">Enemy control disabled</c>
+Param/Value/lib_1_7C6A7E80=Economy test disabled
+Param/Value/lib_1_7E385E54=<c val="FF8000">Speed set to faster</c>
+Param/Value/lib_1_8BA4384F=<c val="B0B0B0">DPS (5s): —<n/>DPS (?s): —</c>
+Param/Value/lib_1_8FFF19EB=<c val="FF8000">DEAD UNITS</c>
+Param/Value/lib_1_94935452=<c val="FF8000">Tracing disabled</c>
+Param/Value/lib_1_960A7916= while the dynamic array has a size of 
+Param/Value/lib_1_9682FD1F=<c val="FF0000">Healing logging overflow</c>
+Param/Value/lib_1_9AC3A6AE=<c val="FF8000">Copy-paste enabled. <n/>Units will be created in the center of your screen.</c>
+Param/Value/lib_1_9DBE8CCE= while the dynamic array has a size of 
+Param/Value/lib_1_9F371108=<c val="FF8000">Log cleared</c>
+Param/Value/lib_1_A22E87F5=<c val="FF8000">Speed set to fast</c>
+Param/Value/lib_1_A5CDA3E5=Error in Dynamic Int Array - Set: Trying to set value 
+Param/Value/lib_1_AC038220=<c val="FF8000">Speed set to normal</c>
+Param/Value/lib_1_AFA5A4FD=Type -val for economy value at any time
+Param/Value/lib_1_B17E0AEB=)</c></s>
+Param/Value/lib_1_B312A9FD=Economy test enabled<n/>
+Param/Value/lib_1_BB3F723D= in the index 
+Param/Value/lib_1_BD92D3D5=Other emotes
+Param/Value/lib_1_BDB919F6=StarCraft emotes
+Param/Value/lib_1_C42CCE4F=<c val="FF8000">Resetting ability ranges.</c>
+Param/Value/lib_1_C5B22921=Error in Dynamic Int Array - Add: Trying to add value 
+Param/Value/lib_1_C92D1176=<c val="FF8000">HIDDEN UNITS</c>
+Param/Value/lib_1_CBD9C3D9=<c val="FF8000">Camera reset</c>
+Param/Value/lib_1_CD5C85AF=<c val="FF0000">Warning: May causes some performance degradation</c>
+Param/Value/lib_1_CDEDD954=<c val="FF8000">Godmode enabled</c>
+Param/Value/lib_1_CF7BAD5D=10
+Param/Value/lib_1_D2E1915C=<c val="FF0000">Keyboard modifiers are not supported</c>
+Param/Value/lib_1_D4C23F85=-hidden
+Param/Value/lib_1_D61C02DD=<c val="FF8000">Change lighting with "+" or "-" keys</c>
+Param/Value/lib_1_D684EE8D=<c val="FF8000">Lighting modification disabled</c>
+Param/Value/lib_1_D787F213=<c val="FF8000">Fast build disabled</c>
+Param/Value/lib_1_DAA8F14D=<c val="FF8000">AI paused</c>
+Param/Value/lib_1_E4394E84=<c val="FF8000">Camera control enabled</c> (Q,E = zoom; A,D = rotation; W,S = pitch)
+Param/Value/lib_1_E4FCEF44=Deactivate
+Param/Value/lib_1_E908106B=Ground
+Param/Value/lib_1_E9D58896=<c val="FF0000">Damage logging overflow</c>
+Param/Value/lib_1_EC5FC914=<c val="FF8000">Controlling allied/neutral players</c>
+Param/Value/lib_1_F3530244=Error in Dynamic Int Array - Remove: Trying to remove a value in the index 
+Param/Value/lib_1_F3AB9CE3=<c val="FF8000">Ctrl+H shortcut disabled for UI toggle</c>
+Param/Value/lib_1_F4A07C27=Decrease
+Param/Value/lib_1_F637819F=<c val="FF8000">Godmode Disabled<n/></c>
+Param/Value/lib_1_F9DF915F=<c val="FF8000">Controlling enemy</c>
+Param/Value/lib_1_FB7F3836=Increase
+Param/Value/lib_1_FF203545=<c val="FF8000">Units paused</c>
+Unit/Name/MiningDrone2=Mining Drone

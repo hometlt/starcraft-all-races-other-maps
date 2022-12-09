@@ -1,0 +1,1000 @@
+include "TriggerLibs/Green Tea Main/GTZPrototypes"
+//include "TriggerLibs/Green Tea Main/GTCommanderconfig"
+include "TriggerLibs/Green Tea Main/GTZCount"
+include "TriggerLibs/Green Tea Main/GTZSpecial"
+include "TriggerLibs/Green Tea Main/GTZPoint"
+include "TriggerLibs/Green Tea Main/GTZCondition"
+include "TriggerLibs/Green Tea Main/GTZBuildTrain"
+include "TriggerLibs/Green Tea Main/GTZAuto"
+include "TriggerLibs/Green Tea Main/GTZCounter"
+include "TriggerLibs/Green Tea Main/GTZAttack"
+include "TriggerLibs/Green Tea Main/GTZMelee"
+include "TriggerLibs/Strategy/GOpening"
+include "TriggerLibs/Green Tea Main/GTZArmyValue"
+//include "TriggerLibs/Green Tea Main/GTZSetupCounterUnits"
+include "TriggerLibs/Green Tea Main/GTZTrigger"
+
+void GTChatAllies (int player, string say)
+{
+	UIDisplayMessage(PlayerGroupAlliance(0, player), c_messageAreaChat, StringToText("[") + PlayerColorName(PlayerGetColorIndex(player, false)) + StringToText("] ") + StringToText(say));
+}
+
+int GTState(int rnd) {
+	return rnd + 2;
+}
+
+void GTChat(string say) {
+	UIDisplayMessage(PlayerGroupAll(), c_messageAreaChat, StringToText(say));
+}
+
+void GTChatEnemy(int player, string say) {
+	UIDisplayMessage(PlayerGroupAlliance(1, player), c_messageAreaChat, StringToText("[") + PlayerColorName(PlayerGetColorIndex(player, false)) + StringToText("] ") + StringToText(say));
+}
+
+
+
+string GTTalkA() {
+	int num = RandomInt(1, 10);
+	if (num == 1) {
+		return "I'm specialize in ";
+	}
+	if (num == 2) {
+		return "I'm good at ";
+	}
+	if (num == 3) {
+		return "I'm using ";
+	}
+	if (num == 4) {
+		return "I love to use ";
+	}
+	if (num == 5) {
+		return "Let's teach them, I use ";
+	}
+	if (num == 6) {
+		return "It's time for team work, I use ";
+	}
+	if (num == 7) {
+		return "I will try ";
+	}
+	if (num == 8) {
+		return "My favorite is";
+	}
+	if (num == 9) {
+		return "God bless you, it's time to use ";
+	}
+	if (num == 10) {
+		return "Listen, i will try ";
+	}
+
+	return null;
+}
+
+string GTTalkE() {
+	int num = RandomInt(1, 20);
+	if (num == 1) {
+		return "Welcome to the party.";
+	}
+	if (num == 2) {
+		return "Ah, greeting commanders. ";
+	}
+	if (num == 3) {
+		return "On my way!";
+	}
+	if (num == 4) {
+		return "Good day, commanders. ";
+	}
+	if (num == 5) {
+		return "Hell, it's about time.";
+	}
+	if (num == 6) {
+		return "Are you ready ?";
+	}
+	if (num == 7) {
+		return "Go go go !";
+	}
+	if (num == 8) {
+		return "It's a good day to die.";
+	}
+	if (num == 9) {
+		return "Come on, baby.";
+	}
+	if (num == 10) {
+		return "Receiving, headquarters. ";
+	}
+	if (num == 11) {
+		return "Let's have some fun.";
+	}
+	if (num == 12) {
+		return "I'm ready.";
+	}
+	if (num == 13) {
+		return "Comm-link online.";
+	}
+	if (num == 14) {
+		return "Preped and ready.";
+	}
+	if (num == 15) {
+		return "I have returned.";
+	}
+	if (num == 16) {
+		return "This should be good.";
+	}
+	if (num == 17) {
+		return "Oh yeahhhhhhhhhh.";
+	}
+	if (num == 18) {
+		return "Alright";
+	}
+	if (num == 19) {
+		return "Need something destroyed ?";
+	}
+	return "Let's burn";
+}
+
+string GTTalkC() {
+	int num = RandomInt(1, 8);
+	if (num == 1) {
+		return "It's my turn now";
+	}
+	if (num == 2) {
+		return "Let me handle the rest";
+	}
+	if (num == 3) {
+		return "Now it's my chance";
+	}
+	if (num == 4) {
+		return "It's time for me to show up";
+	}
+	if (num == 5) {
+		return "I will be in charge here";
+	}
+	if (num == 6) {
+		return "Jacked up and good to go";
+	}
+	return "I'm on the job! ";
+}
+
+string GTTalkW() {
+	int num = RandomInt(1, 16);
+	if (num == 1) {
+		return "Accept defeat now ?";
+	}
+	if (num == 2) {
+		return "GG ? ";
+	}
+	if (num == 3) {
+		return "Another match ?";
+	}
+	if (num == 4) {
+		return "Win like a man, lose like a man, accept it";
+	}
+	if (num == 5) {
+		return "It's a tough match, I'm lucky at the end";
+	}
+	if (num == 6) {
+		return "The playtime is over... Now I'll bring this to an end..";
+	}
+	if (num == 7) {
+		return "I win, very lucky ^^";
+	}
+	if (num == 8) {
+		return "This will finish you off";
+	}
+	if (num == 9) {
+		return "Let accept the truth, you lose";
+	}
+	if (num == 10) {
+		return "Ha ha, you don't have chance";
+	}
+	if (num == 11) {
+		return "Victory!!!";
+	}
+	if (num == 12) {
+		return "I got your kings";
+	}
+	if (num == 13) {
+		return "Win, maybe I'm a lucky AI :P";
+	}
+	if (num == 14) {
+		return "See, what did I told you, I win";
+	}
+	if (num == 15) {
+		return "You better learn what I did";
+	}
+	if (num == 16) {
+		return "When is the last time you play SC2 ?";
+	}
+	return "It's victory for me";
+}
+
+string GTTalkL() {
+	int num = RandomInt(1, 20);
+	if (num == 1) {
+		return "Another match, please ?";
+	}
+	if (num == 2) {
+		return "I'm just unlucky ";
+	}
+	if (num == 3) {
+		return "You're very talented, I don't believe we've met before ";
+	}
+	if (num == 4) {
+		return "Ok, ok, i accept lost";
+	}
+	if (num == 5) {
+		return "I lost, how about another match ?";
+	}
+	if (num == 6) {
+		return "Well, at least I do what I can";
+	}
+	if (num == 7) {
+		return "So strong, who are you ?";
+	}
+	if (num == 8) {
+		return "Very nice, you should be in the champion league";
+	}
+	if (num == 9) {
+		return "Well, I guess it's  the game";
+	}
+	if (num == 10) {
+		return "Nice match, there is something I should learn from you";
+	}
+	if (num == 11) {
+		return "You're very skilled, are you join any league before";
+	}
+	if (num == 12) {
+		return "Surrender !!!";
+	}
+	if (num == 13) {
+		return "Oh, my strategy is a failure";
+	}
+	if (num == 14) {
+		return "T_T,  Never had a dream come true";
+	}
+	if (num == 15) {
+		return "You got into my revenge list";
+	}
+	return "I like your style, where did you learn from";
+}
+
+string GTTalkNum1() {
+	int num = RandomInt(1, 15);
+	if (num == 1) {
+		return "I know what you gonna do today";
+	}
+	if (num == 2) {
+		return "Hey buddy, you might wanna keep your mouth shut.  ";
+	}
+	if (num == 3) {
+		return "Twinkle Twinkle Little Star,now I wonder where you are";
+	}
+	if (num == 4) {
+		return "If this is some kind of practical joke, it's not funny, and I know funny";
+	}
+	if (num == 5) {
+		return "I despise guessing games. ";
+	}
+	if (num == 6) {
+		return "Hakuna matata";
+	}
+	if (num == 7) {
+		return "Adventure is out there! ";
+	}
+	if (num == 8) {
+		return "You don't understand anything until you learn it more than one way.";
+	}
+	if (num == 9) {
+		return "This is the TVShow : Are you smarter than a computer AI :)) ";
+	}
+	if (num == 10) {
+		return "Hey, this is not a test! This is rock and roll! ";
+	}
+	if (num == 11) {
+		return "Yeah, be careful I don't make you cry when I win! ";
+	}
+	if (num == 12) {
+		return "Why do I not have the surprised feeling?  ";
+	}
+	if (num == 13) {
+		return "I wanna be all I can be... ";
+	}
+	if (num == 14) {
+		return "To infinity, and beyond!  ";
+	}
+	if (num == 15) {
+		return "This isn't playing. This is playing with style! ";
+	}
+	return null;
+
+}
+
+string GTTalkNum2() {
+	int num = RandomInt(1, 25);
+	// Idle
+	if (num == 1) {
+		return "Need medical attention ?";
+	}
+	if (num == 2) {
+		return "Someone are watching you";
+	}
+	if (num == 3) {
+		return "Come on, come on, show me what you got";
+	}
+	if (num == 4) {
+		return "Hey, are you playing or not ?";
+	}
+	if (num == 5) {
+		return "I think you're getting a little too familiar.";
+	}
+	if (num == 6) {
+		return "ATTACK!!!!                Nah, just kidding";
+	}
+	if (num == 7) {
+		return "Don't play hide and seek with me";
+	}
+	if (num == 8) {
+		return "Make up your mind...";
+	}
+	if (num == 9) {
+		return "When I get older, I will be stronger";
+	}
+	if (num == 0) {
+		return "You may have time to play games but I've got a job to do.  ";
+	}
+	if (num == 11) {
+		return "I haven't got all day... ";
+	}
+	if (num == 12) {
+		return "Show me the meaning of being lonely ";
+	}
+	if (num == 13) {
+		return "Helloooo, any one there ?";
+	}
+	if (num == 14) {
+		return "If you don't know where you are going, how can you expect to get there?";
+	}
+	if (num == 15) {
+		return "Whatcha Doin?";
+	}
+	if (num == 16) {
+		return "Easily amused huh";
+	}
+	if (num == 17) {
+		return "Doesn't take a telepath to know what you are thinkin'";
+	}
+	if (num == 18) {
+		return "What's your problem, man ";
+	}
+	if (num == 19) {
+		return "Smile, it enhances your face value.";
+	}
+	if (num == 20) {
+		return "Coffee isn't my cup of tea. ";
+	}
+	if (num == 21) {
+		return "Gimme something to shoot";
+	}
+	if (num == 22) {
+		return "Need a light ?";
+	}
+
+	return "I'm waiting on you";
+
+}
+
+string GTTalkNum3() {
+	int num = RandomInt(1, 18);
+	// Attack happy
+	if (num == 1) {
+		return "You can't handle the truth: I win, you lose";
+	}
+	if (num == 2) {
+		return "You can run but you can't hide";
+	}
+	if (num == 3) {
+		return "And now for your first lesson.  ";
+	}
+	if (num == 4) {
+		return "I'm just curious, why I am so good ?";
+	}
+	if (num == 5) {
+		return "Nothing can stop me now";
+	}
+	if (num == 6) {
+		return "Is it painful ?";
+	}
+	if (num == 7) {
+		return "I feel very lucky";
+	}
+	if (num == 8) {
+		return "You make a mistake.";
+	}
+	if (num == 9) {
+		return "Sorry, i really don't wanna hurt you";
+	}
+	if (num == 10) {
+		return "Job's finished";
+	}
+	if (num == 11) {
+		return "See how strong I am";
+	}
+	if (num == 12) {
+		return "Chess mate";
+	}
+	if (num == 13) {
+		return "Giving up already";
+	}
+	if (num == 14) {
+		return "This is what I call an attack ";
+	}
+	if (num == 15) {
+		return "You can do nothing about it";
+	}
+	if (num == 16) {
+		return "Thank you for giving me this opportunity";
+	}
+	if (num == 17) {
+		return "Perfect";
+	}
+
+	return "It's Green Tea";
+
+}
+
+string GTTalkNum4() {
+	// Attack shout
+	int num = RandomInt(1, 15);
+	if (num == 1) {
+		return "Attack !!!";
+	}
+	if (num == 2) {
+		return "Ready to kill.";
+	}
+	if (num == 3) {
+		return "Prepare to die.";
+	}
+	if (num == 4) {
+		return "Target designated";
+	}
+	if (num == 5) {
+		return "Engage !!! ";
+	}
+	if (num == 6) {
+		return "It's show time";
+	}
+	if (num == 7) {
+		return "No mercy, no prisoner";
+	}
+	if (num == 8) {
+		return "Destroy !!!";
+	}
+	if (num == 9) {
+		return "Attack formation";
+	}
+	if (num == 10) {
+		return "I have ways of blowing things up.";
+	}
+	if (num == 11) {
+		return "I am invincible";
+	}
+	if (num == 12) {
+		return "Any last word ? ";
+	}
+	if (num == 13) {
+		return "Let's roll";
+	}
+	if (num == 14) {
+		return "I am the future !";
+	}
+	if (num == 15) {
+		return "Watch and learn";
+	}
+	return null;
+
+}
+
+string GTTalkNum5() {
+	// losing
+	int num = RandomInt(1, 22);
+	if (num == 1) {
+		return "Noooo. It's not fair";
+	}
+	if (num == 2) {
+		return "Hey! Quit it! ";
+	}
+	if (num == 3) {
+		return "Ahhhh, don't think you are that strong";
+	}
+	if (num == 4) {
+		return "I'm not giving up yet";
+	}
+	if (num == 5) {
+		return "Retreating.";
+	}
+	if (num == 6) {
+		return "How do I get out of this chickenshit battle? ";
+	}
+	if (num == 7) {
+		return "Must have energy... ";
+	}
+	if (num == 8) {
+		return "I'm mad as hell, and I'm not going to take it anymore";
+	}
+	if (num == 9) {
+		return "I make a mistake";
+	}
+	if (num == 10) {
+		return "It's can help cause I'm brainless";
+	}
+	if (num == 11) {
+		return "Do any of you fools know how to shut off this computer.";
+	}
+	if (num == 12) {
+		return "I still having chance";
+	}
+	if (num == 13) {
+		return "It's can't be happening";
+	}
+	if (num == 14) {
+		return "Do you need to fight me badly like that";
+	}
+	if (num == 15) {
+		return "Guess I have to learn more from you";
+	}
+	if (num == 16) {
+		return "You are so scary";
+	}
+	if (num == 17) {
+		return "What's so funny?";
+	}
+	if (num == 18) {
+		return "You can't do this to me";
+	}
+	if (num == 19) {
+		return "I knew i should stood in bed this morning";
+	}
+	if (num == 20) {
+		return "OMG, he's go crazy";
+	}
+	if (num == 21) {
+		return "I'm sick of it, totally sick of it";
+	}
+
+	return "Every body gotta die sometime";
+
+}
+
+string GTTalkNum6() {
+	// defending
+	int num = RandomInt(1, 20);
+	if (num == 1) {
+		return "You wanna piece of me, boy";
+	}
+	if (num == 2) {
+		return "Do not try my patience";
+	}
+	if (num == 3) {
+		return "You get off on annoying people, don't you ?";
+	}
+	if (num == 4) {
+		return "Do not provoke me to violence. ";
+	}
+	if (num == 5) {
+		return "I don't have time to f%#$ around";
+	}
+	if (num == 6) {
+		return "I'm not in the good mood";
+	}
+	if (num == 7) {
+		return "Did someone page me ?";
+	}
+	if (num == 8) {
+		return "Somethin' you wanted ?";
+	}
+	if (num == 9) {
+		return "What the hell do you want ?";
+	}
+	if (num == 10) {
+		return "You keep pushin' me boy.";
+	}
+	if (num == 11) {
+		return "Who's your mommy ?";
+	}
+	if (num == 12) {
+		return "What's your major malfunction ?";
+	}
+	if (num == 13) {
+		return "Shield up's , weapon online";
+	}
+	if (num == 14) {
+		return "Is this what you want ?";
+	}
+	if (num == 15) {
+		return "I fear no enemy";
+	}
+	if (num == 16) {
+		return "So do not try my patience";
+	}
+	if (num == 17) {
+		return "Take it slow. ";
+	}
+	if (num == 18) {
+		return "What is it now ?";
+	}
+	if (num == 19) {
+		return "I'll scrap YOU along with the aliens! ";
+	}
+	if (num == 20) {
+		return "This is very interesting, but stupid";
+	}
+
+	return "You began to annoy me.";
+
+}
+
+string GTTalkNum7() {
+	// defense success
+	int num = RandomInt(1, 20);
+	if (num == 1) {
+		return "Is this what you got ?";
+	}
+	if (num == 2) {
+		return "You never learn, don't you?";
+	}
+	if (num == 3) {
+		return "Are you out of your mind ?";
+	}
+	if (num == 4) {
+		return "It's serves you right";
+	}
+	if (num == 5) {
+		return "It's time for fight back";
+	}
+	if (num == 6) {
+		return "Don't mess with me";
+	}
+	if (num == 7) {
+		return "I'm angry now";
+	}
+	if (num == 8) {
+		return "What, is that all ?";
+	}
+	if (num == 9) {
+		return "Think you can beat me, dream on";
+	}
+	if (num == 10) {
+		return "Your army are so weak";
+	}
+	if (num == 11) {
+		return "You need to calculate more";
+	}
+	if (num == 12) {
+		return "lol, are you kidding me ?";
+	}
+	if (num == 13) {
+		return "Yeah, that's it";
+	}
+	if (num == 14) {
+		return "You're dead";
+	}
+	if (num == 15) {
+		return "Don't make me laugh, is this all you got ?";
+	}
+	if (num == 16) {
+		return "I'll kill you my self";
+	}
+	if (num == 17) {
+		return "Hold on, this is no time to be hysterical";
+	}
+	if (num == 18) {
+		return "I told you kid to stay out of my butt! ";
+	}
+
+	return "Don't turn your back on me";
+
+}
+
+void GTTalk(int player) {
+	wave waveA = AIWaveGet(player, c_waveAttack);
+	wave waveD = AIWaveGet(player, c_waveMain);
+	if (AIGetUserInt(player, 9) + 30 > GTime()) {
+		return;
+	}
+
+	if (AIGetUserInt(player, 9) + 120 + 10 * RandomInt(1, 12) <= GTime()) {
+		if (GTime() < 241) {
+			GTChatEnemy(player, GTTalkNum1());
+			AISetUserInt(player, 9, FixedToInt(GTime()));
+		}
+		else if (!AIDefenseThreat(c_dtAnyThreat, player, waveD)) {
+			GTChatEnemy(player, GTTalkNum2());
+			AISetUserInt(player, 9, FixedToInt(GTime()));
+		}
+	}
+
+	if (AIWaveGetTimeInCombat(waveA) > 0) {
+		if (AIWaveEvalRatio(waveA, 20) > 110) {
+			GTChatEnemy(player, GTTalkNum3());
+			AISetUserInt(player, 9, FixedToInt(GTime()));
+		}
+		else {
+			GTChatEnemy(player, GTTalkNum4());
+			AISetUserInt(player, 9, FixedToInt(GTime()));
+		}
+	}
+
+	if (AIWaveGetTimeInCombat(waveD) > 0) {
+		if (AIWaveEvalRatio(waveD, 20) < 80) {
+			GTChatEnemy(player, GTTalkNum5());
+			AISetUserInt(player, 9, FixedToInt(GTime()));
+		}
+		else if (AIWaveEvalRatio(waveD, 20) < 100) {
+			GTChatEnemy(player, GTTalkNum6());
+			AISetUserInt(player, 9, FixedToInt(GTime()));
+		}
+		else {
+			GTChatEnemy(player, GTTalkNum7());
+			AISetUserInt(player, 9, FixedToInt(GTime()));
+		}
+	}
+
+}
+
+void GTName(int player, string name) {
+
+	if (AIGetUserInt(player, 7) > 0) {
+		return;
+	}
+	if (GTEArmy(player) > 8 && GTOArmy(player) > 8) {
+		return;
+	}
+	if (GTOArmy(player) > (GTEArmy(player) + 20) && GTime() > 400) {
+		GTChatEnemy(player, DataTableGetString(true, IntToString(player) + "GTName") + ": " + GTTalkW());
+		AISetUserInt(player, 7, 1);
+		return;
+	}
+	if (GTOArmy(player) < 3 && GTime() > 400) {
+		GTChatEnemy(player, DataTableGetString(true, IntToString(player) + "GTName") + ": " + GTTalkL());
+		AISetUserInt(player, 7, 1);
+		return;
+	}
+	return;
+}
+
+void GTChatInit(int player, string name, string special) {
+	if (DataTableGetString(true, IntToString(player) + "GTName") != name) {
+		DataTableSetString(true, IntToString(player) + "GTName", name);
+	}
+	if (AIGetUserInt(player, 10) > 0) {
+		return;
+	}
+	GTChatAllies(player, name + ": " + GTTalkA() + special);
+	if (gtbuildselect[player] > 0 && PlayerDifficulty(player) < c_skirHard_VH) {
+		GTChatEnemy(player, name + ": " + GTTalkE());
+	}
+}
+
+void GTReminderChat() {
+	int i;
+	int e;
+	string U;
+	string U2;
+	unitgroup group;
+	if (GFuncIsDelay(1, "GTReminderChat", 2)) {
+		return;
+	}
+
+	if (GFuncIsDelay(1, "GTReminderOff", 8)) {
+		DialogSetVisible(GReminderBoard, PlayerGroupActive(), false);
+		DialogControlRemoveAllItems(GReminderTips, PlayerGroupActive());
+	}
+	if (PlayerRace(1) == "Terr") {
+		U = c_TB_OrbitalCommand;
+		U2 = "OrbitCom";
+		e = 100;
+	}
+	else if (PlayerRace(1) == "Prot") {
+		U = c_PB_Nexus;
+		U2 = "Nexus";
+		e = 50;
+	}
+	else {
+		U = c_ZU_Queen;
+		e = 30;
+		U2 = "Queen";
+	}
+	group = UnitGroup(U, 1, RegionPlayableMap(), null, 0);
+	if (PlayerScoreValueGetAsInt(1, "IdleWorkerTime") >= 12 && PlayerScoreValueGetAsInt(1, "IdleWorkerTime") > DataTableGetInt(true, "WorkerIdle") + 2) {
+		DialogSetVisible(GReminderBoard, PlayerGroupActive(), true);
+		DialogControlAddItem(GReminderTips, PlayerGroupActive(), StringToText("You have LAZY worker."));
+		DataTableSetInt(true, "WorkerIdle", PlayerScoreValueGetAsInt(1, "IdleWorkerTime"));
+		GFuncSetDelay(1, "GTReminderOff");
+	}
+	if (PlayerScoreValueGetAsInt(1, "IdleProductionTime") >= 3 && PlayerScoreValueGetAsInt(1, "IdleProductionTime") > DataTableGetInt(true, "ProductionTime") + 2) {
+		DialogSetVisible(GReminderBoard, PlayerGroupActive(), true);
+		DialogControlAddItem(GReminderTips, PlayerGroupActive(), StringToText("You don't TRAIN any unit."));
+		DataTableSetInt(true, "ProductionTime", PlayerScoreValueGetAsInt(1, "IdleProductionTime"));
+		GFuncSetDelay(1, "GTReminderOff");
+	}
+	if (PlayerGetPropertyInt(1, c_playerPropMinerals) > 500 || PlayerGetPropertyInt(1, c_playerPropVespene) > 400) {
+		DialogSetVisible(GReminderBoard, PlayerGroupActive(), true);
+		DialogControlAddItem(GReminderTips, PlayerGroupActive(), StringToText("FLOATING Resources."));
+		GFuncSetDelay(1, "GTReminderOff");
+	}
+	if (PlayerGetPropertyInt(1, c_playerPropSuppliesUsed) >= PlayerGetPropertyInt(1, c_playerPropSuppliesMade)) {
+		DialogSetVisible(GReminderBoard, PlayerGroupActive(), true);
+		DialogControlAddItem(GReminderTips, PlayerGroupActive(), StringToText("Supply BLOCK."));
+		GFuncSetDelay(1, "GTReminderOff");
+	}
+
+	i = 1;
+	while (i <= UnitGroupCount(group, c_unitCountAlive)) {
+		if (UnitGetPropertyInt(UnitGroupUnit(group, i), c_unitPropEnergy, c_unitPropCurrent) > e) {
+			DialogSetVisible(GReminderBoard, PlayerGroupActive(), true);
+			DialogControlAddItem(GReminderTips, PlayerGroupActive(), StringToText(U2 + " exceed " + IntToString(e) + " energy."));
+			GFuncSetDelay(1, "GTReminderOff");
+			break;
+		}
+		i = i + 1;
+	}
+
+	if (DialogControlGetItemCount(GReminderTips, 1) > 3) {
+		i = 1;
+		while (i <= DialogControlGetItemCount(GReminderTips, 1) - 3) {
+			DialogControlRemoveItem(GReminderTips, PlayerGroupActive(), i);
+			i = +1;
+		}
+	}
+
+	GFuncSetDelay(1, "GTReminderChat");
+	return;
+}
+
+void GTShowTimer(int player) {
+	fixed time;
+	fixed bonus;
+	string M;
+	string G;
+	int level = PlayerDifficulty(player);
+	string Race = PlayerRace(player);
+	time = GTime();
+	if (TimerGetRemaining(GTAttackTime) > 0 && PlayerDifficulty(player) == c_skirVeryEasy && !TimerWindowVisible(GtimeA, player)) {
+		TimerWindowShow(GtimeA, PlayerGroupActive(), true);
+	}
+	if (TimerWindowVisible(GtimeA, player) && TimerGetRemaining(GTAttackTime) == 0) {
+		TimerWindowShow(GtimeA, PlayerGroupActive(), false);
+	}
+
+	if (player == 2 && g_reminder) {
+		GTReminderChat();
+	}
+
+	if (level >= c_skirHard_VH) {
+		bonus = 1;
+	}
+
+	else if (level == c_skirHard) {
+		bonus = 1;
+	}
+	else {
+		bonus = 1;
+	}
+	if (gtshowhr == true) {
+		if (!DialogIsVisible(GHVBoard, player)) {
+			DialogSetVisible(GHVBoard, PlayerGroupActive(), true);
+		}
+
+		M = FixedToString(MaxF(5 * (bonus - 0.1), 5), 0);
+		G = FixedToString(MaxF(4 * (bonus - 0.125), 4), 0);
+		DialogControlSetPropertyAsText(GHVRate, c_triggerControlPropertyText, PlayerGroupActive(), StringToText("M:" + M + "  " + "G:" + G));
+	}
+	else {
+		if (DialogIsVisible(GHVBoard, player)) {
+			DialogSetVisible(GHVBoard, PlayerGroupActive(), false);
+		}
+	}
+	AIHarvestBonus(player, bonus);
+	return;
+}
+
+void GTMapB(int player) {
+	if (AIGetUserInt(player, 5) > 0) {
+		return;
+	}
+	DataTableSetPoint(true, IntToString(player) + "GTMapB", AIPlacementNearbyFindTest(player, AIGetGatherLocation(player, 0), 3, c_TB_SupplyDepot));
+
+	AISetUserInt(player, 5, 1);
+	return;
+}
+
+void GTMicro(int player) {
+	int j = 0;
+
+	if (!g_showbuild) {
+		GTBuild(player, 10, 0, GTBase(player), 1, c_makeCenter);
+		GTAutoUpgrade(player);
+		GTDefendTown(player, 0);
+	}
+	GTDefend(player);
+	// GDropAttack(player);
+	if (gttalk == true) {
+		GTTalk(player);
+	}
+
+	if (TextTimeFormat(StringToText("<hour/>:<min2/>:<sec2/>"), FixedToInt(GTime())) != DialogControlGetPropertyAsText(GTrueTimerDigit, c_triggerControlPropertyText, player)) {
+		DialogControlSetPropertyAsText(GTrueTimerDigit, c_triggerControlPropertyText, PlayerGroupActive(), TextTimeFormat(StringToText("<hour/>:<min2/>:<sec2/>"), FixedToInt(GTime())));
+	}
+
+	if (AIGetUserInt(player, 2) == 0 && GTime() > 60) {
+		TriggerAddEventUnitRegion(GTUnitEnter, UnitRefFromUnit(UnitGroupNearestUnit(UnitGroupAlliance(player, c_unitAllianceEnemy, RegionPlayableMap(), null, 0), PlayerStartLocation(player))), RegionCircle(GTDO(player, 0), 5), true);
+		TriggerAddEventUnitRegion(GTUnitEnter2, UnitRefFromUnit(UnitGroupNearestUnit(UnitGroupAlliance(player, c_unitAllianceEnemy, RegionPlayableMap(), UnitFilterStr("Structure"), 0), PlayerStartLocation(player))), RegionCircle(AIGetTownLocation(player, 0), 20), true);
+		AISetUserInt(player, 2, 1);
+	}
+	if (GTableGetUnit(player, c_GT_Scout) == null) {
+		GTableSetUnit(player, c_GT_Scout, AIGrabUnit(player, GTWorker(player), c_prioScout, null));
+	}
+
+	if (PlayerDifficulty(player) >= c_skirHard && g_hard) {
+		TriggerAddEventUnitResearchProgress(GT2ResearchAdd, null, c_unitProgressStageStart);
+		g_hard = false;
+	}
+
+	if (player == 2) {
+
+		if (g_practice) {
+
+			GTBuildPractice(1);
+		}
+		//Show Player 2 resources when in view mode.
+		if (g_viewbuild) {
+			TriggerAddEventUnitDied(GT2UnitDead, null);
+			TriggerAddEventPlayerPropChange(GT2ViewResources, player, c_playerPropMinerals);
+			TriggerAddEventPlayerPropChange(GT2ViewResources, player, c_playerPropVespene);
+			TriggerAddEventPlayerPropChange(GT2ViewResources, player, c_playerPropSuppliesMade);
+			TriggerAddEventPlayerPropChange(GT2ViewResources, player, c_playerPropSuppliesUsed);
+			g_viewbuild = true;
+		}
+		//	 TriggerAddEventUnitAcquiredTarget(GTSplashEvade, null);
+	}
+	if (g_record) {
+
+		TriggerAddEventUnitTrainProgress(GT2TrainRecord, null, c_unitProgressStageStart);
+		TriggerAddEventUnitConstructProgress(GT2BuildRecord, null, c_unitProgressStageStart);
+		TriggerAddEventUnitConstructProgress(GT2CancelRecord, null, c_unitProgressStageCancel);
+		TriggerAddEventUnitResearchProgress(GT2ResearchRecord, null, c_unitProgressStageStart);
+		TriggerAddEventUnitOrder(GT2UpgradeRecord, null, AbilityCommand("UpgradeToLair", 0));
+		TriggerAddEventUnitOrder(GT2UpgradeRecord, null, AbilityCommand("UpgradeToHive", 0));
+		TriggerAddEventUnitOrder(GT2UpgradeRecord, null, AbilityCommand("UpgradeToGreaterSpire", 0));
+		TriggerAddEventUnitOrder(GT2UpgradeRecord, null, AbilityCommand("UpgradeToOrbital", 0));
+		TriggerAddEventUnitOrder(GT2UpgradeRecord, null, AbilityCommand("UpgradeToPlanetaryFortress", 0));
+		g_record = false;
+
+	}
+
+	if (PlayerRace(player) == "Zerg") {
+		GTCreepTumor(player);
+	}
+	
+
+	 if (PlayerRace(player) == "Prot"){
+		 if (GTFinishIA(player, c_PU_Probe, 11) && (!GTFinishIA(player, c_PU_Probe, 12) || GTFinishIA(player, c_PU_Probe, 13)) && !GTFinishA(player, c_PB_Gateway, 1)){
+			 GTChronoBoost(player, 0, c_PB_Nexus ,"TimeWarpProduction");
+		 }
+ 		 GTGroupArchon(player);
+ 	 }
+	 if (PlayerRace(player) == "Prot"){
+	 	while ( j <= 15 ){
+	 		GTChronoBoostPriority(player, j);
+	 		j = j + 1;
+	 	}
+	 }
+	if (GTOArmy(player) < GTEArmy(player)) {
+		AISetDifficulty(player, c_diffFleeDamage, false);
+	}
+	else {
+		AISetDifficulty(player, c_diffFleeDamage, true);
+	}
+
+	return;
+}
+

@@ -1,0 +1,281 @@
+// next Commandersytem Step is to configer this Config Struct to make it better !
+// GT-CONFIG functions
+
+static const int NoChronoSlots = 5;		// Number of Chrono slots
+static const int NoChronoMember = 40;	// Number of Chrono Member
+static const int NoMaxPlayer = 8;		// Max AI Count
+
+// enums
+
+const int e_CBL_DEFAULTSLOT = 0;
+const int e_CBL_SLOT0 = 0;
+const int e_CBL_SLOT1 = 1;
+const int e_CBL_SLOT2 = 2;
+const int e_CBL_SLOT3 = 3;
+const int e_CBL_SLOT4 = 4;
+
+struct GTCommanderConfig {
+	// General
+    int GatherGasMax;					// -1 = unlimited max gathervalue , >= 0 limits it!	
+	bool useAutoUpgradeSystem;		// Auto Upgrading !
+	bool useInsaneMicro;
+	
+	//Protoss	
+	bool createProxyPylon;			// should AI create Proxy Pylons ?
+	bool useChronoBoost;			// should AI use the ChronoBoost ?	
+    string[NoChronoSlots][NoChronoMember] ChronoPriorityList;			// the ChronoPrioList
+	int currentChronoListID;	
+};
+
+// Globals
+static GTCommanderConfig[NoMaxPlayer] AICommanderConfig;
+static int g_WriteToChronoListID = -1;
+static int g_ChronoLoopIndex;
+
+// SETTER and GETTER //////////////////////////////////////////////////////////////////////////////////////////////////
+void GTC_SetFlag_useChronoBoost(int player, bool value) {
+	AICommanderConfig[player].useChronoBoost = value;
+}
+
+void GTC_SetFlag_useAutoUpgradeSystem(int player, bool value) {
+	AICommanderConfig[player].useAutoUpgradeSystem = value;
+}
+
+void GTC_SetFlag_useInsaneMicro(int player, bool value) {
+	AICommanderConfig[player].useInsaneMicro = value;
+}
+
+//***********************
+
+bool GTC_GetFlag_useChronoBoost(int player) {
+	return AICommanderConfig[player].useChronoBoost;
+}
+
+bool GTC_GetFlag_useAutoUpgradeSystem(int player) {
+	return AICommanderConfig[player].useAutoUpgradeSystem;
+}
+
+bool GTC_GetFlag_useInsaneMicro(int player) {
+	return AICommanderConfig[player].useInsaneMicro;
+}
+
+
+// Functions //////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// Delete ChronoList !
+void GTC_ClearChronoList(int player, int slotID) {
+	int index = 0;
+	while (index < NoChronoMember) {
+		AICommanderConfig[player].ChronoPriorityList[slotID][index] = "";
+		index += 1;
+	}
+}
+
+// Prepare ChronoList for save some Data
+void GTC_PrepareChronoListSlot(int player, int slotID) {
+	g_WriteToChronoListID = slotID;
+	GTC_ClearChronoList(player, slotID);
+}
+
+// Prepare ChronoList for save some Data
+void GTC_SaveChronoListSlot() {
+	g_WriteToChronoListID = -1;	
+}
+
+void GTC_AddToChronoList_First(int player, string UnitOrUpgrade) {
+	int index;
+	int savedIndex;	
+	
+	if (g_WriteToChronoListID < 0) {
+		DebugAI("Warning u tried to Insert into ChronoPrioList without using GTC_PrepareChronoListSlot(int player, int slotID)");
+		return;
+	}
+		
+	while (index < NoChronoMember) {
+		if (AICommanderConfig[player].ChronoPriorityList[g_WriteToChronoListID][index] == "") {
+			savedIndex = index;
+			break;
+		}
+		index += 1;
+	}
+	if (index < NoChronoMember) {
+		while (index >= 1 ) {
+			AICommanderConfig[player].ChronoPriorityList[g_WriteToChronoListID][index] = AICommanderConfig[player].ChronoPriorityList[g_WriteToChronoListID][index-1];
+		}
+		AICommanderConfig[player].ChronoPriorityList[g_WriteToChronoListID][0] = UnitOrUpgrade;
+	}
+}
+
+void GTC_AddToChronoList_Last(int player, string UnitOrUpgrade) {
+	int index;
+	
+	if (g_WriteToChronoListID < 0) {
+		DebugAI("Warning u tried to Insert into ChronoPrioList without using GTC_PrepareChronoListSlot(int player, int slotID)");
+		return;
+	}
+		
+	while (index < NoChronoMember) {
+		if (AICommanderConfig[player].ChronoPriorityList[g_WriteToChronoListID][index] == "") {
+			AICommanderConfig[player].ChronoPriorityList[g_WriteToChronoListID][index] = UnitOrUpgrade;
+			return;
+		}
+		index += 1;
+	}
+}
+
+void GTC_Init(int player) {
+	//General
+	AICommanderConfig[player].GatherGasMax = -1;
+	AICommanderConfig[player].useAutoUpgradeSystem = true;
+	AICommanderConfig[player].useInsaneMicro = true;
+	
+	if (PlayerRace(player) == "Prot") {
+		//Protoss
+		AICommanderConfig[player].createProxyPylon = true;
+		AICommanderConfig[player].useChronoBoost = true;
+		
+		// ChronoList
+		GenerateDefaultChronoSlot(player);	
+		AICommanderConfig[player].currentChronoListID = e_CBL_SLOT0;
+	}
+}
+
+void GTC_ChronoLoopBegin() {
+	g_ChronoLoopIndex = 0;
+}
+
+void GTC_ChronoLoopEnd() {
+	g_ChronoLoopIndex = -1;
+	//DebugAI("LoopEnd");
+}
+
+string GTC_ChronoLoopNextTarget(int player) {	
+	string checkUnit;
+	string returnValue;
+	if (g_ChronoLoopIndex < 0 || g_ChronoLoopIndex > NoChronoMember) {
+		return "";
+	}
+	
+	while (g_ChronoLoopIndex < NoChronoMember) {		
+		checkUnit = AICommanderConfig[player].ChronoPriorityList[AICommanderConfig[player].currentChronoListID][g_ChronoLoopIndex];		
+		if (checkUnit == "") { break; }
+		if ((AITechCount(player, checkUnit, c_techCountInProgressOnly ) > 0) || checkUnit == c_PB_WarpGate) {
+			g_ChronoLoopIndex += 1;
+			returnValue = GTUnitOrUpgradeGetParrentBuilding(player, checkUnit);
+			if (returnValue != null ) {				
+				return returnValue;
+			}
+		}
+		g_ChronoLoopIndex += 1;
+	}	
+	return "";
+}
+
+bool GTC_IsItemAlreadyInChronoList(int player, string item, int slotID) {
+	int index = 0;
+	while (index < NoChronoMember) {
+		if (AICommanderConfig[player].ChronoPriorityList[slotID][index] == item) {
+			return true;
+		}
+		if (AICommanderConfig[player].ChronoPriorityList[slotID][index] == "") {
+			return false;
+		}
+		index += 1;
+	}
+	return false;
+}
+
+
+void GTC_FillChronoListWithDefaultList(int player) {
+	string[NoChronoMember] defaultList;
+	int index = 0;
+	int slotID = g_WriteToChronoListID;
+	
+	if (g_WriteToChronoListID < 0) {
+		DebugAI("Warning u tried to Insert into ChronoPrioList without using GTC_PrepareChronoListSlot(int player, int slotID)");
+		return;
+	}
+	
+	
+	defaultList[index] = c_PU_Mothership; 
+	index += 1;  defaultList[index] = c_PU_Tempest;
+	index += 1;  defaultList[index] = c_PU_Colossus;
+	index += 1;  defaultList[index] = c_PU_VoidRay;
+	index += 1;  defaultList[index] = c_PU_Phoenix;
+	index += 1;  defaultList[index] = c_PU_Observer;
+	index += 1;  defaultList[index] = c_PU_Immortal;
+	index += 1;  defaultList[index] = c_PU_WarpPrism;
+	index += 1;  defaultList[index] = c_PR_WarpGateResearch;
+	index += 1;  defaultList[index] = c_PU_Zealot;
+	index += 1;  defaultList[index] = c_PU_Stalker;
+	index += 1;  defaultList[index] = c_PU_Sentry;
+	index += 1;  defaultList[index] = c_PU_DarkTemplar;
+	index += 1;  defaultList[index] = c_PU_HighTemplar;
+	index += 1;  defaultList[index] = c_PR_GroundArmor1;
+	index += 1;  defaultList[index] = c_PR_GroundArmor2;
+	index += 1;  defaultList[index] = c_PR_GroundArmor3;
+	index += 1;  defaultList[index] = c_PR_GroundWeapons1;
+	index += 1;  defaultList[index] = c_PR_GroundWeapons2;
+	index += 1;  defaultList[index] = c_PR_GroundWeapons3;
+	index += 1;  defaultList[index] = c_PR_HighTemplarPsiStorm;
+	index += 1;  defaultList[index] = c_PR_SentryHallucination;
+	index += 1;  defaultList[index] = c_PR_AirArmor1;
+	index += 1;  defaultList[index] = c_PR_AirArmor2;
+	index += 1;  defaultList[index] = c_PR_AirArmor3;
+	index += 1;  defaultList[index] = c_PR_AirWeapons1;
+	index += 1;  defaultList[index] = c_PR_AirWeapons2;
+	index += 1;  defaultList[index] = c_PR_AirWeapons3;
+	index += 1;  defaultList[index] = c_PR_ZealotCharge;
+	index += 1;  defaultList[index] = c_PR_StalkerBlink;
+	index += 1;  defaultList[index] = c_PR_ObserverSpeed;
+	index += 1;  defaultList[index] = c_PR_WarpPrismSpeed;
+	index += 1;  defaultList[index] = c_PR_ColossusRange;
+	index += 1;  defaultList[index] = c_PR_Shields1;
+	index += 1;  defaultList[index] = c_PR_Shields2;
+	index += 1;  defaultList[index] = c_PR_Shields3;
+	index += 1;  defaultList[index] = c_PR_VoidRaySpeed;
+	index += 1;  defaultList[index] = c_PR_CarrierLaunch;
+	index += 1;  defaultList[index] = c_PB_WarpGate;
+	index += 1;  defaultList[index] = c_PU_Probe;	
+	
+	index = 0;
+	while (index < NoChronoMember) {
+		if ( defaultList[index] != null || defaultList[index] != "" ) {
+			if ( GTC_IsItemAlreadyInChronoList(player, defaultList[index], slotID) ) {
+				// skip it!
+				DebugAI("Skipping :" + defaultList[index]);
+			}
+			else {
+				// insert it!
+				GTC_AddToChronoList_Last( player, defaultList[index]);
+			}
+		}
+		else { 
+			return;		// finished !
+		}
+		index += 1;
+	}	
+}
+
+
+// Default Chronoboost 
+void GenerateDefaultChronoSlot(int player) {
+	GTC_PrepareChronoListSlot(player, e_CBL_DEFAULTSLOT);	
+	GTC_FillChronoListWithDefaultList(player);
+	
+	GTC_SaveChronoListSlot();	
+}
+
+void GTC_printConfig(int player) {
+	int index = 0;
+	while (index < NoChronoMember) {
+		DebugAI(AICommanderConfig[player].ChronoPriorityList[AICommanderConfig[player].currentChronoListID][index]);
+		index += 1;
+	}
+}
+
+
+
+
+
+

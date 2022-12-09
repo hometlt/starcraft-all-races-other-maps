@@ -1,0 +1,3 @@
+﻿DocInfo/DescLong=A revamped version of the Green Tea AI, originally created by Ptanhkhoa, Nexxy.<n/><n/>Huge thanks to NeoBlade for the hard work and effort.<n/><n/>Developers: Darka 972, Armageddonz, Vernam, 7JaKaTaK, TemplarFreak, decemberscalm, Narudek, 7xZeratul, IeZaeL, Existor, JCoto, SoulFilcher and RedRookLord
+DocInfo/DescShort=Any
+DocInfo/Name=GT AI Pro

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Catalog>
+    <CRequirement id="HasChronoBoostEnergyCost">
+        <NodeArray index="Use" Link="CountBehaviorTimeWarpProductionCompleteOnlyAtUnit"/>
+    </CRequirement>
+    <CRequirementCountBehavior id="CountBehaviorChronoBoostEnergyCostCompleteOnlyAtUnit">
+        <Flags index="TechTreeCheat" value="0"/>
+        <Count Link="ChronoBoostEnergyCost" State="CompleteOnlyAtUnit"/>
+    </CRequirementCountBehavior>
+</Catalog>

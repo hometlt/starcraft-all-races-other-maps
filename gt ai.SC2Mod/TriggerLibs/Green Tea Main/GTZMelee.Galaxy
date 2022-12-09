@@ -1,0 +1,387 @@
+unitgroup GTMergeUnitgroup(unitgroup g1, unitgroup g2) {
+	int index = 1;
+	int group2Count;
+	if (UnitGroupCount(g1, c_unitCountAll) == 0 && UnitGroupCount(g2, c_unitCountAll) == 0) {
+		return UnitGroupEmpty();
+	}
+	if (UnitGroupCount(g1, c_unitCountAll) == 0) {
+		return g2;
+	}
+	if (UnitGroupCount(g2, c_unitCountAll) == 0) {
+		return g1;
+	}	
+	group2Count = UnitGroupCount(g2, c_unitCountAll);
+	while (index < group2Count) {
+		UnitGroupAdd(g1, UnitGroupUnit(g2, index));
+		index += 1;
+	}
+	return g1;
+}
+//--------------------------------------------------------------------------------------------------
+//  AIDefendWithWave
+//--------------------------------------------------------------------------------------------------
+
+void GTDefendWithWave (int player, wave w) {
+	unitgroup enemyGroup1;
+	unitgroup enemyGroup2;
+	int index = 0;
+//	 int eval = AIWaveEvalRatio(w, 14);
+//	 //Retreat when army value is small
+//	 if (eval <= 40 && AIWaveState(w) != c_waveStateRetreat){
+//		 AIWaveSetType(w, c_waveStateRetreat, AIWaveHarassRetreat(player, w, 14));
+//		 return;
+//	 }
+//	 //Attack when army value is strong enough.
+//	 if (eval >= 80){
+		 // AIWaveSetType(w, c_waveStateDefend, AIWaveTargetMeleeDefend(player));		 
+		 // return;
+//		 return;
+//	 }
+	enemyGroup1 = AIGetTownThreats (player, 1); 
+	enemyGroup2 = AIGetTownThreats (player, 2); 
+	enemyGroup1 = GTMergeUnitgroup(enemyGroup1, enemyGroup2);
+	
+	if (UnitGroupCount(enemyGroup1, c_unitCountAll) > 0) {
+		AIWaveSetType(w, c_waveStateDefend, AIWaveTargetUnitGroup(enemyGroup1)); //AIAttackWaveSetTargetUnitPoint(UnitGroupNearestUnit(enemyGroup1, AIWaveGoal (w)));
+	    if(AIGetDifficulty(player, c_diffBalancePeonsAcrossBases)){
+	    	AISetDifficulty(player, c_diffBalancePeonsAcrossBases, false);
+	    }
+		//DebugAI("Send Defend Wave to Drop pos");
+	}
+	else{
+		if(!AIGetDifficulty(player, c_diffBalancePeonsAcrossBases)){
+			AISetDifficulty(player, c_diffBalancePeonsAcrossBases, true);
+		}
+	}
+
+}
+
+
+//--------------------------------------------------------------------------------------------------
+//  AIWaveDefend
+//--------------------------------------------------------------------------------------------------
+void GTWaveDefend (int player, wave w) {
+    if (AIDefenseThreat(c_dtAnySelfThreat, player, c_nullWave) || AIDefenseThreat(c_dtIncludeAllyThreat, player, c_nullWave) || UnitGroupCount(AIGetTownThreats (player, 1),c_unitCountAlive) > 0 || UnitGroupCount(AIGetTownThreats (player, 1),c_unitCountAlive) > 0 ) {
+		//DebugAI("achtung drop!");
+    	GTDefendWithWave(player, w);
+    	return;
+    }
+    if(!AIGetDifficulty(player, c_diffBalancePeonsAcrossBases)){
+    	AISetDifficulty(player, c_diffBalancePeonsAcrossBases, true);
+    }
+    return;
+}
+//--------------------------------------------------------------------------------------------------
+//  AIWaveDefend
+//--------------------------------------------------------------------------------------------------
+void GTWaveDefend2 (int player, wave w) {
+    if (AIWaveState(w) != c_waveStateIdle) {
+    	AIWaveSetType(w, c_waveStateIdle, AIWaveTargetGatherD(player, c_townMain));
+    }
+    return;
+}
+
+//--------------------------------------------------------------------------------------------------
+//  AIWaveMain
+//--------------------------------------------------------------------------------------------------
+void GTWaveMain (int player, wave w) {
+if (PlayerRace(player) != "Zerg"){
+	if (AIDefenseThreat(c_dtAnySelfThreat, player, c_nullWave) || AIDefenseThreat(c_dtIncludeAllyThreat, player, c_nullWave) ) {
+		GTDefendWithWave(player, w);
+		return;
+	}
+	if(!AIGetDifficulty(player, c_diffBalancePeonsAcrossBases)){
+		AISetDifficulty(player, c_diffBalancePeonsAcrossBases, true);
+	}
+}
+else{
+	if (UnitGroupCount(AIGetTownThreats(player, 0), c_unitCountAlive) > 0|| AIWaveIsInCombat(w)) {
+		GTDefendWithWave(player, w);
+		return;
+	}
+}
+	if(!AIGetDifficulty(player, c_diffBalancePeonsAcrossBases)){
+		AISetDifficulty(player, c_diffBalancePeonsAcrossBases, true);
+	}
+    return;
+}
+
+//--------------------------------------------------------------------------------------------------
+//  GTWaveDivert
+//--------------------------------------------------------------------------------------------------
+void GTWaveDivert (int player, wave w, int stateIndex) {
+    int state;
+    int count;
+    int range;
+    order ord;
+    unitgroup group = AIWaveGetUnits(w);
+    range = 13;
+
+    if (!AIGetFlag(player, e_flagsDiversion)) {
+        return;
+    }
+
+    if (AIWaveEvalRatio(w, range) < 100 ) {
+        if (state != c_waveStateRetreat
+        	) {
+DebugAIPlayerWave(player, "divert2 set divert = retreat to harass point");//xxx
+            AIWaveSetType(w, c_waveStateRetreat, AIWaveHarassRetreat(player, w, 0));
+        }
+    }
+    else  {
+        if ( AIWaveGetTimeSinceOrdered(w) >= 4) {
+DebugAIPlayerWave(player, "divert3 set divert = attack harass target");//xxx
+      
+        { AIWaveSetType(w, c_waveStateAttack, AIWaveTargetMeleeHarass(player)); }
+	}
+    
+}
+}
+
+void GTWaveDivert2 (int player, wave w, int stateIndex) {
+    int state;
+    int count;
+    int range;
+    order ord;
+    unitgroup group = AIWaveGetUnits(w);
+    range = 8;
+
+    if (!AIGetFlag(player, e_flagsDiversion)) {
+        return;
+    }
+
+    if (AIWaveEvalRatio(w, range) < 100 ) {
+        if (state != c_waveStateRetreat
+        	&&	AIWaveIsInCombat(w)
+        	) {
+DebugAIPlayerWave(player, "divert2 set divert = retreat to harass point");//xxx
+            AIWaveSetType(w, c_waveStateRetreat, AIWaveHarassRetreat(player, w, 0));
+        }
+    }
+    else  {
+        if (AIWaveGetTimeSinceOrdered(w) >= 6) {
+DebugAIPlayerWave(player, "divert3 set divert = attack harass target");//xxx
+
+        { AIWaveSetType(w, c_waveStateAttack, AIWaveTargetMeleeHarass(player)); }
+	}
+
+}
+}
+
+
+//--------------------------------------------------------------------------------------------------
+//  GTWaveHome
+//--------------------------------------------------------------------------------------------------
+void GTWaveHome (int player, wave w) {
+    int state;
+
+    state = AIWaveState(w);
+
+
+    if (state != c_waveStateGuardHome) {
+DebugAIPlayerWave(player, "home set divert = idle at gather defense");
+     if (GTTowns(player) == 1)
+     {  AIWaveSetType(w, c_waveStateGuardHome, AIWaveTargetGatherD(player, 0)); }
+     else
+     {  AIWaveSetType(w, c_waveStateGuardHome, AIWaveTargetGatherD(player, 1)); }
+        return;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+// GTWaveClearObs
+//--------------------------------------------------------------------------------------------------
+void GTWaveClearObs (int player, wave w) {
+    unit obstruction = AIGetObstruction(player);
+    unit oldTarget = null;
+    int obsLife;
+    int state = AIWaveState(w);
+
+    // If we're supposed to be obeying the player, merge back into the main wave
+
+
+    // If there are no longer any obstructions, merge back into the main wave
+    if (obstruction == null) {
+DebugAIPlayerWave(player, "clearobs1 merge clear obstruction -> main");
+        AIWaveMerge(player, c_waveClearObs, c_waveMain);
+        return;
+    }
+
+    // Defend against threats, unless we're almost done destroying the obstruction
+    obsLife = UnitGetPropertyInt(obstruction, c_unitPropLifePercent, c_unitPropCurrent);
+    if (AIDefenseThreat(c_dtRealThreat, player, w) && obsLife > 20) {
+        GTDefendWithWave(player, w);
+        return;
+    }
+
+    // Let's hunt some rock!
+    oldTarget = AIWaveTargetGetUnit(AIWaveGetTarget(w));
+    if (state != c_waveStateClearObs || obstruction != oldTarget) {
+DebugAIPlayerWave(player, "clearobs2 set clear obstruction = clear obstruction");
+        AIWaveSetType(w, c_waveStateClearObs, AIWaveTargetUnit(obstruction));
+    }
+}
+
+
+
+//--------------------------------------------------------------------------------------------------
+//  GTWaveAttack
+//--------------------------------------------------------------------------------------------------
+void GTWaveAttack (int player, wave w) {
+    int state = AIState(player, e_attackState);
+    int eval;
+    int time;
+    int count;
+
+
+
+    //--- ATTACK ---
+
+    if (state == e_attackState_Attack) {
+        time = AIWaveGetTimeInCombat(w);
+        eval = AIWaveEvalRatio(w, c_evalRange);
+    if (eval >= 70 && eval <= 89 && time <= 3) { // when not fighting and only a little weak
+            if (AIGetFlag(player, e_flagsRunScared)) { // need to add check for ranges & max eval
+                AISetAttackState(player, e_attackState_Scared);
+            }
+            else {
+                AISetAttackState(player, e_attackState_Retreat);
+            }
+        }
+        else if (eval < 70 && eval >= 10 ) { // need to add check for faster/retreat blocked
+                    AISetAttackState(player, e_attackState_Retreat);
+                }
+        else if (AIWaveState(w) != c_waveStateAttack) {
+DebugAIPlayerWave(player, "attack1 merge main -> attack; set attack = attack vs. melee target");
+            AIWaveMerge(player, c_waveMain, c_waveAttack);
+            AIWaveSetType(w, c_waveStateAttack, AIWaveTargetMelee(player));
+        }
+    }
+
+    //--- DROP-ATTACK ---
+
+    if (state == e_attackState_DropAttack) {
+        eval = AIWaveEvalRatio(w, c_evalRange);
+       if (eval < 100) { // need to add check for can we retreat successfully
+            AISetAttackState(player, e_attackState_DropRetreat);
+        }
+        else if (AIWaveState(w) != c_waveStateDropAttack) {
+DebugAIPlayerWave(player, "attack1a In drop attack state, but not drop attack wave state?");
+            AISetAttackState(player, e_attackState_DropRetreat);
+        }
+    }
+
+    //--- SCARED ---
+
+    else if (state == e_attackState_Scared) {
+        eval = AIWaveEvalRatio(w, c_evalRange);
+        if (eval >= 100 || eval < 10) { // turn and fight when strong or too weak
+                   AISetAttackState(player, e_attackState_Attack);
+               }
+               else if (eval < 70) { // retreat entirely if getting picked off
+                   AISetAttackState(player, e_attackState_Retreat);
+               }
+               else if (AIWaveState(w) != c_waveStateRetreat) {
+       DebugAIPlayerWave(player, "attack2 merge main -> attack; set attack = retreat to gather offense");
+                   AIWaveMerge(player, c_waveMain, c_waveAttack);
+                   AIWaveSetType(w, c_waveStateRetreat, AIWaveTargetGatherO(player, c_townMain));
+               }
+           }
+
+    //--- RETREAT ---
+
+    else if (state == e_attackState_Retreat) {
+DebugAIPlayerWave(player, "attack3 set attack = retreat to gather offense");
+        AIWaveSetType(w, c_waveStateRetreat, AIWaveTargetGatherO(player, c_townMain));
+        AISetAttackState(player, e_attackState_InRetreat);
+    }
+
+    //--- DROP RETREAT ---
+
+    else if (state == e_attackState_DropRetreat) {
+DebugAIPlayerWave(player, "attack3drop set attack = drop retreat to gather offense");
+        AIWaveSetType(w, c_waveStateDropRetreat, AIWaveTargetGatherO(player, c_townMain));
+        AISetAttackState(player, e_attackState_InRetreat);
+    }
+
+    //--- IN RETREAT ---
+
+    else if (state == e_attackState_InRetreat) {
+     if (AIWaveState(w) != c_waveStateRetreat && AIWaveState(w) != c_waveStateDropRetreat) {
+DebugAIPlayerWave(player, "attack4 merge main -> attack");
+            AIWaveMerge(player, c_waveMain, c_waveAttack);
+            AISetAttackState(player, e_attackState_Idle);
+        }
+    }
+
+    //--- IDLE ---
+
+    else if (state == e_attackState_Idle) {
+        count = AIWaveUnitCount(w) + AIWaveUnitCount(AIWaveGet(player, c_waveMain));
+
+//        if (PlayerBeaconIsAutoCast(player, c_beaconHarass) && (AIWaveGetTimeSinceRetreat(w) > 30)) {
+//            // if we're allowed to attack && we've waited at least 30 seonds after retreating, consider attacking
+//
+//            // always support allies attacking
+//            if (AIAnyAllyAttacking(player)) {
+//                AISetAttackState(player, e_attackState_Attack);
+//            }
+//            if (PlayerDifficulty(player) >= c_skirVeryHard) {
+//                if (AIWaveState(w) == c_waveStateIdle) {
+//                    // wait until the wave is idle before considering attacking again
+//                    AdvancedIdleAttackLogic(player, w, count);
+//                }
+//            }
+//            else {
+//                // base logic attack any time we have more than 30 units or it's been a while
+//                if (count >= 30) {
+//                    AISetAttackState(player, e_attackState_Attack);
+//                }
+//                else if (AIGetFlag(player, e_flagsTimeout) && AIWaveGetTimeSinceCombat(w) >= 300-10*count) {
+//                    AISetAttackState(player, e_attackState_Attack);
+//                }
+//            }
+//        }
+
+        if (AIState(player, e_attackState) == e_attackState_Idle) {
+            if (AIWaveState(w) != c_waveStateIdle) {
+                DebugAIPlayerWave(player, "attack5 set attack = idle at gather offense");
+                AIWaveSetType(w, c_waveStateIdle, AIWaveTargetGatherO(player, c_townMax));
+            }
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+//  AIWaveThinkDefault
+//--------------------------------------------------------------------------------------------------
+void GTWaveThinkDefault (int player, wave w, int type) {
+    //TestGalaxy();
+
+    if (AIWaveUnitCount(w) < 1) {
+        return;
+    }
+    if (type == c_waveMain) {
+        GTWaveMain(player, w);
+    }
+    else if (type == c_waveDefend) {
+        GTWaveDefend2(player, w);
+    }
+    else if (type == c_waveAttack) {
+        return;
+    }
+    else if (type == c_waveDivert1) {
+        GTWaveDivert(player, w, e_divert1State);
+    }
+    else if (type == c_waveDivert2) {
+        GTWaveDivert2(player, w, e_divert2State);
+    }
+  //  else if (type == c_waveClearObs) {
+   //     GTWaveClearObs(player, w);
+  //  }
+    else if (type == c_waveHome) {
+        GTWaveHome(player, w);
+    }
+}
+
+

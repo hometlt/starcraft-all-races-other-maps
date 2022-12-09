@@ -1,0 +1,343 @@
+//==================================================================================================
+//  Protoss Melee AI
+//==================================================================================================
+
+include "TriggerLibs/Green Tea Main/GTZFunction"
+include "TriggerLibs/Commander/Protoss/ProtossCounter"
+include "TriggerLibs/Commander/Protoss/Protoss0"
+include "TriggerLibs/Commander/Protoss/Protoss1"
+include "TriggerLibs/Commander/Protoss/Protoss2"
+include "TriggerLibs/Commander/Protoss/Protoss3"
+include "TriggerLibs/Commander/Protoss/Protoss4"
+include "TriggerLibs/Commander/Protoss/Protoss5"
+include "TriggerLibs/Commander/Protoss/Protoss6"
+include "TriggerLibs/Commander/Protoss/Protoss7"
+include "TriggerLibs/Commander/Protoss/Protoss8"
+include "TriggerLibs/Commander/Protoss/Protoss9"
+include "TriggerLibs/Commander/Protoss/Protoss10"
+include "TriggerLibs/Commander/Protoss/Protoss11"
+include "TriggerLibs/Commander/Protoss/Protoss12"
+include "TriggerLibs/Commander/Protoss/Protoss13"
+include "TriggerLibs/Commander/Protoss/Protoss14"
+include "TriggerLibs/Commander/Protoss/Protoss15"
+include "TriggerLibs/Commander/Protoss/Protoss16"
+include "TriggerLibs/Commander/Protoss/Protoss17"
+include "TriggerLibs/Commander/Protoss/Protoss18"
+include "TriggerLibs/Commander/Protoss/Protoss19"
+include "TriggerLibs/Commander/Protoss/ProtossCustom"
+include "TriggerLibs/Commander/Protoss/ProtossBoss"
+
+//--------------------------------------------------------------------------------------------------
+//  Counter-Attack Units
+//--------------------------------------------------------------------------------------------------
+static void InitCounters (int player) {
+    // versus Protoss
+	return;
+    AICounterUnitSetup(player, c_PU_Zealot,             1.00, c_PU_Zealot,      1.00, c_PU_Zealot);
+}
+static void GInitCounters3 (int player) {
+	AICounterUnitSetup(player, c_PU_Zealot,             1.00, c_PU_Zealot,      1.00, c_PU_Zealot);
+    AICounterUnitSetup(player, c_PU_Stalker,            1.00, c_PU_Stalker,     0.50, c_PU_Immortal);
+    AICounterUnitSetup(player, c_PU_Sentry,             1.00, c_PU_Zealot,      1.00, c_PU_Zealot);
+    AICounterUnitSetup(player, c_PU_HighTemplar,        1.00, c_PU_Stalker,     1.00, c_PU_Stalker);
+    AICounterUnitSetup(player, c_PU_DarkTemplar,        1.00, c_PU_Zealot,      1.00, c_PU_Zealot);
+    AICounterUnitSetup(player, c_PU_Archon,             2.00, c_PU_Zealot,      2.00, c_PU_Zealot);
+    AICounterUnitSetup(player, c_PU_Immortal,           2.00, c_PU_Zealot,      2.00, c_PU_Zealot);
+    AICounterUnitSetup(player, c_PU_Colossus,           1.00, c_PU_Immortal,    1.00, c_PU_Immortal);
+    AICounterUnitSetup(player, c_PU_Phoenix,            1.20, c_PU_Phoenix,     1.20, c_PU_Phoenix);
+    AICounterUnitSetup(player, c_PU_VoidRay,            1.20, c_PU_VoidRay,     1.20, c_PU_VoidRay);
+    AICounterUnitSetup(player, c_PU_Carrier,            2.00, c_PU_VoidRay,     2.00, c_PU_VoidRay);
+    AICounterUnitSetup(player, c_PB_PhotonCannon,       0.50, c_PU_Immortal,    0.50, c_PU_Immortal);
+
+    // versus Terran
+    AICounterUnitSetup(player, c_TU_Marine,             0.50, c_PU_Zealot,      0.20, c_PU_Colossus);
+    AICounterUnitSetup(player, c_TU_Marauder,           1.00, c_PU_Zealot,      0.50, c_PU_Immortal);
+    AICounterUnitSetup(player, c_TU_Reaper,             1.00, c_PU_Stalker,     1.00, c_PU_Stalker);
+    AICounterUnitSetup(player, c_TU_Ghost,              1.00, c_PU_Zealot,      2.00, c_PU_Zealot);
+    AICounterUnitSetup(player, c_TU_Hellion,            1.00, c_PU_Stalker,     1.00, c_PU_Stalker);
+    AICounterUnitSetup(player, c_TU_SiegeTank_Alias,    1.00, c_PU_Immortal,    1.00, c_PU_Immortal);
+    AICounterUnitSetup(player, c_TU_Thor,               5.00, c_PU_Zealot,      1.00, c_PU_Immortal);
+    AICounterUnitSetup(player, c_TU_Viking_Alias,       1.00, c_PU_Stalker,     1.00, c_PU_Stalker);
+    AICounterUnitSetup(player, c_TU_Medivac,            1.00, c_PU_Phoenix,     1.00, c_PU_Phoenix);
+    AICounterUnitSetup(player, c_TU_Raven,              1.00, c_PU_Phoenix,     1.00, c_PU_Phoenix);
+    AICounterUnitSetup(player, c_TU_Banshee,            1.00, c_PU_Phoenix,     1.00, c_PU_Phoenix);
+    AICounterUnitSetup(player, c_TU_Battlecruiser,      2.00, c_PU_VoidRay,     2.00, c_PU_VoidRay);
+    AICounterUnitSetup(player, c_TB_Bunker,             0.50, c_PU_Immortal,    0.50, c_PU_Immortal);
+
+    // versus Zerg
+    AICounterUnitSetup(player, c_ZU_Zergling,           0.40, c_PU_Zealot,      0.40, c_PU_Zealot);
+    AICounterUnitSetup(player, c_ZU_Baneling,           0.50, c_PU_Stalker,     0.25, c_PU_Immortal);
+    AICounterUnitSetup(player, c_ZU_Roach,              1.00, c_PU_Zealot,      0.50, c_PU_Immortal);
+    AICounterUnitSetup(player, c_ZU_Hydralisk,          1.00, c_PU_Zealot,      0.50, c_PU_Colossus);
+    AICounterUnitSetup(player, c_ZU_Infestor,           2.00, c_PU_Stalker,     2.00, c_PU_Stalker);
+    AICounterUnitSetup(player, c_ZU_Mutalisk,           1.00, c_PU_Phoenix,     1.00, c_PU_Phoenix);
+    AICounterUnitSetup(player, c_ZU_Corruptor,          1.00, c_PU_VoidRay,     1.00, c_PU_VoidRay);
+    AICounterUnitSetup(player, c_ZU_Ultralisk,          1.20, c_PU_Immortal,    1.20, c_PU_VoidRay);
+    AICounterUnitSetup(player, c_ZU_BroodLord,          1.00, c_PU_Phoenix,     1.00, c_PU_Phoenix);
+    AICounterUnitSetup(player, c_ZB_SpineCrawler,       0.50, c_PU_Immortal,    1.00, c_PU_Immortal);
+}
+
+//--------------------------------------------------------------------------------------------------
+//  ProtossSubStateName
+//--------------------------------------------------------------------------------------------------
+string ProtossSubStateName (int state) {
+    // TODO Call the individual difficulties to return a real substate name
+    return "-" + IntToString(state) + "-";
+}
+
+//--------------------------------------------------------------------------------------------------
+//  DebugCallbackProt
+//--------------------------------------------------------------------------------------------------
+void DebugCallbackProt (int player) {
+    DebugAI("=====PROTOSS=====\n");
+    DebugMelee(player);
+    DebugAI("e_mainState = "        + MainStateName(AIState(player, e_mainState))           +
+            ", e_mainSubState = "   + ProtossSubStateName(AIState(player, e_mainSubState))  +
+            ", e_attackState = "    + AttackStateName(AIState(player, e_attackState))
+    );
+}
+
+//--------------------------------------------------------------------------------------------------
+//  AINewUnitProt
+//--------------------------------------------------------------------------------------------------
+void AINewUnitProt (int player, unit u) {
+    int obs;
+    string type = UnitGetType(u);
+
+    // ignored units
+    //
+
+    if (UnitTypeTestAttribute(type, c_unitAttributeStructure)) {
+        return;
+    }
+    if (UnitTypeTestFlag(type, c_unitFlagWorker)) {
+        return;
+    }
+    
+//    if (type == c_PU_WarpPrism) {
+//        AIAddToExtraScoutGroup(player, u);
+//        return;
+//    }
+    
+    // detector
+    //
+    if (type == c_PU_Observer) {
+        AINewDetector(player, u, false);
+        return;
+    }
+
+    // clear obstacle units
+    //
+    if (AIWaveNeedClearObsUnits(player)) {
+        if (type == c_PU_Zealot || type == c_PU_Stalker || type == c_PU_DarkTemplar) {
+            AIMergeUnit(player, u, AIWaveGet(player, c_waveClearObs));
+            return;
+        }
+    }
+
+    // main wave units
+    //
+    AINewUnitDefault(player, u);
+}
+
+//--------------------------------------------------------------------------------------------------
+//  AIGetScoutProt
+//--------------------------------------------------------------------------------------------------
+unit AIGetScoutProt (int player, int index, unit prev, bool allowWorkers) {
+    unit obs;
+    
+    if (!AIGetFlag(player, e_flagsScouting)) {
+        return c_nullUnit;
+    }
+    if (UnitGetType(prev) == c_PU_Observer) {
+        return prev;
+    }
+    obs = AIGrabUnit(player, c_PU_Observer, c_prioScout, null);
+    if (obs) {
+        return obs;
+    }
+    if (prev) {
+        return prev;
+    }
+    // back to allowing workers as late scouts
+    //if (AIGetFlag(player, e_flagsLateScout)) {
+    //    return c_nullUnit;
+    //}
+    if (!allowWorkers) {
+        return c_nullUnit;
+    }
+    return AIGrabUnit(player, c_PU_Probe, c_prioScout, null);
+}
+
+//--------------------------------------------------------------------------------------------------
+//  AIEarlyDefScoutProt
+//--------------------------------------------------------------------------------------------------
+unit AIEarlyDefScoutProt (int player, unit prev, bool allowWorkers) {
+    unit obs;
+    string prevType;
+    
+    if (!AIGetFlag(player, e_flagsEarlyDefScout)) {
+        return c_nullUnit;
+    }
+    prevType = UnitGetType(prev);
+    if (prevType == c_PU_Observer) {
+        return prev;
+    }
+    obs = AIGrabUnit(player, c_PU_Observer, c_prioScout, null);
+    if (obs) {
+        return obs;
+    }
+    if (prevType == c_PU_Zealot) {
+        return prev;
+    }
+    obs = AIGrabUnit(player, c_PU_Zealot, c_prioScout, null);
+    if (obs) {
+        return obs;
+    }
+    if (prev) {
+        return prev;
+    }
+    if (!allowWorkers) {
+        return c_nullUnit;
+    }
+    return AIGrabUnit(player, c_PU_Probe, c_prioScout, null);
+}
+
+//--------------------------------------------------------------------------------------------------
+//  AIWaveThinkProt
+//--------------------------------------------------------------------------------------------------
+void AIWaveThinkProt (int player, wave w, int type) {
+	if (PlayerDifficulty(player) == c_skirVeryEasy){
+		AIWaveThinkDefault(player, w, type);
+	}
+	else {
+		GTWaveThinkDefault(player, w, type);
+	}
+}
+
+//--------------------------------------------------------------------------------------------------
+//  Protoss Init
+//--------------------------------------------------------------------------------------------------
+static void ProtossInit (int player) {
+    int state;
+    int rnd;
+    int rnd2 = RandomInt(1, 2);
+    int rstyle = DataTableGetInt(true, c_RandomStyle);
+    string section;
+    if ( DialogIsVisible(GOpenMenu,  player) && AIGetTime() < 2){
+    		AITimePause(true);
+    	    TimerPause(GTRoundTime, true);
+    	    PlayerSetAlliance(1, c_allianceIdVision, 1, false);
+    	    UnitPauseAll(true);
+    	    return;
+     }
+
+     //  Micro Warning
+    if (gtbuildselect[player] == 0 && PlayerDifficulty(player) < c_skirHard_VH && !g_showbuild){
+    	UIDisplayMessage(PlayerGroupAlliance(1, player), c_messageAreaChat, StringToText("[") + PlayerColorName(PlayerGetColorIndex(player, false)) + StringToText("] ") + StringToText(GTGreet ()));
+    }
+
+     if (!g_micro && g_alertnomicro && AIGetTime() > 2){
+ 		 DebugAI("Cannot find 'unitdata.xml'.");
+ 		 DebugAI("Disable AI Micro.");
+ 		 g_alertnomicro = false;
+ 	 }
+
+
+
+	GInitCounters3(player);
+	GTInitCounterArrays();          // init Counter Array for later purpose
+	//GTC_Init(player);				// init for GT-Commander Config
+
+
+    AISetNumScouts(player, 1);
+    AISetFlag(player, e_flagsEarlyDefScout, false);
+    AISetPowerBuilding(player, c_PB_Pylon);
+    AITransportSetPanic(player, 0.27); // just below max shield threshold
+    GTTrain(player, 2, 0, GTWorker(player) , 8);
+    if (PlayerDifficulty(player) >= c_skirHard_VH)
+       { rnd = 21; }
+    else{
+    	rnd =  RandomInt(1, 20);
+    }
+
+
+    //Starting Trigger
+    if (rstyle == 1 || (rstyle == 2 && rnd2 == 1)){
+    	section = "GTBO" + "-" + GTShortRace(PlayerRace(player)) + "v" + GTShortRace(GERace(player));
+    	GTableSetInt(player, "CustomBuild", RandomInt(1, BankValueGetAsInt(GTBank, section, "num")));
+    	TriggerDebugOutput(1, StringToText("[") + PlayerColorName(PlayerGetColorIndex(player, false)) + StringToText("] ") + StringToText("Choose Random"), true);
+    	AISetMainState(player, -2, e_mainSubState_Unset);
+    }
+
+	if (GTableGetInt(player, "CustomBuild") > 0 ){
+		section = "GTBO" + "-" + GTShortRace(PlayerRace(player)) + "v" + GTShortRace(GERace(player)) + "-Build" + IntToString( GTableGetInt(player, "CustomBuild"));
+		if (BankSectionExists(GTBank, section)){
+			if (rstyle == 0){
+				TriggerDebugOutput(1, StringToText("[") + PlayerColorName(PlayerGetColorIndex(player, false)) + StringToText("] ") + StringToText("Choose BO ") + TextWithColor(StringToText(BankValueGetAsString(GTBank, section, "name")),Color(42,212,0))  , true);
+			}
+			AISetMainState(player, -2, e_mainSubState_Unset);
+		}
+	}
+	else{
+	if (gtbuildselect[player] > 0 ){
+		rnd = gtbuildselect[player];
+		TriggerDebugOutput(1, StringToText("[") + PlayerColorName(PlayerGetColorIndex(player, false)) + StringToText("] ") + StringToText("Choose ") + TextWithColor(StringToText(GTC[2][rnd].name),Color(42,212,0)) + StringToText(" commander.") , true);
+	}
+	else{
+		TriggerDebugOutput(1, StringToText("[") + PlayerColorName(PlayerGetColorIndex(player, false)) + StringToText("] ") + StringToText("Choose Random"), true);
+	}
+   // Commander Selection
+
+		 if ( rnd <= 20){
+		    	//GTChatInit(player, GTC[2][rnd].name , GTC[2][rnd].style );
+		    	GTableSetInt(player, "GTNameID", rnd - 1);
+                GTChat("MaNa: glhf");
+		    	AISetMainState(player, GTState(rnd - 1), e_mainSubState_Unset);
+		 }
+		else if ( rnd == 21){
+			GTChat("ShoWTimE: gl & hf");
+			AISetMainState(player, GTState(20), e_mainSubState_Unset);
+		}
+}
+}
+
+//--------------------------------------------------------------------------------------------------
+//  AIMeleeProt
+//--------------------------------------------------------------------------------------------------
+void AIMeleeProt (int player) {    
+    int mainState = AIState(player, e_mainState);
+
+    if (mainState == e_mainState_Init)           { ProtossInit(player);     }
+    else if (mainState == -3)     		  { ProtossCounter(player); }
+    else if (mainState == -2)     		  { ProtossCustom(player); }
+    else if (mainState == GTState(0))     { Protoss0(player); }
+    else if (mainState == GTState(1))     { Protoss1(player); }
+    else if (mainState == GTState(2))     { Protoss2(player); }
+    else if (mainState == GTState(3))     { Protoss3(player); }
+    else if (mainState == GTState(4))     { Protoss4(player); }
+    else if (mainState == GTState(5))     { Protoss5(player); }
+    else if (mainState == GTState(6))     { Protoss6(player); }
+    else if (mainState == GTState(7))     { Protoss7(player); }
+  	else if (mainState == GTState(8))     { Protoss8(player); }
+    else if (mainState == GTState(9))     { Protoss9(player); }
+    else if (mainState == GTState(10))     { Protoss10(player); }
+    else if (mainState == GTState(11))     { Protoss11(player); }
+    else if (mainState == GTState(12))     { Protoss12(player); }
+    else if (mainState == GTState(13))     { Protoss13(player); }
+    else if (mainState == GTState(14))     { Protoss14(player); }
+    else if (mainState == GTState(15))     { Protoss15(player); }
+  	else if (mainState == GTState(16))     { Protoss16(player); }
+    else if (mainState == GTState(17))     { Protoss17(player); }
+    else if (mainState == GTState(18))     { Protoss18(player); }
+    else if (mainState == GTState(19))     { Protoss19(player); }
+    else if (mainState == GTState(20))     { ProtossOpenBoss(player); }
+//    else if (mainState == e_mainState_Late3)        { ProtossLate3(player);    }
+//	else if (mainState == e_mainState_Late4)        { ProtossLate4(player);    }
+//	else if (mainState == e_mainState_Late5)        { ProtossLate5(player);     }
+
+    else if (mainState == e_mainState_Off)          { EndMeleeScript(player);  }
+    else if (mainState == e_mainState_Disabled)     {                          }
+    
+    else { ErrorMeleeScript(player, "Invalid mainState"); }
+}

@@ -1,0 +1,124 @@
+//==================================================================================================
+//  Zealot Rush
+//==================================================================================================
+
+
+//--------------------------------------------------------------------------------------------------
+//  ProtossMid0 ( 4 gate )
+//--------------------------------------------------------------------------------------------------
+void Protoss19 (int player) {
+	 int towns = GTTowns (player);
+	 int tech_level = 0;
+	 int i = 1;
+
+	 GTName(player, "Chronos");
+     GTShowTimer(player);
+	 GTPreventScout(player);
+	 GTMicro(player);
+
+//---------------------------------------------
+// Change Commander Condition
+//---------------------------------------------
+
+	  if (GTime() > AIGetUserInt(player, 8) + 600 && GTOArmy(player) < GTEArmy(player) - 20){
+		  AISetUserInt(player, 8, FixedToInt(GTime()));
+	      AISetMainState(player, e_mainState_Counter, e_mainSubState_Unset);
+	  }
+
+//-----------------------------------------------
+//Opening
+//------------------------------------------
+
+	 if (GTProtossOpening3(player)){
+		 return;
+	 }
+	 GTrainI(player, c_PU_Probe, 22, c_PB_CyberneticsCore, 1);
+
+	 tech_level = GTGetTech(player, c_PB_CyberneticsCore,  c_PB_RoboticsFacility ,  c_PB_RoboticsBay ,  c_PB_Stargate, c_PB_FleetBeacon, c_PB_FleetBeacon ,  c_PB_FleetBeacon,  c_PB_FleetBeacon  );
+
+//------------------------------------
+// Economy Management
+//---------------------------------------
+	
+	 GTSupply (player, 6 + tech_level);
+	 GTCreateWorkers (player);
+
+	 // Expand
+     if (GTFinishA(player, c_PB_Gateway, 2)){
+    	 GTExpand(player);
+     }
+
+//-------------------------------------------------
+// Unit Production
+//------------------------------------------------
+
+
+	GTrain(player, c_PU_Zealot, 4);
+	GTrain (player, c_PU_Sentry, 1 );
+    GTrain (player, c_PU_Zealot,  GTCount(player, c_PU_Stalker) + GTCount(player, c_PU_Sentry) );
+	if (GTFinishIA(player, c_PB_Nexus, 2)){
+		GTBasicTrain(player);
+	}
+	if (GTEGroA(player) > 8){
+		GTrain(player, c_PU_Immortal, GTEGroA(player)/4);
+	}
+
+	GTrainI( player, c_PU_Stalker, 3, c_PU_Sentry, 1);
+    GTrainA( player, c_PU_Stalker, 9, c_PR_WarpGateResearch, 1);
+
+    GTrain( player, c_PU_Sentry, 1 + GTCount(player, c_PU_Stalker)/ 2 );
+
+    GTTrainA(player, 4, c_townMain, c_PU_Colossus, 4, c_PB_RoboticsBay, 1);
+//--------------------------------------
+// Build Management
+//--------------------------------------
+    GTAutoBDefend(player, 0);
+    GTDefendTown(player, 0);
+
+	GBuildI (player, c_PB_Assimilator, 2,  c_PB_Nexus, 2);
+	GBuildI (player, c_PB_Gateway, 3,  c_PB_Nexus, 2);
+	GBuildI(player, c_PB_RoboticsFacility, 1, c_PB_Gateway, 3);
+    GBuildI (player, c_PB_Gateway, 4,  c_PB_RoboticsFacility, 1);
+
+	GResearchI ( player, c_PR_WarpGateResearch, c_PU_Sentry, 1);
+
+	GBuildA (player, c_PB_RoboticsBay, 1, c_PB_RoboticsFacility, 1) ;
+	GResearchI (player, c_PR_ColossusRange,  c_PU_Colossus, 1);
+    if (GTFinishIA(player, c_PB_RoboticsBay, 1)){
+    	GTAutoResearch(player);
+    }
+
+
+//--------------------------------------------
+//   Expansion Town
+//------------------------------------------
+    while ( i <= 15 ){
+    	if (AIGetTownState(player, i ) == c_townStateEstablished) {
+    		GTAutoBExpand(player, i);
+    	}
+			i = i + 1;
+	}
+
+//----------------------------------------
+// Strategy
+//-----------------------------------------
+    GTDefend(player);
+	if (towns == 2){
+		GTRock(player);
+	}
+	if  ( GTCanAttack(player) ){
+		GTAttack(player);
+        AIWaveMerge(player, c_waveDivert2, c_waveAttack);
+	}
+    else if (GTNeedRetreat(player)) {
+    	GTRetreat(player);
+    }
+
+//-------------------------------------
+// Run
+//---------------------------------
+
+	return;
+}
+
+

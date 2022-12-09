@@ -1,0 +1,190 @@
+//==================================================================================================
+//  Zealot Rush
+//==================================================================================================
+
+
+//--------------------------------------------------------------------------------------------------
+//  ProtossOpenGnd0 ( P v T build )
+//--------------------------------------------------------------------------------------------------
+void Protoss3 (int player) {
+	 int towns = GTTowns (player);
+	 int tech_level = 0;
+	 int i = 1;
+
+	 GTName(player, "Poseidon");
+	 
+     GTShowTimer(player);
+	 GTPreventScout(player);
+	 	 GTMicro(player);
+
+
+	 //---------------------------------------------
+	 // Change Commander Condition
+	 //---------------------------------------------
+
+	 	  if (GTime() > AIGetUserInt(player, 8) + 600 && GTOArmy(player) < GTEArmy(player) - 20)
+	 	       		 { AISetUserInt(player, 8, FixedToInt(GTime()));
+	 	       	 	   AISetMainState(player, e_mainState_Counter, e_mainSubState_Unset);
+	 	       	 	 }
+
+	 //-----------------------------------------------
+	 //Opening
+	 //------------------------------------------
+
+
+  //   GTCancelbuild(player);
+	 if (!GTFinishIA(player, c_PB_CyberneticsCore, 1))
+	       	 {
+	       	        if (GTFinishIA(player, c_PU_Probe, 11) && (!GTFinishIA(player, c_PU_Probe, 12) || GTFinishIA(player, c_PU_Probe, 13)) && !GTFinishA(player, c_PB_Gateway, 1))
+	       		    { GTChronoBoost(player, 0, c_PB_Nexus ,"TimeWarpProduction"); }
+	       	        else
+	       	        { GTChronoBoost(player, 0, c_PB_Gateway ,"TimeWarpProduction"); }
+	       	 		GTTrain(player, 2, 0, c_PU_Probe, 9);
+	       	 	    GTBuild(player, 2, 0, c_PB_Pylon, 1, 0);
+	       	 	    GTTrainI(player, 2, 0, c_PU_Probe, 10, c_PB_Pylon, 1);
+	       	 	    GTTrainA(player, 2, 0, c_PU_Probe, 12, c_PB_Pylon, 1);
+	       	 	    GTTrainI(player, 2, 0, c_PU_Probe, 16, c_PB_Gateway, 1);
+	       	 	    GTBuildI(player, 2, 0, c_PB_Gateway, 1, c_nearChokePoint, c_PU_Probe, 11);
+	       	 	    GTBuildI(player, 2, 0, c_PB_Assimilator, 1, c_onVespeneGas, c_PU_Probe, 14);
+                    GTBuildA(player, 2, 0, c_PB_CyberneticsCore, 1, c_nearCloseFactory, c_PB_Gateway, 1);
+	       	 	    GTBuildI(player, 2, 0, c_PB_Pylon, 2, c_makePower, c_PU_Probe, 15);
+	       	 	    GTTrainA(player, 2, 0, c_PU_Zealot, 1, c_PB_Gateway, 1);
+	       	 	    
+	       	      return;
+	       	 }
+	 //-------------------------------------
+	 //  Run ChronoBoost
+	 //-----------------------------------
+
+	 tech_level = GTGetTech(player, c_PB_CyberneticsCore,  c_PB_Stargate ,  c_PB_FleetBeacon ,  c_PB_TwilightCouncil, c_PB_TwilightCouncil,     c_PB_TwilightCouncil ,  c_PB_TwilightCouncil,  c_PB_TwilightCouncil  );
+
+//------------------------------------
+// Economy Management
+//---------------------------------------
+	
+
+	 if (GTFinishIA(player, c_PB_Pylon, 2))
+	 {   GTCreateWorkers (player); }
+     if (!GTFinishA(player, c_PB_FleetBeacon, 1))
+	 { GTSupply (player, 6 + tech_level); }
+     else
+     { GTSupply (player, 8 + tech_level); }
+
+
+	  // Expand
+      GTExpand(player);
+        
+    
+	  //----------------------------
+	  // Unit Production
+	  //---------------------------
+
+	         if ( tech_level >= 0)
+	       {          GTTrain (player, 2, c_townMain, c_PU_Zealot, 2 );
+
+	               GTTrain (player, 2, c_townMain, c_PU_Zealot, GTCount(player, c_PU_Stalker) + GTCount(player, c_PU_Sentry) - 2 );
+	               if (GTFinishIA(player, c_PB_Nexus, 2))
+	                  { GTBasicTrain(player); }
+
+	       }
+
+	  	   if ( tech_level >= 1)
+	  	   {   GTTrain( player, 4, c_townMain, c_PU_Stalker, 3);
+	  	       GTTrainI( player, 4, c_townMain, c_PU_Stalker, 4, c_PB_Stargate, 1);
+	  	       GTTrainI( player, 2, c_townMain, c_PU_Stalker, 5, c_PB_FleetBeacon, 1);
+	           GTTrainI( player, 2, c_townMain, c_PU_Stalker, 6, c_PU_Tempest, 1);
+	           GTTrainI( player, 2, c_townMain, c_PU_Stalker, 7, c_PU_Mothership, 1);
+	           GTTrainI( player, 2, c_townMain, c_PU_Stalker, 8, c_PU_Tempest, 2);
+	           GTTrainI( player, 2, c_townMain, c_PU_Stalker, 10, c_PU_Tempest, 3);
+	           GTTrainI( player, 2, c_townMain, c_PU_Stalker, 12, c_PU_Tempest, 4);
+	           if (GTEnemyRace(player) != "Terr")
+	        	           { GTTrain( player, 2, c_townMain, c_PU_Sentry, 1 + GTCount(player, c_PU_Stalker)/3 ); }
+	        	           else
+	        	           {GTTrain( player, 2, c_townMain, c_PU_Sentry, GTCount(player, c_PU_Stalker)/ 3 ); }	   }
+
+
+	  		   GTTrainA ( player, 2, c_townMain, c_PU_Phoenix , GTEAirL(player)/2,  c_PB_Stargate , 2  );
+	  		   GTTrainA ( player, 4, c_townMain, c_PU_Tempest , 2, c_PB_FleetBeacon, 1) ;
+	  		   GTTrainA ( player, 10, c_townMain, c_PU_Mothership , 1, c_PB_FleetBeacon, 1) ;
+	  		   GTTrainI ( player, 4, c_townMain, c_PU_Tempest , 8, c_PU_Mothership, 1) ;
+	  		 GTTrainA ( player, 2, c_townMain, c_PU_VoidRay , GTEAirAM(player)/4,  c_PB_Stargate, 2 );
+	  		 GTTrainA ( player, 2, c_townMain, c_PU_VoidRay , 2,  c_PB_Stargate, 1 );
+
+  
+	  //--------------------------------------
+	  // Build Management
+	  //--------------------------------------
+	  	         if (GTFinishIA(player, c_PU_Tempest, 2))
+	  	         { GTAutoBDefend(player, 0); }
+	  	         if (AISawCloakedUnit(player) )
+	  	         { GTTrain(player, 4, 0, c_PU_Observer, 1); }
+
+	  		     GTDefendTown(player, 0);
+	  		   GTBuildA (player, 2, 0, c_PB_Assimilator, 2, c_onVespeneGas, c_PB_CyberneticsCore, 1);
+
+
+
+	  	  if (tech_level >= 1)
+	   {  GTResearch ( player, 3, 0, c_PR_WarpGateResearch);
+
+	   GTBuild(player, 2, 0, c_PB_Stargate, 1, 0);
+	   GTBuildTI(player, 2, 0, c_PB_Gateway, 2, c_nearFarFactory, c_PB_Stargate, 1);
+	   	GTBuildTI(player, 2, 0, c_PB_Stargate, 2, c_nearFarFactory, c_PU_Mothership, 1);
+	  	GTBuildTI(player, 2, 0, c_PB_Gateway, 3, c_nearFarFactory, c_PU_Tempest, 1);
+		GTBuildTI(player, 2, 0, c_PB_Gateway, 5, c_nearFarFactory, c_PU_Mothership, 1);
+		GTBuildTI(player, 2, 1, c_PB_Gateway, 4, c_nearFarFactory, c_PU_Tempest, 2);
+
+          GTResearchI(player, 3, 0, c_PR_AirWeapons1,  c_PB_FleetBeacon, 1);
+          GTResearchA(player, 3, 0, c_PR_AirWeapons3,  c_PB_FleetBeacon, 1);
+
+       }
+			 if ( tech_level >= 2)
+			 {
+			   GTBuildTI (player, 2, 0, c_PB_FleetBeacon, 1, c_nearResource, c_PB_Nexus, 2) ;
+		     }
+             if (tech_level >= 3)
+             {    GTResearchI(player, 3, 0, c_PR_CarrierLaunch, c_PU_Tempest, 3 );
+
+
+             }
+             if (GTFinishIA(player, c_PU_Tempest, 4))
+             {    GTBuildT (player, 2, 0, c_PB_TwilightCouncil, 1, c_nearResource) ;
+            	  GTAutoResearch(player);
+             }
+
+
+
+
+
+		//--------------------------------------------
+		//   Expansion Town
+		//------------------------------------------
+		 while ( i <= 16 )
+		 	  	  {
+	      	 if (AIGetTownState(player, i ) == c_townStateEstablished) {
+            GTAutoBExpand(player, i);
+	      	 }
+			i = i + 1;
+		}
+   //----------------------------------------
+	 // Strategy
+     //-----------------------------------------
+	  		                    GTDefend(player);
+	  		                    if (GTFinishA(player, c_PB_FleetBeacon, 1))
+	  		                    {  AIWaveMerge(player, c_waveDivert2, c_waveAttack); }
+	  		                    if (GTFinishA(player, c_PU_Tempest, 2) )
+	  		                    { GTRock(player); }
+	  		    			    if  ( GTCanAttack(player) && GTCountI(player, c_PR_CarrierLaunch) == 0 && GTCountI(player, c_PU_Mothership) == 0 && (GTFinishA(player, c_PU_Tempest, 2) || GTCountI(player, c_PU_Tempest) == 0))
+	  		    			    { GTAttack(player);
+
+                                }
+	  		    			    else if (GTNeedRetreat(player))
+	  		    			    { GTRetreat(player);}
+
+
+
+// Run
+
+}
+
+

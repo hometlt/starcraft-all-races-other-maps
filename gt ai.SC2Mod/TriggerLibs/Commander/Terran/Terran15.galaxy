@@ -1,0 +1,139 @@
+//==================================================================================================
+//  Terran First Edition
+//==================================================================================================
+
+
+//--------------------------------------------------------------------------------------------------
+//  TerranOpenGnd0
+//--------------------------------------------------------------------------------------------------
+void Terran15 (int player) {
+	 int towns = GTTowns (player);
+	 int i = 1;
+
+	 GTMicro(player);
+	 GTName(player, DataTableGetString(true, IntToString(player)+ "GTName"));
+     GTShowTimer(player);
+     GTPreventScout(player);
+
+     if (GTime() > AIGetUserInt(player, 8) + 600 && GTOArmy(player) < GTEArmy(player) - 20){
+			AISetUserInt(player, 8, FixedToInt(GTime()));
+          	AISetMainState(player, e_mainState_Counter, e_mainSubState_Unset);
+     }
+     if (GTTerranOpening1(player)){
+    	 return;
+     }
+
+
+
+//---------------------------------------
+// Economy Management
+//---------------------------------------
+
+	GTSupply (player, 5);
+
+	if (!GTFinishA(player, c_TB_CommandCenter_Alias, 2) || GTFinishIA(player, c_TB_OrbitalCommand, 2) || GTFinishIA(player, c_TB_PlanetaryFortress, 1) ){
+		GTCreateWorkers (player);
+	}
+
+	// Expand
+	if (towns == 1 || GTFinishIA(player, c_TR_ThorCannons, 1)){
+		GTExpand(player);
+	}
+
+
+	//---------------------------------------
+	// Core Build
+	//---------------------------------------
+	 	 GTDefendTown(player, 0 );
+		 GTAutoBDefend(player, 0);
+
+	     //Building
+	     GBuild(player, c_TB_Factory, 1);
+	     GBuildS(player, c_TB_Refinery, 2, 20);
+	     GBuildI(player, c_TB_FactoryTechLab, 1, c_TU_Hellion, 1);
+	     GResearchA(player, c_TR_HellionDamage,  c_TB_FactoryTechLab, 1 );
+	     GBuildI(player, c_TB_FactoryTechLab, 2, c_TR_HellionDamage, 1);
+	     GResearchI(player, c_TR_SiegeTankSiege, c_TU_SiegeTank, 1);
+	     GBuildI(player, c_TB_BarracksReactor, 1, c_TB_CommandCenter_Alias, 2);
+	     GTBuildTA(player, 2, 1, c_TB_OrbitalCommand, 2, 0,  c_TB_CommandCenter_Alias, 2);
+	     GBuildS(player, c_TB_Factory, 2, 22);
+	     GTBuildTI(player, 2, 0, c_TB_Armory, 1, 0,  c_TB_OrbitalCommand, 2);
+	     GBuildI(player, c_TB_Barracks, 2, c_TR_ThorCannons, 1);
+	     GBuildA(player, c_TB_BarracksTechLab, 2, c_TB_Barracks, 2);
+	     GResearchA(player, c_TR_ThorCannons, c_TU_Thor, 1);
+	     GBuildI(player, c_TB_Starport, 1, c_TB_Armory, 1);
+	     GBuildA(player, c_TB_StarportReactor, 1, c_TB_Starport, 1);
+	     GTBuildTI(player, 2, 1, c_TB_Armory, 2, 0,  c_TU_Thor, 2);
+	     GBuildI(player, c_TB_Starport, 2, c_TB_Armory, 2);
+	     GBuildA(player, c_TB_StarportTechLab, 1, c_TB_Starport, 2);
+
+	     if (GTEAir(player) > 0){
+	    	 GBuild(player, c_TB_BarracksReactor, 1);
+	    	 GTrain(player, c_TU_Marine, GTEAir(player) - (GTCount(player, c_TU_Viking)/2));
+	     }
+
+	     //Unit
+	     GTrain(player, c_TU_Marine, 4);
+	     GTrainI(player, c_TU_Marine, 6, c_TU_Hellion, 1);
+	     GTrainI(player, c_TU_Marine, 8, c_TB_FactoryTechLab, 2);
+	     GTrainI(player, c_TU_Marine, 12, c_TB_BarracksReactor, 1);
+	     if (GTFinishIA(player, c_TB_OrbitalCommand, 2)){
+	    	 GTBasicTrain(player);
+	     }
+	     if (AIHasRes(player, 500, 0)){
+	    	 GTrain(player, c_TU_Hellion, 10);
+	     }
+	     GTrain(player, c_TU_Hellion, 1 );
+	     GTrainI(player, c_TU_Hellion, 2, c_TB_FactoryTechLab, 1 );
+	     GTrainI(player, c_TU_Hellion, 3, c_TR_HellionDamage, 1 );
+	     GTrainI(player, c_TU_Hellion, 4, c_TU_SiegeTank, 1 );
+	     GTrainI(player, c_TU_SiegeTank, 3, c_TB_FactoryTechLab, 2);
+	     GTTrainA(player, 4, c_townMain, c_TU_Thor, 4, c_TB_Armory, 1);
+	     GTrainA ( player, c_TU_Medivac , GTOSoldier(player)/8, c_TB_StarportReactor, 1 );
+	     GTrainA ( player, c_TU_Marauder , GTEGroAM(player)/4, c_TB_BarracksTechLab, 1 );
+
+	     GTrainI(player, c_TU_SiegeTank, 5, c_TU_Thor, 4);
+	     if (GTFinishIA(player, c_TU_Thor, 1)){
+	    	 GTAutoResearch(player);
+	     }
+	     GTTrainA(player, 4, c_townMain, c_TU_Banshee, 6, c_TB_StarportTechLab, 1);
+
+
+		//--------------------------------------------
+		//   Expansion Town
+		//------------------------------------------
+            while ( i <= 16 )
+     	  	  {
+	      	 if (AIGetTownState(player, i ) == c_townStateEstablished) {
+                GTAutoBExpand(player, i);
+	      	 }
+			i = i + 1;
+		}
+     //----------------------------------------
+	 // Strategy
+     //-----------------------------------------
+	  		                    GTDefend(player);
+
+	  		                    if (GTFinishA(player, c_TU_Thor, 1))
+	  		                    { GTRock(player); }
+	  		    			    if ( GTCanAttack(player) )
+	  		    			    {   AIWaveMerge(player, c_waveDivert2, c_waveAttack);
+	  		    			        AIWaveMerge(player, c_waveDivert1, c_waveAttack);
+	  		    			    	GTAttack(player);}
+	  		    			    else if (GTNeedRetreat(player))
+
+	  		    			    { GTRetreat(player);}
+	  		    			    else
+	  		    			    { GTDivert1(player, c_TU_Reaper);
+	  		    			      GTDivert2(player, c_TU_Banshee);
+
+	  		    			    }
+
+
+
+
+// Run
+
+}
+
+

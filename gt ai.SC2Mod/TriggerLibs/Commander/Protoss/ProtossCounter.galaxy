@@ -1,0 +1,55 @@
+
+//--------------------------------------------------------------------------------------------------
+// Terran Build
+//--------------------------------------------------------------------------------------------------
+void ProtossCounter (int player) {
+	 int towns = GTTowns (player);
+	 int i = 1;
+
+     GTShowTimer(player);
+	 GTPreventScout(player);
+	 GTMicro(player);
+	
+	 GTDefend(player);
+
+//----------------------------------------
+//Attack condition
+//-------------------------------------------
+	 if ( towns > 1){
+		 GTRock(player);
+	 }
+	 if ( GTCanAttack(player)){
+		 GTAttack(player);
+	 }
+	 else if (GTNeedRetreat(player)){
+		 GTRetreat(player);
+	 }
+
+	 GTDefendTown(player, 0 );
+	 GTAutoBDefend(player, 0);
+	 GTSupply (player, 8);
+	 GTCreateWorkers (player);
+//----------------------------------------------
+//Auto Build
+//------------------------------------------------
+
+	 if (GProtossBasicBuild(player )){
+	 	 return;
+	 }
+	 GTExpand(player);
+	 GTCounterProtoss(player);
+	 GTBasicTrain(player);
+	 GTAutoResearch(player);
+
+//-------------------------------------------
+//Expansion Build
+//---------------------------------------------
+     while ( i <= 15 ){
+    	if (AIGetTownState(player, i ) == c_townStateEstablished) {
+    		GTAutoBExpand(player, i);
+    	}
+		i = i + 1;
+	}
+}
+
+

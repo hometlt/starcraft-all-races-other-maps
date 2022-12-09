@@ -1,0 +1,1053 @@
+include "TriggerLibs/Green Tea Main/GTZInformation"
+include "TriggerLibs/Green Tea Main/GTZCommand"
+
+
+
+
+//--------------------------------------------------------------------------------------------------
+//  AIMoveUnitsInWaves
+//--------------------------------------------------------------------------------------------------
+int GTMoveUnitsInWaves(int player, wave w_source, wave w_target, int num, string type) {
+	unitgroup g = AIWaveGetUnits(w_source);
+	int count = 0;
+	int i = 1;
+	unit u = UnitGroupUnit(g, i);
+
+	while ((u != null) && (count < num)) {
+		if (UnitGetType(u) == type) {
+			AIMergeUnit(player, u, w_target);
+			count = count + 1;
+		}
+		i = i + 1;
+		u = UnitGroupUnit(g, i);
+	}
+	return num - count;
+}
+
+// is this Unit a ranged unit ?
+bool GTisRangedUnit(unit u) {
+	return (GTUnitRange(u) > 0);
+}
+
+
+//--------------------------------------------------------------------------------------------------
+//  AICountUnitsInWave
+//--------------------------------------------------------------------------------------------------
+int GTCountUnitsInWave(wave w, string type) {
+	unitgroup g = AIWaveGetUnits(w);
+	int count = 0;
+	int i = 1;
+	unit u = UnitGroupUnit(g, i);
+
+	while (u != null) {
+		if (UnitGetType(u) == type) {
+			count = count + 1;
+		}
+		i = i + 1;
+		u = UnitGroupUnit(g, i);
+	}
+	return count;
+}
+void GTRemoveUnitsInWave(wave w, string type) {
+	unitgroup g = AIWaveGetUnits(w);
+	int count = GTCountUnitsInWave(w, type);
+	int i = 1;
+	unit u = UnitGroupUnit(g, i);
+	if (count == 0) {
+		return;
+	}
+	while (u != null) {
+		if (UnitGetType(u) == type) {
+			UnitGroupRemove(g, u);
+		}
+		i = i + 1;
+		u = UnitGroupUnit(g, i);
+	}
+
+}
+
+//--------------------------------------------------------------------------------------------------
+//  AIManageWave
+//--------------------------------------------------------------------------------------------------
+void GTManageWave(int player, int wavenum, int min, int target, int max, string type) {
+	wave w = AIWaveGet(player, wavenum);
+	wave w_main = AIWaveGet(player, c_waveMain);
+	wave w_attack = AIWaveGet(player, c_waveAttack);
+	wave w_defend = AIWaveGet(player, c_waveDefend);
+	wave w_home = AIWaveGet(player, c_waveHome);
+	wave w_clob = AIWaveGet(player, c_waveClearObs);
+	int count = GTCountUnitsInWave(w, type);
+	int count_other = 0;
+	count_other = count_other + GTCountUnitsInWave(w_main, type);
+	count_other = count_other + GTCountUnitsInWave(w_attack, type);
+	count_other = count_other + GTCountUnitsInWave(w_defend, type);
+	count_other = count_other + GTCountUnitsInWave(w_home, type);
+	count_other = count_other + GTCountUnitsInWave(w_clob, type);
+	if (count + count_other < min) {
+		count = GTMoveUnitsInWaves(player, w, w_main, count, type);
+		return;
+	}
+	if (count > max) {
+		count = GTMoveUnitsInWaves(player, w, w_main, count - max, type);
+		return;
+	}
+	if (count < target) {
+		count = target - count;
+		count = GTMoveUnitsInWaves(player, w_clob, w, count, type);
+		count = GTMoveUnitsInWaves(player, w_home, w, count, type);
+		count = GTMoveUnitsInWaves(player, w_defend, w, count, type);
+		count = GTMoveUnitsInWaves(player, w_main, w, count, type);
+		count = GTMoveUnitsInWaves(player, w_attack, w, count, type);
+	}
+}
+//Production
+int GTOProduction(int player) {
+	int count = 0;
+	//Terran
+	if (PlayerRace(player) == "Terr") {
+		count += AIKnownUnitCount(player, player, c_TB_CommandCenter_Alias);
+		count += AIKnownUnitCount(player, player, c_TB_Barracks);
+		count += AIKnownUnitCount(player, player, c_TB_BarracksTechLab);
+		count += AIKnownUnitCount(player, player, c_TB_BarracksReactor);
+		count += 2 * AIKnownUnitCount(player, player, c_TB_Factory);
+		count += 2 * AIKnownUnitCount(player, player, c_TB_FactoryTechLab);
+		count += 2 * AIKnownUnitCount(player, player, c_TB_FactoryReactor);
+		count += 2 * AIKnownUnitCount(player, player, c_TB_FusionCore);
+		count += 2 * AIKnownUnitCount(player, player, c_TB_Starport);
+		count += 2 * AIKnownUnitCount(player, player, c_TB_StarportTechLab);
+		count += 2 * AIKnownUnitCount(player, player, c_TB_StarportReactor);
+		if (count > 24) {
+			return 24;
+		}
+		else {
+			return count;
+		}
+	}
+	if (PlayerRace(player) == "Prot") {
+		count += AIKnownUnitCount(player, player, c_PB_Nexus);
+		count += 2 * AIKnownUnitCount(player, player, c_PB_Gateway);
+		count += 3 * AIKnownUnitCount(player, player, c_PB_RoboticsFacility);
+		count += 3 * AIKnownUnitCount(player, player, c_PB_RoboticsBay);
+		count += 3 * AIKnownUnitCount(player, player, c_PB_Stargate);
+		count += 3 * AIKnownUnitCount(player, player, c_PB_FleetBeacon);
+		if (count > 24) {
+			return 24;
+		}
+		else {
+			return count;
+		}
+	}
+	if (PlayerRace(player) == "Zerg") {
+		count += 3 * AIKnownUnitCount(player, player, c_ZB_Hatchery_Alias) * (2 + BoolToInt(GTFinishA(player, c_ZB_RoachWarren, 1) || GTFinishA(player, c_ZB_HydraliskDen_Alias, 1) || GTFinishA(player, c_ZB_InfestationPit, 1) || GTFinishA(player, c_ZB_Spire_Alias, 1) || GTFinishA(player, c_ZB_UltraliskCavern, 1))) / 2;
+		count += 3 * AIKnownUnitCount(player, player, c_ZU_Queen);
+		if (count > 24) {
+			return 24;
+		}
+		else {
+			return count;
+		}
+	}
+	return count;
+}
+
+//---------------------------------------
+// Air strength
+//---------------------------------------
+
+
+int GTEAirG(int player) {
+	int count = 0;
+	// Protoss
+	count += 6 * GTCountE2(player, c_PU_Carrier);
+	count += 8 * GTCountE2(player, c_PU_Mothership);
+	count += 4 * GTCountE2(player, c_PU_VoidRay);
+
+	// Terran
+	count += 3 * GTCountE2(player, c_TU_Banshee);
+	count += 6 * GTCountE2(player, c_TU_Battlecruiser);
+	count += 2 * GTCountE2(player, c_TU_Raven);
+
+	// Zerg
+	count += 6 * GTCountE2(player, c_ZU_BroodLord);
+	count += 2 * GTCountE2(player, c_ZU_Mutalisk);
+
+	return count;
+}
+
+int GTEAirAM(int player) {
+	int count = 0;
+	// Protoss
+	count += 6 * GTCountE2(player, c_PU_Carrier);
+	count += 8 * GTCountE2(player, c_PU_Mothership);
+	count += 4 * GTCountE2(player, c_PU_VoidRay);
+
+
+	// Terran
+
+	count += 6 * GTCountE2(player, c_TU_Battlecruiser);
+	count += 2 * GTCountE2(player, c_TU_Viking_Alias);
+
+	// Zerg
+	count += 6 * GTCountE2(player, c_ZU_BroodLord);
+	count += 2 * GTCountE2(player, c_ZU_Corruptor);
+
+	return count;
+}
+int GTEAirL(int player) {
+	int count = 0;
+	// Protoss
+	count += 2 * GTCountE2(player, c_PU_Phoenix);
+
+	// Terran
+
+	count += 3 * GTCountE2(player, c_TU_Banshee);
+	count += 2 * GTCountE2(player, c_TU_Raven);
+
+	// Zerg
+	count += 2 * GTCountE2(player, c_ZU_Mutalisk);
+
+	return count;
+}
+int GTEAir(int player) {
+	return GTEAirAM(player) + GTEAirL(player);
+}
+//-------------------------------------------------
+// Ground Unit
+//--------------------------------------------------
+int GTEGroAM(int player) {
+
+	int count = 0;
+	// Protoss
+	count += 4 * GTCountE2(player, c_PU_Immortal);
+	count += 2 * GTCountE2(player, c_PU_Stalker);
+
+	count += 6 * GTCountE2(player, c_PU_Colossus);
+
+	// Terran
+	count += 2 * GTCountE2(player, c_TU_Marauder);
+	count += 4 * GTCountE2(player, c_TU_SiegeTank);
+	count += 6 * GTCountE2(player, c_TU_Thor);
+
+	// Zerg
+	count += 2 * GTCountE2(player, c_ZU_Roach);
+	count += 4 * (MinI(GTCountE2(player, c_ZU_Queen), 1));
+	count += 6 * GTCountE2(player, c_ZU_Ultralisk);
+
+	return count;
+}
+int GTEGroL(int player) {
+
+	int count = 0;
+	if (GTCountE2(player, c_TU_Marine) < 8) {
+		count += GTCountE2(player, c_TU_Marine) / 2;
+	}
+	else {
+		count += GTCountE2(player, c_TU_Marine);
+	}
+	count += GTCountE2(player, c_TU_Reaper);
+	count += 2 * GTCountE2(player, c_TU_Hellion);
+	count += 4 * GTCountE2(player, c_TU_Ghost);
+
+	count += GTCountE2(player, c_ZU_Zergling) / 2;
+	count += 2 * GTCountE2(player, c_ZU_Hydralisk);
+	count += GTCountE2(player, c_ZU_Baneling);
+
+	count += 2 * GTCountE2(player, c_PU_Zealot);
+	count += 2 * GTCountE2(player, c_PU_Sentry);
+	count += 4 * GTCountE2(player, c_PU_HighTemplar);
+	count += 4 * GTCountE2(player, c_PU_Archon);
+	count += 3 * GTCountE2(player, c_PU_DarkTemplar);
+
+	return count;
+}
+int GTEGroF(int player) {
+	int count = 0;
+	// Terran
+	count += 2 * GTCountE2(player, c_TU_Viking_Alias);
+	count += 2 * GTCountE2(player, c_TU_Reaper);
+
+	return count;
+}
+
+int GTEGro(int player) {
+	return GTEGroAM(player) + GTEGroL(player);
+}
+
+//-----------------------------------------
+// Anti-Air
+//----------------------------------------
+int GTEGroA(int player) {
+
+	int count = 0;
+	count += 2 * GTCountE2(player, c_PU_Sentry);
+	count += 2 * GTCountE2(player, c_PU_Stalker);
+
+	// Terran
+
+	count += GTCountE2(player, c_TU_Marine);
+	count += 6 * GTCountE2(player, c_TU_Thor);
+
+	// Zerg
+
+	count += 2 * GTCountE2(player, c_ZU_Hydralisk);
+	count += 2 * GTCountE2(player, c_ZU_Queen);
+
+	return count;
+}
+
+int GTERange(int player) {
+
+	int count = 0;
+	count += 2 * GTCountE2(player, c_PU_Sentry);
+	count += 2 * GTCountE2(player, c_PU_Stalker);
+	count += 2 * GTCountE2(player, c_PU_Immortal);
+	count += 2 * GTCountE2(player, c_PU_Colossus);
+	count += 2 * GTCountE2(player, c_PU_VoidRay);
+	count += 2 * GTCountE2(player, c_PU_Carrier);
+
+	// Terran
+	count += GTCountE2(player, c_TU_SiegeTank_Alias);
+	count += GTCountE2(player, c_TU_Hellion);
+	count += GTCountE2(player, c_TU_Marauder);
+	count += GTCountE2(player, c_TU_Banshee);
+	count += GTCountE2(player, c_TU_Marine);
+	count += 6 * GTCountE2(player, c_TU_Thor);
+
+	// Zerg
+	count += 2 * GTCountE2(player, c_ZU_Roach);
+	count += 2 * GTCountE2(player, c_ZU_Hydralisk);
+	count += 2 * GTCountE2(player, c_ZU_Mutalisk);
+	count += 2 * GTCountE2(player, c_ZU_Queen);
+
+	return count;
+}
+
+int GTEAirA(int player) {
+
+	int count = 0;
+	count += 6 * GTCountE2(player, c_PU_Carrier);
+	count += 3 * GTCountE2(player, c_PU_VoidRay);
+	count += 8 * GTCountE2(player, c_PU_Mothership);
+	count += 2 * GTCountE2(player, c_PU_Phoenix);
+
+	// Terran
+
+	count += 6 * GTCountE2(player, c_TU_Battlecruiser);
+	count += 3 * GTCountE2(player, c_TU_Viking_Alias);
+
+	// Zerg
+
+	count += 2 * GTCountE2(player, c_ZU_Mutalisk);
+	count += 3 * GTCountE2(player, c_ZU_Corruptor);
+
+	return count;
+}
+
+//---------------------------------------------
+// Other value
+//-----------------------------------------
+int GTEBase(int player) {
+	int count = 0;
+	// Protoss
+	count += GTCountE2(player, c_PB_Nexus);
+
+	// Terran
+	count += GTCountE2(player, c_TB_CommandCenter_Alias);
+
+	// Zerg
+	count += GTCountE2(player, c_ZB_Hatchery_Alias);
+	return count;
+}
+int GTEHarrass(int player) {
+
+	int count = 0;
+
+	// Protoss
+	count += 3 * GTCountE2(player, c_PU_VoidRay);
+	count += 2 * GTCountE2(player, c_TU_Banshee);
+	count += GTCountE2(player, c_TU_Reaper);
+	count += 2 * GTCountE2(player, c_ZU_Mutalisk);
+
+	return count;
+}
+int GTEDefHarrass(int player) {
+
+	int count = 0;
+
+	// Protoss
+	count += 3 * GTCountE2(player, c_PU_VoidRay);
+	count += 2 * GTCountE2(player, c_PU_Phoenix);
+	count += 2 * GTCountE2(player, c_TU_Viking_Alias);
+	count += 2 * GTCountE2(player, c_ZU_Mutalisk);
+	count += 2 * GTCountE2(player, c_ZU_Corruptor);
+
+	return count;
+}
+int GTEDetect(int player) {
+
+	int count = 0;
+
+	// Protoss
+	count += GTCountE2(player, c_PB_PhotonCannon);
+	count += GTCountE2(player, c_PU_Observer);
+	// Terran
+
+	count += GTCountE2(player, c_TB_MissileTurret);
+	count += GTCountE2(player, c_TU_Raven);
+	count += GTCountE2(player, c_TB_OrbitalCommand) - 1;
+
+	// Zerg
+
+	count += GTCountE2(player, c_ZB_SporeCrawler);
+	count += GTCountE2(player, c_ZU_Overseer);
+
+	return count;
+}
+int GTECloak(int player) {
+
+	int count = 0;
+
+	// Protoss
+	count += 6 * GTCountE2(player, c_PU_Mothership);
+	count += 2 * GTCountE2(player, c_PU_DarkTemplar);
+	count += GTCountE2(player, c_PB_DarkShrine);
+	// Terran
+	count += 2 * GTCountE2(player, c_TU_Ghost);
+	count += 2 * GTCountE2(player, c_TU_Banshee);
+
+	return count;
+}
+int GTETrans(int player) {
+
+	int count = 0;
+
+	// Protoss
+	count += GTCountE2(player, c_PU_WarpPrism);
+	// Terran
+
+	count += GTCountE2(player, c_TU_Medivac);
+
+	return count;
+}
+int GTESpec(int player) {
+
+	int count = 0;
+
+	// Protoss
+	count += GTCountE2(player, c_PU_Colossus) * 4;
+	count += GTCountE2(player, c_PU_HighTemplar) * 3;
+	// Terran
+
+	count += GTCountE2(player, c_TU_SiegeTank) * 3;
+	return count;
+}
+int GTEBaseAir(int player) {
+
+	int count = 0;
+
+	// Protoss
+	count += GTCountE2(player, c_PB_Stargate);
+	// Terran
+	count += GTCountE2(player, c_TB_Starport);
+	count += GTCountE2(player, c_ZB_Spire_Alias);
+	return count;
+}
+int GTEKMass(int player) {
+
+	int count = 0;
+
+	// Protoss
+	count += GTCountE2(player, c_PU_Colossus);
+	count += GTCountE2(player, c_PU_HighTemplar);
+	// Terran
+
+	count += GTCountE2(player, c_TU_SiegeTank);
+	// Zerg
+	if (GTCountE2(player, c_ZU_Baneling) > 5) {
+		count += GTCountE2(player, c_ZU_Baneling);
+	}
+	return count;
+}
+int GTEBuff(int player) {
+
+	int count = 0;
+
+	// Protoss
+	count += GTCountE2(player, c_TU_Medivac);
+	return count;
+}
+int GTESoldier(int player) {
+
+	int count = 0;
+
+	// Protoss
+	count += GTCountE2(player, c_TU_Marine);
+	count += GTCountE2(player, c_TU_Marauder);
+	count += GTCountE2(player, c_TU_Reaper);
+	return count;
+}
+
+//---------------------------------------
+// Total Army Strength
+//---------------------------------------
+
+int GTEArmy(int player) {
+	if (GFuncIsDelay(player, "GTEArmy", 3)) {
+		return GTableGetInt(player, "GTEArmy");
+	}
+
+	GTableSetInt(player, "GTEArmy", GTEGro(player) + GTEAir(player) + GTEBuff(player));
+	GFuncSetDelay(player, "GTEArmy");
+	return GTableGetInt(player, "GTEArmy");
+	//	   	return FixedToInt(AIUnitGroupStrength(UnitGroupFilterAlliance( UnitGroup(null, -1, RegionPlayableMap(), UnitFilter( 0, 0, (1 << c_targetFilterWorker), (1 << c_targetFilterStructure)), 0), player, c_unitAllianceEnemy, 0)));
+}
+
+int GTEArmyWithOutStructureDefence(int player) {
+	if (GFuncIsDelay(player, "GTEArmyWithOutStructureDefence", 3)) {
+		return GTableGetInt(player, "GTEArmyWithOutStructureDefence");
+	}
+
+	GTableSetInt(player, "GTEArmyWithOutStructureDefence", GTEGro(player) + GTEAir(player) + GTEBuff(player) - GTEHarrass(player));
+
+	GFuncSetDelay(player, "GTEArmyWithOutStructureDefence");
+	return GTableGetInt(player, "GTEArmyWithOutStructureDefence");
+}
+
+//---------------------------------------
+// Air strength
+//---------------------------------------
+
+
+int GTOAirG(int player) {
+	int count = 0;
+	// Protoss
+	count += 8 * AIKnownUnitCount(player, player, c_PU_Carrier);
+	count += 10 * AIKnownUnitCount(player, player, c_PU_Mothership);
+	count += 4 * AIKnownUnitCount(player, player, c_PU_VoidRay);
+
+	// Terran
+	count += 3 * AIKnownUnitCount(player, player, c_TU_Banshee);
+	count += 8 * AIKnownUnitCount(player, player, c_TU_Battlecruiser);
+	count += 2 * AIKnownUnitCount(player, player, c_TU_Raven);
+
+	// Zerg
+	count += 8 * AIKnownUnitCount(player, player, c_ZU_BroodLord);
+	count += 2 * AIKnownUnitCount(player, player, c_ZU_Mutalisk);
+
+	return count;
+}
+
+int GTOAirAM(int player) {
+	int count = 0;
+	// Protoss
+	count += 8 * AIKnownUnitCount(player, player, c_PU_Carrier);
+	count += 10 * AIKnownUnitCount(player, player, c_PU_Mothership);
+	count += 4 * AIKnownUnitCount(player, player, c_PU_VoidRay);
+
+	// Terran
+
+	count += 8 * AIKnownUnitCount(player, player, c_TU_Battlecruiser);
+	count += 3 * AIKnownUnitCount(player, player, c_TU_Viking_Alias);
+
+	// Zerg
+	count += 8 * AIKnownUnitCount(player, player, c_ZU_BroodLord);
+	count += 3 * AIKnownUnitCount(player, player, c_ZU_Corruptor);
+
+	return count;
+}
+int GTOAirL(int player) {
+
+	int count = 0;
+	// Protoss
+	count += 2 * AIKnownUnitCount(player, player, c_PU_Phoenix);
+
+	// Terran
+
+	count += 3 * AIKnownUnitCount(player, player, c_TU_Banshee);
+	count += 2 * AIKnownUnitCount(player, player, c_TU_Raven);
+
+	// Zerg
+	count += 2 * AIKnownUnitCount(player, player, c_ZU_Mutalisk);
+
+	return count;
+}
+int GTOAir(int player) {
+	return GTOAirAM(player) + GTOAirL(player);
+}
+//-------------------------------------------------
+// Ground Unit
+//--------------------------------------------------
+int GTOGroAM(int player) {
+
+	int count = 0;
+	// Protoss
+	count += 4 * AIKnownUnitCount(player, player, c_PU_Immortal);
+	count += 2 * AIKnownUnitCount(player, player, c_PU_Stalker);
+	count += 6 * AIKnownUnitCount(player, player, c_PU_Colossus);
+
+	// Terran
+	count += 2 * AIKnownUnitCount(player, player, c_TU_Marauder);
+	count += 3 * AIKnownUnitCount(player, player, c_TU_SiegeTank);
+	count += 6 * AIKnownUnitCount(player, player, c_TU_Thor);
+
+	// Zerg
+
+	count += 2 * AIKnownUnitCount(player, player, c_ZU_Roach);
+	count += 6 * AIKnownUnitCount(player, player, c_ZU_Ultralisk);
+
+	return count;
+}
+int GTOGroL(int player) {
+
+	int count = 0;
+	if (AIKnownUnitCount(player, player, c_TU_Marine) < 8) {
+		count += AIKnownUnitCount(player, player, c_TU_Marine) / 2;
+	}
+	else {
+		count += AIKnownUnitCount(player, player, c_TU_Marine);
+	}
+	count += AIKnownUnitCount(player, player, c_TU_Reaper);
+	count += 2 * AIKnownUnitCount(player, player, c_TU_Hellion);
+	count += 4 * AIKnownUnitCount(player, player, c_TU_Ghost);
+
+	count += AIKnownUnitCount(player, player, c_ZU_Zergling) / 2;
+	count += 2 * AIKnownUnitCount(player, player, c_ZU_Hydralisk);
+	count += AIKnownUnitCount(player, player, c_ZU_Baneling);
+
+	count += 2 * AIKnownUnitCount(player, player, c_PU_Zealot);
+	count += 2 * AIKnownUnitCount(player, player, c_PU_Sentry);
+	count += 4 * AIKnownUnitCount(player, player, c_PU_HighTemplar);
+	count += 4 * AIKnownUnitCount(player, player, c_PU_Archon);
+	count += 3 * AIKnownUnitCount(player, player, c_PU_DarkTemplar);
+
+	return count;
+}
+int GTOGroF(int player) {
+	int count = 0;
+	// Terran
+	count += 2 * AIKnownUnitCount(player, player, c_TU_Viking_Alias);
+	count += 2 * AIKnownUnitCount(player, player, c_TU_Reaper);
+
+	return count;
+}
+
+int GTOGro(int player) {
+	return GTOGroAM(player) + GTOGroL(player);
+}
+
+//-----------------------------------------
+// Anti-Air
+//----------------------------------------
+int GTOGroA(int player) {
+
+	int count = 0;
+	count += 2 * AIKnownUnitCount(player, player, c_PU_Sentry);
+	count += 2 * AIKnownUnitCount(player, player, c_PU_Stalker);
+
+	// Terran
+
+	count +=  AIKnownUnitCount(player, player, c_TU_Marine);
+	count += 5 * AIKnownUnitCount(player, player, c_TU_Thor);
+
+	// Zerg
+
+	count += 2 * AIKnownUnitCount(player, player, c_ZU_Hydralisk);
+	count += 5 * AIKnownUnitCount(player, player, c_ZU_Queen) / 2;
+
+	return count;
+}
+
+int GTOAirA(int player) {
+
+	int count = 0;
+	count += 6 * AIKnownUnitCount(player, player, c_PU_Carrier);
+	count += 3 * AIKnownUnitCount(player, player, c_PU_VoidRay);
+	count += 6 * AIKnownUnitCount(player, player, c_PU_Mothership);
+	count += 2 * AIKnownUnitCount(player, player, c_PU_Phoenix);
+
+	// Terran
+
+	count += 6 * AIKnownUnitCount(player, player, c_TU_Battlecruiser);
+	count += 3 * AIKnownUnitCount(player, player, c_TU_Viking_Alias);
+
+	// Zerg
+
+	count += 2 * AIKnownUnitCount(player, player, c_ZU_Mutalisk);
+	count += 3 * AIKnownUnitCount(player, player, c_ZU_Corruptor);
+
+	return count;
+}
+int GTOAntiAir(int player) {
+	return GTOAirA(player) + GTOGroA(player);
+}
+//---------------------------------------------
+// Other value
+//-----------------------------------------
+int GTOBase(int player) {
+	int count = 0;
+	// Protoss
+	count += AIKnownUnitCount(player, player, c_PB_Nexus);
+
+	// Terran
+	count += AIKnownUnitCount(player, player, c_TB_CommandCenter_Alias);
+
+	// Zerg
+	count += AIKnownUnitCount(player, player, c_ZB_Hatchery_Alias);
+	return count;
+}
+
+int GTODetect(int player) {
+
+	int count = 0;
+
+	// Protoss
+	count += AIKnownUnitCount(player, player, c_PB_PhotonCannon);
+	count += AIKnownUnitCount(player, player, c_PU_Observer);
+	// Terran
+
+	count += AIKnownUnitCount(player, player, c_TB_MissileTurret);
+	count += AIKnownUnitCount(player, player, c_TU_Raven);
+	count += AIKnownUnitCount(player, player, c_TB_OrbitalCommand);
+
+	// Zerg
+
+	count += AIKnownUnitCount(player, player, c_ZB_SporeCrawler);
+	count += AIKnownUnitCount(player, player, c_ZU_Overseer);
+
+	return count;
+}
+int GTOCloak(int player) {
+
+	int count = 0;
+
+	// Protoss
+	count += AIKnownUnitCount(player, player, c_PU_Mothership);
+	count += AIKnownUnitCount(player, player, c_PU_DarkTemplar);
+	count += AIKnownUnitCount(player, player, c_PB_DarkShrine);
+	// Terran
+
+	if (GTFinishA(player, c_TR_GhostCloak, 1)) {
+		count += AIKnownUnitCount(player, player, c_TU_Ghost);
+	}
+	if (GTFinishA(player, c_TR_BansheeCloak, 1)) {
+		count += AIKnownUnitCount(player, player, c_TU_Banshee);
+	}
+	return count;
+}
+int GTOTrans(int player) {
+
+	int count = 0;
+
+	// Protoss
+	count += AIKnownUnitCount(player, player, c_PU_WarpPrism);
+	// Terran
+
+	count += AIKnownUnitCount(player, player, c_TU_Medivac);
+
+	return count;
+}
+int GTOSpec(int player) {
+
+	int count = 0;
+
+	// Protoss
+	count += AIKnownUnitCount(player, player, c_PU_Colossus) * 4;
+	count += AIKnownUnitCount(player, player, c_PU_HighTemplar) * 3;
+	// Terran
+
+	count += AIKnownUnitCount(player, player, c_TU_SiegeTank) * 3;
+	return count;
+}
+int GTOBuff(int player) {
+
+	int count = 0;
+
+	// Protoss
+	count += 2 * AIKnownUnitCount(player, player, c_TU_Medivac);
+	return count;
+}
+int GTOSoldier(int player) {
+
+	int count = 0;
+
+	// Protoss
+	count += AIKnownUnitCount(player, player, c_TU_Marine);
+	count += AIKnownUnitCount(player, player, c_TU_Marauder);
+	count += AIKnownUnitCount(player, player, c_TU_Reaper);
+	return count;
+}
+int GTOHarrass(int player) {
+
+	int count = 0;
+
+	// Protoss
+	count += 3 * AIKnownUnitCount(player, player, c_PU_VoidRay);
+	count += 2 * AIKnownUnitCount(player, player, c_TU_Banshee);
+	count += AIKnownUnitCount(player, player, c_TU_Reaper);
+	count += 2 * AIKnownUnitCount(player, player, c_ZU_Mutalisk);
+
+	return count;
+}
+int GTOLowETemplar(int player) {
+	unitgroup group = UnitGroup(c_PU_HighTemplar, player, RegionEntireMap(), null, 0);
+	aifilter filter;
+	unit u;
+	int size;
+	int i = 1;
+	int count = 0;
+	size = UnitGroupCount(group, c_unitCountAlive);
+	if (size == 0) {
+		return 0;
+	}
+	u = UnitGroupUnit(group, i);
+	while (u != null) {
+		if (UnitGetPropertyInt(u, c_unitPropEnergyPercent, c_unitPropCurrent) < 15) {
+			count = count + 1;
+		}
+		i = i + 1;
+		u = UnitGroupUnit(group, i);
+	}
+	DebugAI(IntToString(count));
+	return count;
+}
+
+int GTOBaseAir(int player) {
+
+	int count = 0;
+
+	// Protoss
+	count += AIKnownUnitCount(player, player, c_PB_Stargate);
+	// Terran
+	count += AIKnownUnitCount(player, player, c_TB_Starport);
+	count += AIKnownUnitCount(player, player, c_ZB_Spire_Alias);
+	return count;
+}
+
+//---------------------------------------
+// Total Army Strength
+//---------------------------------------
+
+int GTOArmy(int player) {
+	if (GFuncIsDelay(player, "GTOArmy", 3)) {
+		return GTableGetInt(player, "GTOArmy");
+	}
+
+	GTableSetInt(player, "GTOArmy", GTOGro(player) + GTOAir(player) + GTOBuff(player) - GTOHarrass(player));
+
+	GFuncSetDelay(player, "GTOArmy");
+	return GTableGetInt(player, "GTOArmy");
+	//   	return FixedToInt(AIUnitGroupStrength(UnitGroupFilterAlliance( UnitGroup(null, -1, RegionPlayableMap(), UnitFilter( 0, 0, (1 << c_targetFilterWorker), (1 << c_targetFilterStructure)), 0), player, c_unitAllianceAlly, 0)));
+}
+
+//------------------------------------
+// Defense
+//------------------------------
+
+int GTEGroD2(int player) {
+
+	int count = 0;
+	// Protoss
+
+	count += 4 * GTCountE(player, c_PB_PhotonCannon);
+
+	// Terran
+
+	count += 4 * GTCountE(player, c_TB_Bunker);
+	count += 4 * GTCountE(player, c_TU_SiegeTank_Alias);
+
+	// Zerg
+
+	count += 4 * GTCountE(player, c_ZB_SpineCrawler);
+
+	return count;
+}
+
+int GTEGroD(int player) {
+	int EID = GTEnemyID(player);
+	string Race = PlayerRace(EID);
+	wave waveA = AIWaveGet(player, c_waveAttack);
+	unitgroup group = UnitGroup(null, EID, RegionEntireMap(), UnitFilterStr("Structure"), 0);
+	unit u = UnitGroupNearestUnit(group, AIGetGatherLocation(player, c_townMain));
+	point p = UnitGetPosition(u);
+	int count = 0;
+	if (GTEBase(player) < 3 || (Race == "Prot" && GTEBase(player) < 2)) {
+		return GTEGroD2(player);
+	}
+	// Protoss
+
+	if (Race == "Prot") {
+		count = +4 * UnitGroupCount(UnitGroup(c_PB_PhotonCannon, EID, RegionCircle(p, 8), null, 0), c_unitCountAlive);
+	}
+
+	// Terran
+
+	else if (Race == "Terr") {
+		count = +4 * UnitGroupCount(UnitGroup(c_TB_Bunker, EID, RegionCircle(p, 8), null, 0), c_unitCountAlive);
+		count = +4 * GTCountE(player, c_TU_SiegeTank_Alias);
+	}
+
+	// Zerg
+
+	else {
+		count = +4 * UnitGroupCount(UnitGroup(c_ZB_SpineCrawler, EID, RegionCircle(p, 8), null, 0), c_unitCountAlive);
+	}
+
+	//    DebugAI(IntToString(count));
+	return count;
+}
+
+int GTTerranSoldier(int player) {
+	int count = 0;
+
+	// Protoss
+	count += AIKnownUnitCount(player, player, c_TU_Marine);
+	count += 2 * AIKnownUnitCount(player, player, c_TU_Marauder);
+	count += AIKnownUnitCount(player, player, c_TU_Reaper);
+	count += AIKnownUnitCount(player, player, c_TU_Ghost);
+
+	return count;
+}
+int GTTerranMech(int player) {
+	int count = 0;
+
+	// Protoss
+	count += 2 * AIKnownUnitCount(player, player, c_TU_Hellion);
+	count += 4 * AIKnownUnitCount(player, player, c_TU_Thor);
+	count += 3 * AIKnownUnitCount(player, player, c_TU_SiegeTank);
+
+	return count;
+}
+int GTTerranAir(int player) {
+	int count = 0;
+
+	// Protoss
+	count += 2 * AIKnownUnitCount(player, player, c_TU_Banshee);
+	count += 2 * AIKnownUnitCount(player, player, c_TU_Viking);
+	count += 6 * AIKnownUnitCount(player, player, c_TU_Battlecruiser);
+
+	return count;
+}
+int GTTerranMachine(int player) {
+	return GTTerranMech(player) + GTTerranAir(player);
+}
+
+int GTZergMelee(int player) {
+	int count = 0;
+
+	// Protoss
+	count += AIKnownUnitCount(player, player, c_ZU_Zergling) / 2;
+	count += 2 * AIKnownUnitCount(player, player, c_ZU_Baneling);
+	count += 6 * AIKnownUnitCount(player, player, c_ZU_Ultralisk);
+	return count;
+}
+int GTZergMissile(int player) {
+	int count = 0;
+
+	// Protoss
+	count += 2 * AIKnownUnitCount(player, player, c_ZU_Roach);
+	count += 2 * AIKnownUnitCount(player, player, c_ZU_Hydralisk);
+
+	return count;
+}
+int GTZergGround(int player) {
+
+	return GTZergMissile(player) + GTZergMelee(player);
+}
+int GTZergAir(int player) {
+	int count = 0;
+
+	// Protoss
+	count += 2 * AIKnownUnitCount(player, player, c_ZU_Mutalisk);
+	count += 2 * AIKnownUnitCount(player, player, c_ZU_Corruptor);
+	count += 6 * AIKnownUnitCount(player, player, c_ZU_BroodLord);
+
+	return count;
+}
+int GTProtossGround(int player) {
+	int count = 0;
+
+	// Protoss
+	count += 2 * AIKnownUnitCount(player, player, c_PU_Zealot);
+	count += 2 * AIKnownUnitCount(player, player, c_PU_Stalker);
+	count += 2 * AIKnownUnitCount(player, player, c_PU_Sentry);
+	count += 4 * AIKnownUnitCount(player, player, c_PU_Immortal);
+	count += 2 * AIKnownUnitCount(player, player, c_PU_DarkTemplar);
+	count += 6 * AIKnownUnitCount(player, player, c_PU_Colossus);
+	return count;
+}
+int GTProtossAir(int player) {
+	int count = 0;
+
+	// Protoss
+	count += 4 * AIKnownUnitCount(player, player, c_PU_VoidRay);
+	count += 2 * AIKnownUnitCount(player, player, c_PU_Phoenix);
+	count += 6 * AIKnownUnitCount(player, player, c_PU_Carrier);
+	count += 8 * AIKnownUnitCount(player, player, c_PU_Mothership);
+
+	return count;
+}
+
+// enemy
+
+int GTEProtossGround(int player) {
+	int count = 0;
+
+	// Protoss
+	count += 2 * GTCountE2(player, c_PU_Zealot);
+	count += 2 * GTCountE2(player, c_PU_Stalker);
+	count += 2 * GTCountE2(player, c_PU_Sentry);
+	count += 4 * GTCountE2(player, c_PU_Immortal);
+	count += 2 * GTCountE2(player, c_PU_DarkTemplar);
+	count += 6 * GTCountE2(player, c_PU_Colossus);
+	return count;
+}
+int GTEProtossAir(int player) {
+	int count = 0;
+
+	// Protoss
+	count += 4 * GTCountE2(player, c_PU_VoidRay);
+	count += 2 * GTCountE2(player, c_PU_Phoenix);
+	count += 6 * GTCountE2(player, c_PU_Carrier);
+	count += 8 * GTCountE2(player, c_PU_Mothership);
+
+	return count;
+}
+int GCounterFull(int player, string Type) {
+	int sum = (AICounterUnitsSameTechAdjusted(player, GTEnemyID(player), Type) + AICounterUnitsAnyTech(player, GTEnemyID(player), Type)) / 2;
+	if (AIHasRes(player, 410, 410)) {
+		return sum * 5;
+	}
+	if (AIHasRes(player, 310, 310)) {
+		return sum * 4;
+	}
+	if (AIHasRes(player, 210, 210)) {
+		return sum * 3;
+	}
+	return sum;
+}
+
+// Get Anti Air Tower in a specific town !
+int GTCountAATowerInTown(int player, int town) {
+	// first get town center !
+	point townCenter = AIGetTownLocation (player, town);
+	string towerString;
+
+	// set towertype
+	if (PlayerRace(player) == "Zerg")      { towerString = c_ZB_SporeCrawler;  }
+	else if (PlayerRace(player) == "Prot") { towerString = c_PB_PhotonCannon;  }
+	else 								   { towerString = c_TB_MissileTurret; }
+
+	return UnitGroupCount(AIFindUnits(player, towerString, townCenter, 20, 0),c_unitCountAlive);
+}
+
+// returns the num of the worker in this town
+int GTCountWorkerInTown(int player, int town) {
+	// first get town center !
+	point townCenter = AIGetTownLocation (player, town);
+	string workerString;
+	if (PlayerRace(player) == "Zerg")      { workerString = c_ZU_Drone;  }
+	else if (PlayerRace(player) == "Prot") { workerString = c_PU_Probe;  }
+	else 								   { workerString = c_TU_SCV; }
+
+	return UnitGroupCount(AIFindUnits(player, workerString, townCenter, 15, 0),c_unitCountAlive);
+}

@@ -1,0 +1,762 @@
+int GRaceNumber (string Race){
+	if (Race == "Terr"){
+		return 0;
+	}
+	if (Race == "Zerg"){
+		return 1;
+	}
+	return 2;
+}
+string GStringAct(int i){
+	if (i == 1){ return "t"; }
+	if (i == 2){ return "b"; }
+	return "r";
+}
+string GNumToRace(int i){
+	if (i == 1){
+		return "Prot";
+	}
+	if (i == 2){
+		return "Terr";
+	}
+	return "Zerg";
+}
+
+string GERace(int i){
+	return GNumToRace(AIGetEnemyRaceVal(i));
+}
+
+string GTShortRace (string race){
+	 if (race == "Terr"){
+		 return "T";
+	 }
+	 if (race == "Prot"){
+		 return "P";
+	 }
+	 return "Z";
+}
+
+int GifI( bool condition, int truevalue, int falsevalue){
+	if (condition){
+		return truevalue;
+	}
+	return falsevalue;
+}
+
+fixed GifF( bool condition, fixed truevalue, fixed falsevalue){
+	if (condition){
+		return truevalue;
+	}
+	return falsevalue;
+}
+
+string GifS( bool condition, string truevalue, string falsevalue){
+	if (condition){
+		return truevalue;
+	}
+	return falsevalue;
+}
+point GifP( bool condition, point truevalue, point falsevalue){
+	if (condition){
+		return truevalue;
+	}
+	return falsevalue;
+}
+
+bank GTBank = BankLoad("GTFile", 1);
+
+//----------------------------------
+//Unit Structure
+//----------------------------------
+
+struct GTCommander {
+    string name;
+    string style;
+};
+struct GTUnitPos {
+    string unitType;
+    point location;
+    fixed angle;
+};
+
+
+
+struct GBuildOrder {
+	string what;
+	int count;
+	int supply;
+	int worker;
+	string type;  // 0: Train, 1: Build, 2: Research, 3:Cancel Build
+};
+
+
+GBuildOrder[101] GBO;
+
+//----------------------------------
+// Constants
+//----------------------------------
+
+const int c_noWave = -1;
+const string c_GStartup = "Startup";
+const string c_RandomStyle = "RandomStyle";
+const string c_Button_Player = "ButtonPlayer";
+const string c_AI_ID = "IDAIChoose";
+const string c_ChooseID = "IDCommanderChoose";
+const string c_FirstCounter = "FirstBuildCounter";
+const string c_Button_Different = "ButtonDiff";
+const string c_Slot1_Different = "Slot1Diff";
+const string c_Slot2_Different = "Slot2Diff";
+const string c_Button_DefaultColor = "ButtonDefaultColor";
+const string c_BS_StartMenu = "StartMenu";
+const string c_BS_OptionMenu = "OptionMenu";
+const string c_BK_CommanderSelect = "CommanderSelect";
+const string c_BK_Talk = "GTalk";
+const string c_BK_Wall = "GWall";
+const string c_BK_Showhr = "GHR";
+const string c_BK_FFA = "GFFA";
+const string c_BK_newAVS = "GAVS";
+const string c_BK_limitAPM = "GLimitAPM";
+const string c_BK_record = "GRecord";
+const string c_BK_truetime = "GTrueTimerSet";
+const string c_BK_reminder = "GReminder";
+const string c_SaveSlot = "SaveSlot";
+const string c_LoadSlot = "LoadSlot";
+//---------------------------------
+// Globals
+//---------------------------------
+int[16] gtbuildselect;
+int[16] g_transform;
+bool gttalk = false;
+bool gtshowhr = false;
+bool gtFFA = false;
+bool g_walling = true;
+bool g_record = false;
+bool g_showbuild = false;
+bool g_viewbuild = false;
+bool g_micro = false;
+bool g_custom = false;
+bool g_limitAPM = false;
+bool g_showtimer = true;
+bool g_truetime = true;
+bool g_autobuild = true;
+bool g_hard = true;
+bool g_reminder = false;
+bool g_practice = false;
+bool g_canattack = true;
+int g_start;
+bool g_alertnomicro = true;
+bool[10] g_postAI;				// default = false!
+bool g_fakeScout = false;
+bool g_useNewAVS = false;
+bool g_noAutoUpgrade = false;
+int g_boardchoice;
+bool[9] g_townlost;
+bool g_isTeamGame = false;
+
+GTUnitPos[700] GTNU;
+timer GTRoundTime = TimerCreate();
+timer GTAttackTime = TimerCreate();
+int GtimeA = TimerWindowCreate(GTAttackTime, StringToText("Peace"), false, false);
+fixed GTime(){
+	return TimerGetElapsed(GTRoundTime);
+}
+
+
+//-----------------------------------
+//DelayFunction
+//-----------------------------------
+bool GFuncIsDelay(int player, string funcName, fixed time){
+    if ( (AIGetTime() - DataTableGetFixed(true,IntToString(player)+funcName+"time")) > time){
+        return false;
+    }
+    return true;
+}
+
+// DataTable Define
+void GTableSetPoint (int player, string name, point val){
+	DataTableSetPoint(true, IntToString(player) + name, val);
+	return;
+}
+point GTableGetPoint (int player, string name){
+	return DataTableGetPoint(true, IntToString(player) + name);
+}
+void GTableSetUnit (int player, string name, unit val){
+	DataTableSetUnit(true, IntToString(player) + name, val);
+	return;
+}
+unit GTableGetUnit (int player, string name){
+	return DataTableGetUnit(true, IntToString(player) + name);
+}
+void GTableSetInt (int player, string name, int val){
+	DataTableSetInt(true, IntToString(player) + name, val);
+	return;
+}
+int GTableGetInt (int player, string name){
+	return DataTableGetInt(true, IntToString(player) + name);
+}
+
+void GTableSetFixed (int player, string name, fixed val){
+	DataTableSetFixed(true, IntToString(player) + name, val);
+	return;
+}
+fixed GTableGetFixed (int player, string name){
+	return DataTableGetFixed(true, IntToString(player) + name);
+}
+
+void GTableSetBool (int player, string name, bool val){
+	DataTableSetBool(true, IntToString(player) + name, val);
+	return;
+}
+bool GTableGetBool (int player, string name){
+	return DataTableGetBool(true, IntToString(player) + name);
+}
+
+// Sets up the Delaytimer Function Calls
+void GFuncSetDelay(int player, string funcName){
+    GTableSetFixed(player, funcName+"time",AIGetTime() );
+    return;
+}
+
+// Save Function Result Values for each player
+
+void GTSetFuncResultFixed(int player, string funcName, fixed value) {
+    DataTableSetFixed(true, IntToString(player) + "_" + funcName + "_result",value);    
+}
+
+fixed GTGetFuncResultFixed(int player, string funcName) {
+    return DataTableGetFixed(true, IntToString(player) + "_" + funcName + "_result");
+}
+
+void GTSetFuncResultInt(int player, string funcName, int value) {
+    DataTableSetInt(true, IntToString(player) + "_" + funcName + "_result",value);
+}
+
+fixed GTGetFuncResultInt(int player, string funcName) {
+    return DataTableGetInt(true, IntToString(player) + "_" + funcName + "_result");
+}
+
+void GTableSetUnitDead (int player, string name, int val){
+	DataTableSetInt(true, IntToString(player) + "-" + name + "-deadnum", val);
+	return;
+}
+int GTableGetUnitDead (int player, string name){
+	return DataTableGetInt(true, IntToString(player) + "-" + name + "-deadnum");
+}
+
+
+
+string GTypeList(string race, int act, int i){
+	if (race == "Terr"){
+		if (act == 1){
+			if (i == 1){ return "Banshee";}
+			if (i == 2){ return "Battlecruiser";}
+			if (i == 3){ return "Ghost";}
+			if (i == 4){ return "Hellion";}
+			if (i == 5){ return "Marauder";}
+			if (i == 6){ return "Marine";}
+			if (i == 7){ return "Medivac";}
+			if (i == 8){ return "Raven";}
+			if (i == 9){ return "Reaper";}
+			if (i == 10){ return "SiegeTank";}
+			if (i == 11){ return "Thor";}
+			if (i == 12){ return "VikingFighter";}
+		}
+		if (act == 2){
+			if (i == 1){ return "Alias_SupplyDepot";}
+			if (i == 2){ return "Armory";}
+			if (i == 3){ return "Barracks";}
+			if (i == 4){ return "BarracksReactor";}
+			if (i == 5){ return "BarracksTechLab";}
+			if (i == 6){ return "Bunker";}
+			if (i == 7){ return "CommandCenter";}
+			if (i == 8){ return "EngineeringBay";}
+			if (i == 9){ return "Factory";}
+			if (i == 10){ return "FactoryReactor";}
+			if (i == 11){ return "FactoryTechLab";}
+			if (i == 12){ return "FusionCore";}
+			if (i == 13){ return "GhostAcademy";}
+			if (i == 14){ return "MissileTurret";}
+			if (i == 15){ return "OrbitalCommand";}
+			if (i == 16){ return "PlanetaryFortress";}
+			if (i == 17){ return "Refinery";}
+			if (i == 18){ return "SensorTower";}
+			if (i == 19){ return "Starport";}
+			if (i == 20){ return "StarportReactor";}
+			if (i == 21){ return "StarportTechLab";}
+		}
+		if (act == 3){
+			if (i == 1){ return "BansheeCloak";}
+			if (i == 2){ return "BattlecruiserBehemothReactor";}
+			if (i == 3){ return "BattlecruiserEnableSpecializations";}
+			if (i == 4){ return "DurableMaterials";}
+			if (i == 5){ return "GhostMoebiusReactor";}
+			if (i == 6){ return "HighCapacityBarrels";}
+			if (i == 7){ return "HiSecAutoTracking";}
+			if (i == 8){ return "HunterSeeker";}
+			if (i == 9){ return "MedivacCaduceusReactor";}
+			if (i == 10){ return "NeosteelFrame";}
+			if (i == 11){ return "PersonalCloaking";}
+			if (i == 12){ return "PunisherGrenades";}
+			if (i == 13){ return "RavenCorvidReactor";}
+			if (i == 14){ return "ReaperSpeed";}
+			if (i == 15){ return "ShieldWall";}
+			if (i == 16){ return "SiegeTech";}
+			if (i == 17){ return "Stimpack";}
+			if (i == 18){ return "StrikeCannons";}
+			if (i == 19){ return "TerranBuildingArmor";}
+
+		}
+		if (act == 4){
+			if (i == 1){ return "TerranInfantryArmorsLevel1";}
+			if (i == 2){ return "TerranInfantryArmorsLevel2";}
+			if (i == 3){ return "TerranInfantryArmorsLevel3";}
+			if (i == 4){ return "TerranInfantryWeaponsLevel1";}
+			if (i == 5){ return "TerranInfantryWeaponsLevel2";}
+			if (i == 6){ return "TerranInfantryWeaponsLevel3";}
+			if (i == 7){ return "TerranShipArmorsLevel1";}
+			if (i == 8){ return "TerranShipArmorsLevel2";}
+			if (i == 9){ return "TerranShipArmorsLevel3";}
+			if (i == 10){ return "TerranShipWeaponsLevel1";}
+			if (i == 11){ return "TerranShipWeaponsLevel2";}
+			if (i == 12){ return "TerranShipWeaponsLevel3";}
+			if (i == 13){ return "TerranVehicleArmorsLevel1";}
+			if (i == 14){ return "TerranVehicleArmorsLevel2";}
+			if (i == 15){ return "TerranVehicleArmorsLevel3";}
+			if (i == 16){ return "TerranVehicleWeaponsLevel1";}
+			if (i == 17){ return "TerranVehicleWeaponsLevel2";}
+			if (i == 18){ return "TerranVehicleWeaponsLevel3";}
+		}
+	}
+	if (race == "Prot"){
+		if (act == 1){
+			if (i == 1){ return "Carrier";}
+			if (i == 2){ return "Colossus";}
+			if (i == 3){ return "DarkTemplar";}
+			if (i == 4){ return "HighTemplar";}
+			if (i == 5){ return "Immortal";}
+			if (i == 6){ return "Mothership";}
+			if (i == 7){ return "Observer";}
+			if (i == 8){ return "Phoenix";}
+			if (i == 9){ return "Sentry";}
+			if (i == 10){ return "Stalker";}
+			if (i == 11){ return "VoidRay";}
+			if (i == 12){ return "WarpPrism";}
+			if (i == 13){ return "Zealot";}
+		}
+		if (act == 2){
+			if (i == 1){ return "Assimilator";}
+			if (i == 2){ return "CyberneticsCore";}
+			if (i == 3){ return "DarkShrine";}
+			if (i == 4){ return "FleetBeacon";}
+			if (i == 5){ return "Forge";}
+			if (i == 6){ return "Gateway";}
+			if (i == 7){ return "Nexus";}
+			if (i == 8){ return "PhotonCannon";}
+			if (i == 9){ return "Pylon";}
+			if (i == 10){ return "RoboticsBay";}
+			if (i == 11){ return "RoboticsFacility";}
+			if (i == 12){ return "Stargate";}
+			if (i == 13){ return "TemplarArchive";}
+			if (i == 14){ return "TwilightCouncil";}
+			if (i == 15){ return "WarpGate";}
+		}
+		if (act == 3){
+			if (i == 1){ return "BlinkTech";}
+			if (i == 2){ return "CarrierLaunchSpeedUpgrade";}
+			if (i == 3){ return "Charge";}
+			if (i == 4){ return "ExtendedThermalLance";}
+			if (i == 5){ return "GraviticDrive";}
+			if (i == 6){ return "haltech";}
+			if (i == 7){ return "HighTemplarKhaydarinAmulet";}
+			if (i == 8){ return "ObserverGraviticBooster";}
+			if (i == 9){ return "PsiStormTech";}
+			if (i == 10){ return "WarpGateResearch";}
+
+		}
+		if (act == 4){
+			if (i == 1){ return "ProtossAirArmorsLevel1";}
+			if (i == 2){ return "ProtossAirArmorsLevel2";}
+			if (i == 3){ return "ProtossAirArmorsLevel3";}
+			if (i == 4){ return "ProtossAirWeaponsLevel1";}
+			if (i == 5){ return "ProtossAirWeaponsLevel2";}
+			if (i == 6){ return "ProtossAirWeaponsLevel3";}
+			if (i == 7){ return "ProtossGroundArmorsLevel1";}
+			if (i == 8){ return "ProtossGroundArmorsLevel2";}
+			if (i == 9){ return "ProtossGroundArmorsLevel3";}
+			if (i == 10){ return "ProtossGroundWeaponsLevel1";}
+			if (i == 11){ return "ProtossGroundWeaponsLevel2";}
+			if (i == 12){ return "ProtossGroundWeaponsLevel3";}
+			if (i == 13){ return "ProtossShieldsLevel1";}
+			if (i == 14){ return "ProtossShieldsLevel2";}
+			if (i == 15){ return "ProtossShieldsLevel3";}
+
+		}
+	}
+	if (race == "Zerg"){
+		if (act == 1){
+			if (i == 1){ return "Baneling";}
+			if (i == 2){ return "BroodLord";}
+			if (i == 3){ return "Corruptor";}
+			if (i == 4){ return "Hydralisk";}
+			if (i == 5){ return "Infestor";}
+			if (i == 6){ return "Mutalisk";}
+			if (i == 7){ return "Overlord";}
+			if (i == 8){ return "Overseer";}
+			if (i == 9){ return "Queen";}
+			if (i == 10){ return "Roach";}
+			if (i == 11){ return "Ultralisk";}
+			if (i == 12){ return "Zergling";}
+		}
+		if (act == 2){
+			if (i == 1){ return "BanelingNest";}
+			if (i == 2){ return "EvolutionChamber";}
+			if (i == 3){ return "Extractor";}
+			if (i == 4){ return "GreaterSpire";}
+			if (i == 5){ return "Hatchery";}
+			if (i == 6){ return "Hive";}
+			if (i == 7){ return "HydraliskDen";}
+			if (i == 8){ return "InfestationPit";}
+			if (i == 9){ return "Lair";}
+			if (i == 10){ return "NydusNetwork";}
+			if (i == 11){ return "NydusCanal";}
+			if (i == 12){ return "RoachWarren";}
+			if (i == 13){ return "SpawningPool";}
+			if (i == 14){ return "SpineCrawler";}
+			if (i == 15){ return "Spire";}
+			if (i == 16){ return "SporeCrawler";}
+			if (i == 17){ return "UltraliskCavern";}
+		}
+		if (act == 3){
+			if (i == 1){ return "CentrificalHooks";}
+			if (i == 2){ return "Burrow";}
+			if (i == 3){ return "hydraliskspeed";}
+			if (i == 4){ return "InfestorEnergyUpgrade";}
+			if (i == 5){ return "NeuralParasite";}
+			if (i == 6){ return "overlordtransport";}
+			if (i == 7){ return "overlordspeed";}
+			if (i == 8){ return "OrganicCarapace";}
+			if (i == 9){ return "TunnelingClaws";}
+			if (i == 10){ return "GlialReconstitution";}
+			if (i == 11){ return "zerglingattackspeed";}
+			if (i == 12){ return "zerglingmovementspeed";}
+			if (i == 13){ return "ChitinousPlating";}
+
+
+		}
+		if (act == 4){
+			if (i == 1){ return "ZergFlyerWeaponsLevel1";}
+			if (i == 2){ return "ZergFlyerWeaponsLevel2";}
+			if (i == 3){ return "ZergFlyerWeaponsLevel3";}
+			if (i == 4){ return "ZergFlyerArmorsLevel1";}
+			if (i == 5){ return "ZergFlyerArmorsLevel2";}
+			if (i == 6){ return "ZergFlyerArmorsLevel3";}
+			if (i == 7){ return "ZergGroundArmorsLevel1";}
+			if (i == 8){ return "ZergGroundArmorsLevel2";}
+			if (i == 9){ return "ZergGroundArmorsLevel3";}
+			if (i == 10){ return "ZergMeleeWeaponsLevel1";}
+			if (i == 11){ return "ZergMeleeWeaponsLevel2";}
+			if (i == 12){ return "ZergMeleeWeaponsLevel3";}
+			if (i == 13){ return "ZergMissileWeaponsLevel1";}
+			if (i == 14){ return "ZergMissileWeaponsLevel2";}
+			if (i == 15){ return "ZergMissileWeaponsLevel3";}
+		}
+	}
+	return null;
+}
+
+
+
+int GTypeSelect (string race, int act, string type){
+
+	if (race == "Terr"){
+		if (act == 1){
+			if (type == "Banshee"){ return 1;}
+			if (type == "Battlecruiser"){ return 2;}
+			if (type == "Ghost"){ return 3;}
+			if (type == "Hellion"){ return 4;}
+			if (type == "Marauder"){ return 5;}
+			if (type == "Marine"){ return 6;}
+			if (type == "Medivac"){ return 7;}
+			if (type == "Raven"){ return 8;}
+			if (type == "Reaper"){ return 9;}
+			if (type == "SiegeTank"){ return 10;}
+			if (type == "Thor"){ return 11;}
+			if (type == "VikingFighter"){ return 12;}
+		}
+		if (act == 2){
+			if (type == "Alias_SupplyDepot"){ return 1;}
+			if (type == "Armory"){ return 2;}
+			if (type == "Barracks"){ return 3;}
+			if (type == "BarracksReactor"){ return 4;}
+			if (type == "BarracksTechLab"){ return 5;}
+			if (type == "Bunker"){ return 6;}
+			if (type == "CommandCenter"){ return 7;}
+			if (type == "EngineeringBay"){ return 8;}
+			if (type == "Factory"){ return 9;}
+			if (type == "FactoryReactor"){ return 10;}
+			if (type == "FactoryTechLab"){ return 11;}
+			if (type == "FusionCore"){ return 12;}
+			if (type == "GhostAcademy"){ return 13;}
+			if (type == "MissileTurret"){ return 14;}
+			if (type == "OrbitalCommand"){ return 15;}
+			if (type == "PlanetaryFortress"){ return 16;}
+			if (type == "Refinery"){ return 17;}
+			if (type == "SensorTower"){ return 18;}
+			if (type == "Starport"){ return 19;}
+			if (type == "StarportReactor"){ return 20;}
+			if (type == "StarportTechLab"){ return 21;}
+		}
+		if (act == 3){
+			if (type == "BansheeCloak"){ return 1;}
+			if (type == "BattlecruiserBehemothReactor"){ return 2;}
+			if (type == "BattlecruiserEnableSpecializations"){ return 3;}
+			if (type == "DurableMaterials"){ return 4;}
+			if (type == "GhostMoebiusReactor"){ return 5;}
+			if (type == "HighCapacityBarrels"){ return 6;}
+			if (type == "HiSecAutoTracking"){ return 7;}
+			if (type == "HunterSeeker"){ return 8;}
+			if (type == "MedivacCaduceusReactor"){ return 9;}
+			if (type == "NeosteelFrame"){ return 10;}
+			if (type == "PersonalCloaking"){ return 11;}
+			if (type == "PunisherGrenades"){ return 12;}
+			if (type == "RavenCorvidReactor"){ return 13;}
+			if (type == "ReaperSpeed"){ return 14;}
+			if (type == "ShieldWall"){ return 15;}
+			if (type == "SiegeTech"){ return 16;}
+			if (type == "Stimpack"){ return 17;}
+			if (type == "StrikeCannons"){ return 18;}
+			if (type == "TerranBuildingArmor"){ return 19;}
+
+		}
+		if (act == 4){
+			if (type == "TerranInfantryArmorsLevel1"){ return 1;}
+			if (type == "TerranInfantryArmorsLevel2"){ return 2;}
+			if (type == "TerranInfantryArmorsLevel3"){ return 3;}
+			if (type == "TerranInfantryWeaponsLevel1"){ return 4;}
+			if (type == "TerranInfantryWeaponsLevel2"){ return 5;}
+			if (type == "TerranInfantryWeaponsLevel3"){ return 6;}
+			if (type == "TerranShipArmorsLevel1"){ return 7;}
+			if (type == "TerranShipArmorsLevel2"){ return 8;}
+			if (type == "TerranShipArmorsLevel3"){ return 9;}
+			if (type == "TerranShipWeaponsLevel1"){ return 10;}
+			if (type == "TerranShipWeaponsLevel2"){ return 11;}
+			if (type == "TerranShipWeaponsLevel3"){ return 12;}
+			if (type == "TerranVehicleArmorsLevel1"){ return 13;}
+			if (type == "TerranVehicleArmorsLevel2"){ return 14;}
+			if (type == "TerranVehicleArmorsLevel3"){ return 15;}
+			if (type == "TerranVehicleWeaponsLevel1"){ return 16;}
+			if (type == "TerranVehicleWeaponsLevel2"){ return 17;}
+			if (type == "TerranVehicleWeaponsLevel3"){ return 18;}
+		}
+	}
+	if (race == "Prot"){
+		if (act == 1){
+			if (type == "Carrier"){ return 1;}
+			if (type == "Colossus"){ return 2;}
+			if (type == "DarkTemplar"){ return 3;}
+			if (type == "HighTemplar"){ return 4;}
+			if (type == "Immortal"){ return 5;}
+			if (type == "Mothership"){ return 6;}
+			if (type == "Observer"){ return 7;}
+			if (type == "Phoenix"){ return 8;}
+			if (type == "Sentry"){ return 9;}
+			if (type == "Stalker"){ return 10;}
+			if (type == "VoidRay"){ return 11;}
+			if (type == "WarpPrism"){ return 12;}
+			if (type == "Zealot"){ return 13;}
+		}
+		if (act == 2){
+			if (type == "Assimilator"){ return 1;}
+			if (type == "CyberneticsCore"){ return 2;}
+			if (type == "DarkShrine"){ return 3;}
+			if (type == "FleetBeacon"){ return 4;}
+			if (type == "Forge"){ return 5;}
+			if (type == "Gateway"){ return 6;}
+			if (type == "Nexus"){ return 7;}
+			if (type == "PhotonCannon"){ return 8;}
+			if (type == "Pylon"){ return 9;}
+			if (type == "RoboticsBay"){ return 10;}
+			if (type == "RoboticsFacility"){ return 11;}
+			if (type == "Stargate"){ return 12;}
+			if (type == "TemplarArchive"){ return 13;}
+			if (type == "TwilightCouncil"){ return 14;}
+			if (type == "WarpGate"){ return 15;}
+		}
+		if (act == 3){
+			if (type == "BlinkTech"){ return 1;}
+			if (type == "CarrierLaunchSpeedUpgrade"){ return 2;}
+			if (type == "Charge"){ return 3;}
+			if (type == "ExtendedThermalLance"){ return 4;}
+			if (type == "GraviticDrive"){ return 5;}
+			if (type == "haltech"){ return 6;}
+			if (type == "HighTemplarKhaydarinAmulet"){ return 7;}
+			if (type == "ObserverGraviticBooster"){ return 8;}
+			if (type == "PsiStormTech"){ return 9;}
+			if (type == "WarpGateResearch"){ return 10;}
+		}
+		if (act == 4){
+			if (type == "ProtossAirArmorsLevel1"){ return 1;}
+			if (type == "ProtossAirArmorsLevel2"){ return 2;}
+			if (type == "ProtossAirArmorsLevel3"){ return 3;}
+			if (type == "ProtossAirWeaponsLevel1"){ return 4;}
+			if (type == "ProtossAirWeaponsLevel2"){ return 5;}
+			if (type == "ProtossAirWeaponsLevel3"){ return 6;}
+			if (type == "ProtossGroundArmorsLevel1"){ return 7;}
+			if (type == "ProtossGroundArmorsLevel2"){ return 8;}
+			if (type == "ProtossGroundArmorsLevel3"){ return 9;}
+			if (type == "ProtossGroundWeaponsLevel1"){ return 10;}
+			if (type == "ProtossGroundWeaponsLevel2"){ return 11;}
+			if (type == "ProtossGroundWeaponsLevel3"){ return 12;}
+			if (type == "ProtossShieldsLevel1"){ return 13;}
+			if (type == "ProtossShieldsLevel2"){ return 14;}
+			if (type == "ProtossShieldsLevel3"){ return 15;}
+		}
+	}
+	if (race == "Zerg"){
+		if (act == 1){
+			if (type == "Baneling"){ return 1;}
+			if (type == "BroodLord"){ return 2;}
+			if (type == "Corruptor"){ return 3;}
+			if (type == "Hydralisk"){ return 4;}
+			if (type == "Infestor"){ return 5;}
+			if (type == "Mutalisk"){ return 6;}
+			if (type == "Overlord"){ return 7;}
+			if (type == "Overseer"){ return 8;}
+			if (type == "Queen"){ return 9;}
+			if (type == "Roach"){ return 10;}
+			if (type == "Ultralisk"){ return 11;}
+			if (type == "Zergling"){ return 12;}
+		}
+		if (act == 2){
+			if (type == "BanelingNest"){ return 1;}
+			if (type == "EvolutionChamber"){ return 2;}
+			if (type == "Extractor"){ return 3;}
+			if (type == "GreaterSpire"){ return 4;}
+			if (type == "Hatchery"){ return 5;}
+			if (type == "Hive"){ return 6;}
+			if (type == "HydraliskDen"){ return 7;}
+			if (type == "InfestationPit"){ return 8;}
+			if (type == "Lair"){ return 9;}
+			if (type == "NydusNetwork"){ return 10;}
+			if (type == "NydusCanal"){ return 11;}
+			if (type == "RoachWarren"){ return 12;}
+			if (type == "SpawningPool"){ return 13;}
+			if (type == "SpineCrawler"){ return 14;}
+			if (type == "Spire"){ return 15;}
+			if (type == "SporeCrawler"){ return 16;}
+			if (type == "UltraliskCavern"){ return 17;}
+		}
+		if (act == 3){
+			if (type == "CentrificalHooks"){ return 1;}
+			if (type == "Burrow"){ return 2;}
+			if (type == "hydraliskspeed"){ return 3;}
+			if (type == "InfestorEnergyUpgrade"){ return 4;}
+			if (type == "NeuralParasite"){ return 5;}
+			if (type == "overlordtransport"){ return 6;}
+			if (type == "overlordspeed"){ return 7;}
+			if (type == "OrganicCarapace"){ return 8;}
+			if (type == "TunnelingClaws"){ return 9;}
+			if (type == "GlialReconstitution"){ return 10;}
+			if (type == "zerglingattackspeed"){ return 11;}
+			if (type == "zerglingmovementspeed"){ return 12;}
+			if (type == "ChitinousPlating"){ return 13;}
+		}
+		if (act == 4){
+			if (type == "ZergFlyerWeaponsLevel1"){ return 1;}
+			if (type == "ZergFlyerWeaponsLevel2"){ return 2;}
+			if (type == "ZergFlyerWeaponsLevel3"){ return 3;}
+			if (type == "ZergFlyerArmorsLevel1"){ return 4;}
+			if (type == "ZergFlyerArmorsLevel2"){ return 5;}
+			if (type == "ZergFlyerArmorsLevel3"){ return 6;}
+			if (type == "ZergGroundArmorsLevel1"){ return 7;}
+			if (type == "ZergGroundArmorsLevel2"){ return 8;}
+			if (type == "ZergGroundArmorsLevel3"){ return 9;}
+			if (type == "ZergMeleeWeaponsLevel1"){ return 10;}
+			if (type == "ZergMeleeWeaponsLevel2"){ return 11;}
+			if (type == "ZergMeleeWeaponsLevel3"){ return 12;}
+			if (type == "ZergMissileWeaponsLevel1"){ return 13;}
+			if (type == "ZergMissileWeaponsLevel2"){ return 14;}
+			if (type == "ZergMissileWeaponsLevel3"){ return 15;}
+
+		}
+
+	}
+
+	return 0;
+
+}
+//------------------------------------------------
+// Commander Value
+//------------------------------------------------
+GTCommander[3][22] GTC;
+void GInitComName(){
+	int i;
+	i = 0; // Terr
+	 GTC[i][1].name = "Kachinsky"   ;  GTC[i][1].style = "TvZ:Hellion => Bio Tank";
+	 GTC[i][2].name = "Cade"        ;  GTC[i][2].style = "TvZ:Hellion/Banshee";
+	 GTC[i][3].name = "Thatcher"    ;  GTC[i][3].style = "TvZ:Marauder/Hellion";
+	 GTC[i][4].name = "Hall"        ;  GTC[i][4].style = "TvZ:Banshee/Marine";
+	 GTC[i][5].name = "Tiger"       ;  GTC[i][5].style = "Thor";
+	 GTC[i][6].name = "Panda"       ;  GTC[i][6].style = "Marauder";
+	 GTC[i][7].name = "Cody"        ;  GTC[i][7].style = "Infantry units";
+	 GTC[i][8].name = "Horace"      ;  GTC[i][8].style = "5 Rax";
+	 GTC[i][9].name = "Jim"         ;  GTC[i][9].style = "Banshee => Thor";
+	GTC[i][10].name = "Acturus"     ; GTC[i][10].style = "2M";
+	GTC[i][11].name = "Sarah"       ; GTC[i][11].style = "Banshee => Tank";
+	GTC[i][12].name = "Kate"        ; GTC[i][12].style = "Tank & Battlecruiser";
+	GTC[i][13].name = "Rory"        ; GTC[i][13].style = "Tank & Banshee";
+	GTC[i][14].name = "Aaren"       ; GTC[i][14].style = "Thor & 3M";
+	GTC[i][15].name = "Egon"        ; GTC[i][15].style = "3 Barracks Rush";
+	GTC[i][16].name = "Graven"      ; GTC[i][16].style = "Mech";
+	GTC[i][17].name = "Hyperion"    ; GTC[i][17].style = "Battle Cruiser";
+	GTC[i][18].name = "Ariel"       ; GTC[i][18].style = "3 Tank Push";
+	GTC[i][19].name = "Gabriel"     ; GTC[i][19].style = "Fast expand => Battlecruiser";
+	GTC[i][20].name = "Matt"        ; GTC[i][20].style = "2M => Mech";
+
+	i = 1; // Zerg
+
+	 GTC[i][1].name = "Urun"        ;  GTC[i][1].style = "ZvT: 3 Base Infestor/BroodLord";
+	 GTC[i][2].name = "Lhassir"     ;  GTC[i][2].style = "ZvT: Muta/Ling/Bane";
+	 GTC[i][3].name = "Vartanil"    ;  GTC[i][3].style = "ZvT: 2 Base Mutalisk";
+	 GTC[i][4].name = "Mohandar"    ;  GTC[i][4].style = "ZvT: Ling/Baneling";
+	 GTC[i][5].name = "Selendis"    ;  GTC[i][5].style = "ZvT: Roach Rush";
+	 GTC[i][6].name = "Artanis"     ;  GTC[i][6].style = "ZvT: Roach/Ling/Baneling";
+	 GTC[i][7].name = "Torrasque"   ;  GTC[i][7].style = "ZvT: Roach Eco";
+	 GTC[i][8].name = "Thakras"     ;  GTC[i][8].style = "ZvP: Roach/Ling All-in";
+	 GTC[i][9].name = "Ethan"       ;  GTC[i][9].style = "ZvP: Ling/Roach/Infestor";
+	GTC[i][10].name = "Ghandi "     ; GTC[i][10].style = "ZvP: 2 Base Hydralisk";
+	GTC[i][11].name = "Abathur"     ; GTC[i][11].style = "ZvP: Roach/Mutalisk";
+	GTC[i][12].name = "Atticus"     ; GTC[i][12].style = "ZvP: 3 Base Hydra/Roach";
+	GTC[i][13].name = "Zargil"      ; GTC[i][13].style = "ZvP: Ice Fisher style";
+	GTC[i][14].name = "Frayne"      ; GTC[i][14].style = "ZvP: Speedling Expand";
+	GTC[i][15].name = "Araq"        ; GTC[i][15].style = "ZvZ: 6 pool";
+	GTC[i][16].name = "Incubus"     ; GTC[i][16].style = "ZvZ: Ling Flood";
+	GTC[i][17].name = "Cardis"      ; GTC[i][17].style = "ZvZ: Destiny Style";
+	GTC[i][18].name = "Reaver"      ; GTC[i][18].style = "ZvZ: Baneling/Mutalisk";
+	GTC[i][19].name = "Ruom"        ; GTC[i][19].style = "Zerg with Protoss Power";
+	GTC[i][20].name = "Samir"       ; GTC[i][20].style = "Zerg with Terran Technology";
+
+	i = 2; // Protoss
+	 GTC[i][1].name = "Jake"        ;  GTC[i][1].style = "High Templar";
+	 GTC[i][2].name = "Alan"        ;  GTC[i][2].style = "Stalker";
+	 GTC[i][3].name = "Doran"       ;  GTC[i][3].style = "Collosus";
+	 GTC[i][4].name = "Nova"        ;  GTC[i][4].style = "Tempest";
+	 GTC[i][5].name = "Zyrkhan"     ;  GTC[i][5].style = "Ground Force";
+	 GTC[i][6].name = "Raamar"      ;  GTC[i][6].style = "Robotics";
+	 GTC[i][7].name = "Pagan"       ;  GTC[i][7].style = "Immortal";
+	 GTC[i][8].name = "Kizrath"     ;  GTC[i][8].style = "Phoenix";
+	 GTC[i][9].name = "Fenix"       ;  GTC[i][9].style = "1 Gate Fast Expand";
+	GTC[i][10].name = "Ternasis"    ; GTC[i][10].style = "Cannon Rush";
+	GTC[i][11].name = "Witness IV"  ; GTC[i][11].style = "4 Warpgate";
+	GTC[i][12].name = "Aetherian"   ; GTC[i][12].style = "Dark Templar Push";
+	GTC[i][13].name = "Tassadar"    ; GTC[i][13].style = "Dark Templar Expand";
+	GTC[i][14].name = "Mertick"     ; GTC[i][14].style = "Immortal Rush";
+	GTC[i][15].name = "Juras"       ; GTC[i][15].style = "Stalker & Voidray";
+	GTC[i][16].name = "Warbringer"  ; GTC[i][16].style = "Zealot & Voidray";
+	GTC[i][17].name = "Maar"        ; GTC[i][17].style = "Zealot Rush";
+	GTC[i][18].name = "Castanar"    ; GTC[i][18].style = "Land N Sky";
+	GTC[i][19].name = "Karass"      ; GTC[i][19].style = "Zealot & Colossu";
+	GTC[i][20].name = "Gilson"      ; GTC[i][20].style = "2 Gateway Late gas";
+
+}
+

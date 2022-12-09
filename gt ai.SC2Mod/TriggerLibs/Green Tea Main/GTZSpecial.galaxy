@@ -1,0 +1,570 @@
+//-----------------------------------
+//GasCancel for Extractor Trick
+//----------------------------------------
+void GTZergCancelGas (int player) {
+    int i = 1;
+    unit u;
+    order ord;
+    unitgroup group = UnitGroup(c_ZB_Extractor, player, RegionCircle(AIGetTownLocation(player, 0), 12), null, 0);
+
+    u = UnitGroupUnit(group, i);
+    while (u != null){
+        ord = AICreateOrder(player, "BuildInProgress", 0);
+        if (UnitOrderIsValid(u, ord)) {
+            AICast(u, ord, c_noMarker, c_castHold);
+        }
+        i = i + 1;
+        u = UnitGroupUnit(group, i);
+    }
+    return;
+}
+
+// Nuke Upgrade
+void GTArmSilo (int player) {
+    unit u = AIGrabUnit(player, c_TB_GhostAcademy, c_prioScriptControlled, null);
+    order ord;
+    if (u == null){
+    	return;
+    }
+    ord = AICreateOrder(player, "ArmSiloWithNuke", 0);
+    if (!UnitOrderIsValid(u, ord)) {
+    	return;
+    }
+    AICast(u, ord, c_noMarker, c_castHold);
+    return;
+}
+
+// Get a Barrack - Techlab
+void GTBarrackTechlab (int player) {
+    unit u = AIGrabUnit(player, c_TB_Barracks, c_prioScriptControlled, null);
+    order ord;
+    if (u == null){
+    	return;
+    }
+    ord = AICreateOrder(player, "BarracksAddOns", 0);
+    if (UnitOrderIsValid(u, ord)) {
+    	return;
+    }
+    AICast(u, ord, c_noMarker, c_castHold);
+    return;
+}
+
+// Get a Barrack - Reactor
+void GTBarrackReactor (int player){
+	unit u = AIGrabUnit(player, c_TB_Barracks, c_prioScriptControlled, null);
+	order ord;
+	if (u == null){
+		 return;
+	}
+	ord = AICreateOrder(player, "BarracksAddOns", 1);
+	if (UnitOrderIsValid(u, ord)) {
+		return;
+	}
+	AICast(u, ord, c_noMarker, c_castHold);
+	return;
+}
+
+// Salvage Bunker on this location
+void GTSalvage (int player, point loc)
+{
+    order ord;
+    unit u;
+    unitgroup group = AIFindUnits (player, c_TB_Bunker, loc, 8, 100);
+    u = UnitGroupUnit(group, 1);
+    if (u == null){
+    	return;
+    }
+    ord = AICreateOrder(player, "SalvageBunker", 0);
+    if (UnitOrderIsValid(u, ord) ){
+         AICast(u, ord, c_noMarker, c_castHold);
+    }
+    return;
+}
+
+//unitgroup GTFilterGoodChronoPoint(int player, unitgroup inGroup) {
+//	unitgroup returnGroup = UnitGroupEmpty ();
+//	unit u;
+//	int index = 1;
+//	int queuedCount;
+//
+//	while (index <= UnitGroupCount(inGroup, c_unitCountAll)) {
+//		u = UnitGroupUnit(inGroup,index);
+//		//DebugAI("testing: " + UnitGetType(u));
+//	    if (UnitGetType(u) == c_PB_WarpGate) {
+//			//DebugAI("found a Warpgate !" + FixedToString(UnitAbilityChargeInfo (u, AbilityCommand("WarpGateTrain", 1), c_unitAbilChargeRegenLeft),2) );
+//			if ( UnitAbilityChargeInfo (u, AbilityCommand("WarpGateTrain", 1), c_unitAbilChargeRegenLeft) > 200 ) {
+//				queuedCount = 2;	// try to chrono !
+//				//DebugAI("Try to Chrono Warpgate !");
+//			}
+//			else {
+//				queuedCount = 0;	// deny chrono
+//			}
+//		}
+//		else {
+//			queuedCount = UnitQueueItemCount (u, 1) + UnitQueueItemCount (u, 2);
+//		}
+//		if ( queuedCount > 0 ) {
+//			if ( ((UnitQueueItemTime (u, c_unitQueueTimeElapsed, 1) > 0) && (UnitQueueItemTime (u, c_unitQueueTimeRemaining, 1) > 15)) || (queuedCount > 1) ) {
+//				//DebugAI("busy Building: " + UnitGetType(u) + " >> " + FixedToString(UnitQueueItemTime (u, c_unitQueueTimeRemaining, 1),2) );
+//				UnitGroupAdd (returnGroup, u);
+//			}
+//			else {
+//				//DebugAI(UnitGetType(u) + ".. not busy");
+//			}
+//		}
+//		index += 1;
+//	}
+//	return returnGroup;
+//}
+//
+////---------------------------------------------------------------
+////ChronoBoost by Darkzero
+////---------------------------------------------------------------
+bool GTChronoBoost(int player, int CTown, string aliasUnitType, string type) {  //change function name to test with other AIs
+    unitgroup scanGroup;
+    int scanCount;
+    aifilter filter;
+    unit u = AIGrabUnit(player, c_PB_Nexus, c_prioScriptControlled, AIGetTownLocation (player, CTown));
+    order o;
+    order ord;
+
+    if (u) {
+        o = AICreateOrder(player, "TimeWarp", 0);
+	  ord = AICreateOrder(player, "TimeWarp", 0);
+
+        if (!UnitOrderIsValid(u, ord)) {
+        	return false;
+    	  }
+	  scanGroup = AIFindUnits(player, aliasUnitType, UnitGetPosition(u),
+                        AIUnitFixed(player, c_PB_Nexus, c_fieldRadius)
+                        + AIAbilityFixed(player, "TimeWarp", c_fieldRange0),
+                        c_noMaxCount
+   	  );
+
+
+   	  filter = AIFilter(player);
+   	  AISetFilterBits(filter, UnitFilterStr(AIAbilityStr(player, "TimeWarp", c_fieldTargetFilters)));
+   	  AISetFilterBehaviorCount(filter, 0, c_noBehaviorMax, type); //behavior data xml other: TimeWarpResearch (for research structures like Cybernetics Core, forges, etc.)
+
+   	  scanGroup = AIGetFilterGroup (filter, scanGroup);
+   	  o = AIUnitGroupGetValidOrder(scanGroup, ord, u, true);
+
+        //OrderSetTargetUnit(o, u);
+
+        if (UnitOrderIsValid(u, o)) {
+            //DebugOutput("TimeWarp", false);
+            AICast(u, o, c_noMarker, c_castHold);
+		return true;
+        }
+    }
+    return false;
+}
+//
+//bool GTCastChronoBoost(int player, string aliasUnitType, string type){
+//	int unitIndex = 1;
+//	int minManaAmount = 20;
+//	int countNexus;
+//    unitgroup scanGroup;
+//	unitgroup NexusGroup = UnitGroup(c_PB_Nexus, player, RegionPlayableMap(), null, 0);
+//    int scanCount;
+//    aifilter filter;
+//    unit u;
+//    unit targetUnit;
+//    order ord = AICreateOrder(player, "TimeWarp", 0);
+//
+//	countNexus = UnitGroupCount(NexusGroup,c_unitCountAll);
+//	if (countNexus == 0) { return true; }
+//
+//	while (unitIndex <= countNexus) {
+//		u = UnitGroupUnit(NexusGroup, unitIndex);
+//		if (!UnitOrderIsValid(u, ord)){
+//			unitIndex += 1;
+//			minManaAmount = MinI(UnitGetPropertyInt(u, c_unitPropEnergy, true),minManaAmount);
+//			continue;
+//		}
+//		// do this as long as u got mana !
+//		while (UnitGetPropertyInt(u, c_unitPropEnergy, true) >= 25) {
+//			//select all searched buildings
+//			scanGroup = AIFindUnits(player, aliasUnitType, UnitGetPosition(u),	AIUnitFixed(player, c_PB_Nexus, c_fieldRadius) + AIAbilityFixed(player, "TimeWarp", c_fieldRange0),	c_noMaxCount);
+//
+//			filter = AIFilter(player);
+//			AISetFilterBits(filter, UnitFilterStr(AIAbilityStr(player, "TimeWarp", c_fieldTargetFilters)));
+//			AISetFilterBehaviorCount(filter, 0, c_noBehaviorMax, type); //I realy dont get this line xD -> behavior data xml other: TimeWarpResearch (for research structures like Cybernetics Core, forges, etc.)
+//			scanGroup = AIGetFilterGroup (filter, scanGroup);
+//			scanGroup = GTFilterGoodChronoPoint(player, scanGroup);
+//
+//			//ord = AIUnitGroupGetValidOrder(scanGroup, ord, u, true);
+//
+//			scanCount = UnitGroupCount(scanGroup, c_unitCountAll);
+//			while (scanCount > 0 && UnitGetPropertyInt(u, c_unitPropEnergy, true) >= 25) {
+//				targetUnit = UnitGroupUnit(scanGroup, scanCount);
+//				OrderSetTargetUnit(ord, targetUnit);
+//				if (UnitOrderIsValid(u, ord)){
+//					AICast(u, ord, c_noMarker, c_castHold);
+//				}
+//				else {
+//					DebugAI("Order not valid!!");
+//				}
+//				scanCount -= 1; // UnitGroupCount(scanGroup, c_unitCountAll);
+//			}
+//			if (scanCount <= 0) {// no buildings here which acutally need chrono !
+//				return false;
+//			}
+//		}
+//		minManaAmount = MinI(UnitGetPropertyInt(u, c_unitPropEnergy, true),minManaAmount);
+//		unitIndex += 1;
+//	}
+//	GTableSetFixed (player, "GTCastChronoBoost", GTime() + ((25-minManaAmount)/2) );
+//	return true;		//no Mana nowhere
+//}
+//
+//
+//void GTManageChronoBoost(int player) {
+//	string bestChronoTarget;
+//	if (GTC_GetFlag_useChronoBoost(player) == false) {
+//		return;
+//	}
+//	// Check the time !
+//	if ( (GTime() - GTableGetFixed (player, "GTCastChronoBoost")) <= 0 ) {
+//		//DebugAI("Idle");
+//		return;
+//	}
+//
+//	GTC_ChronoLoopBegin();
+//	bestChronoTarget = GTC_ChronoLoopNextTarget(player);
+//	while (bestChronoTarget != "") {
+//		//DebugAI("bt>" + bestChronoTarget);
+//		if (GTCastChronoBoost(player, bestChronoTarget, "TimeWarpProduction") ) {
+//			break;
+//		}
+//		else {
+//			bestChronoTarget = GTC_ChronoLoopNextTarget(player);
+//		}
+//	}
+//	GTC_ChronoLoopEnd();
+//}
+//
+//// ChronoBoosts with priority j
+void GTChronoBoostPriority(int player, int j)
+{
+	return;
+    if (AITechCount(player, c_PU_Mothership, c_techCountInProgressOnly ) > 0)
+    {
+        GTChronoBoost(player, j, c_PB_Nexus, "TimeWarpProduction");
+    }
+    else if (AITechCount(player, c_PU_Tempest, c_techCountInProgressOnly ) > 0)
+    {
+        GTChronoBoost(player, j, c_PB_Stargate , "TimeWarpProduction");
+    }
+    else if (AITechCount(player, c_PU_Colossus, c_techCountInProgressOnly ) > 0)
+    {
+        GTChronoBoost(player, j, c_PB_RoboticsFacility, "TimeWarpProduction");
+    }
+    else if ((AITechCount(player, c_PU_Phoenix, c_techCountInProgressOnly ) > 0)
+            ||(AITechCount(player, c_PU_VoidRay , c_techCountInProgressOnly ) > 0) )
+    {
+        GTChronoBoost(player, j, c_PB_Stargate , "TimeWarpProduction");
+    }
+    else if ((AITechCount(player, c_PU_Observer , c_techCountInProgressOnly ) > 0)
+            ||(AITechCount(player, c_PU_Immortal, c_techCountInProgressOnly ) > 0)
+            ||(AITechCount(player, c_PU_WarpPrism, c_techCountInProgressOnly ) > 0) )
+    {
+        GTChronoBoost(player, j, c_PB_RoboticsFacility, "TimeWarpProduction");
+    }
+    else if (AITechCount(player, c_PR_WarpGateResearch, c_techCountInProgressOnly ) > 0)
+    {
+        GTChronoBoost(player, j, c_PB_CyberneticsCore , "TimeWarpProduction");
+    }
+    else if (!AITechCount(player, c_PR_WarpGateResearch, c_techCountInProgressOrBetter ) > 0 )
+    {
+        if ((AITechCount(player, c_PU_Zealot, c_techCountInProgressOnly ) > 0)
+            ||(AITechCount(player, c_PU_Stalker, c_techCountInProgressOnly ) > 0)
+            ||(AITechCount(player, c_PU_Sentry, c_techCountInProgressOnly ) > 0)
+            ||(AITechCount(player, c_PU_DarkTemplar , c_techCountInProgressOnly ) > 0)
+            ||(AITechCount(player, c_PU_HighTemplar, c_techCountInProgressOnly ) > 0) )
+        {
+            GTChronoBoost(player, j, c_PB_Gateway, "TimeWarpProduction");
+        }
+    }
+    else
+    {
+        if (AITechCount(player, c_PR_HighTemplarPsiStorm, c_techCountInProgressOnly ) > 0)
+        {
+            GTChronoBoost(player, j, c_PB_TemplarArchives , "TimeWarpProduction");
+        }
+        if (AITechCount(player, c_PR_SentryHallucination, c_techCountInProgressOnly ) > 0)
+        {
+            GTChronoBoost(player, j, c_PB_CyberneticsCore , "TimeWarpProduction");
+        }
+        if (AITechCount(player, c_PR_AirArmor1, c_techCountInProgressOnly ) > 0)
+        {
+            GTChronoBoost(player, j, c_PB_CyberneticsCore , "TimeWarpProduction");
+        }
+        if (AITechCount(player, c_PR_AirArmor2, c_techCountInProgressOnly ) > 0)
+        {
+            GTChronoBoost(player, j, c_PB_CyberneticsCore , "TimeWarpProduction");
+        }
+        if (AITechCount(player, c_PR_AirArmor3, c_techCountInProgressOnly ) > 0)
+        {
+            GTChronoBoost(player, j, c_PB_CyberneticsCore , "TimeWarpProduction");
+        }
+        if (AITechCount(player, c_PR_AirWeapons1, c_techCountInProgressOnly ) > 0)
+        {
+            GTChronoBoost(player, j, c_PB_CyberneticsCore , "TimeWarpProduction");
+        }
+        if (AITechCount(player, c_PR_AirWeapons2, c_techCountInProgressOnly ) > 0)
+        {
+            GTChronoBoost(player, j, c_PB_CyberneticsCore , "TimeWarpProduction");
+        }
+        if (AITechCount(player, c_PR_AirWeapons3, c_techCountInProgressOnly ) > 0)
+        {
+            GTChronoBoost(player, j, c_PB_CyberneticsCore , "TimeWarpProduction");
+        }
+        if (AITechCount(player, c_PR_ZealotCharge, c_techCountInProgressOnly ) > 0)
+        {
+            GTChronoBoost(player, j, c_PB_TwilightCouncil , "TimeWarpProduction");
+        }
+        if (AITechCount(player, c_PR_StalkerBlink, c_techCountInProgressOnly ) > 0)
+        {
+            GTChronoBoost(player, j, c_PB_TwilightCouncil , "TimeWarpProduction");
+        }
+        if (AITechCount(player, c_PR_ObserverSpeed, c_techCountInProgressOnly ) > 0)
+        {
+            GTChronoBoost(player, j, c_PB_RoboticsBay , "TimeWarpProduction");
+        }
+        if (AITechCount(player, c_PR_WarpPrismSpeed, c_techCountInProgressOnly ) > 0)
+        {
+            GTChronoBoost(player, j, c_PB_RoboticsBay , "TimeWarpProduction");
+        }
+        if (AITechCount(player, c_PR_ColossusRange, c_techCountInProgressOnly ) > 0)
+        {
+            GTChronoBoost(player, j, c_PB_RoboticsBay , "TimeWarpProduction");
+        }
+        if (AITechCount(player, c_PR_HighTemplarEnergy, c_techCountInProgressOnly ) > 0)
+        {
+            GTChronoBoost(player, j, c_PB_TemplarArchives , "TimeWarpProduction");
+        }
+        if (AITechCount(player, c_PR_GroundArmor1, c_techCountInProgressOnly ) > 0)
+        {
+            GTChronoBoost(player, j, c_PB_Forge , "TimeWarpProduction");
+        }
+        if (AITechCount(player, c_PR_GroundArmor2, c_techCountInProgressOnly ) > 0)
+        {
+            GTChronoBoost(player, j, c_PB_Forge , "TimeWarpProduction");
+        }
+        if (AITechCount(player, c_PR_GroundArmor3, c_techCountInProgressOnly ) > 0)
+        {
+            GTChronoBoost(player, j, c_PB_Forge , "TimeWarpProduction");
+        }
+        if (AITechCount(player, c_PR_GroundWeapons1, c_techCountInProgressOnly ) > 0)
+        {
+            GTChronoBoost(player, j, c_PB_Forge , "TimeWarpProduction");
+        }
+        if (AITechCount(player, c_PR_GroundWeapons2, c_techCountInProgressOnly ) > 0)
+        {
+            GTChronoBoost(player, j, c_PB_Forge , "TimeWarpProduction");
+        }
+        if (AITechCount(player, c_PR_GroundWeapons3, c_techCountInProgressOnly ) > 0)
+        {
+            GTChronoBoost(player, j, c_PB_Forge , "TimeWarpProduction");
+        }
+        if (AITechCount(player, c_PR_Shields1, c_techCountInProgressOnly ) > 0)
+        {
+            GTChronoBoost(player, j, c_PB_Forge , "TimeWarpProduction");
+        }
+        if (AITechCount(player, c_PR_Shields2, c_techCountInProgressOnly ) > 0)
+        {
+            GTChronoBoost(player, j, c_PB_Forge , "TimeWarpProduction");
+        }
+        if (AITechCount(player, c_PR_Shields3, c_techCountInProgressOnly ) > 0)
+        {
+            GTChronoBoost(player, j, c_PB_Forge , "TimeWarpProduction");
+        }
+        if (AITechCount(player, c_PR_VoidRaySpeed , c_techCountInProgressOnly ) > 0)
+        {
+            GTChronoBoost(player, j, c_PB_FleetBeacon , "TimeWarpProduction");
+        }
+        if (AITechCount(player, c_PR_CarrierLaunch, c_techCountInProgressOnly ) > 0)
+        {
+            GTChronoBoost(player, j, c_PB_FleetBeacon , "TimeWarpProduction");
+        }
+        if (AITechCount(player, c_PU_Probe, c_techCountInProgressOnly ) > 0)
+        {
+            GTChronoBoost(player, j, c_PB_Nexus, "TimeWarpProduction");
+        }
+    }
+    return;
+}
+
+point[10][3] buildingLocation;
+// Addonswap for Fac, Raxx and Starport
+bool GTSwapAddon(int player, string B1, string B2)
+{
+    order ord1;
+    order ord2;
+    string lift1;
+    string lift2;
+    string land1;
+    string land2;
+    unit building1 = AIGrabUnit(player, B1, c_prioScriptControlled, AIGetTownLocation(player, 0));
+    unit building2 = AIGrabUnit(player, B2, c_prioScriptControlled, AIGetTownLocation(player, 0));
+    string type1 = UnitGetType(building1);
+    string type2 = UnitGetType(building2);
+    int i = 0;
+    AIClearBuildQueue(player);
+    AIClearTrainQueue(player);
+
+    if (type1 == c_TB_Barracks || type1 == "BarracksFlying")
+    {
+         lift1 = "BarracksLiftOff";
+         land1 = "BarracksLand";
+    }
+    else if (type1 == c_TB_Factory || type1 == "FactoryFlying" )
+    {
+         lift1 = "FactoryLiftOff";
+         land1 = "FactoryLand";
+    }
+    else if (type1 == c_TB_Starport || type1 == "StarportFlying")
+    {
+         lift1 = "StarportLiftOff";
+         land1 = "StarportLand";
+    }
+    else { return false; }
+
+     if (type2 == c_TB_Barracks || type2 == "BarracksFlying")
+    {
+         lift2 = "BarracksLiftOff";
+         land2 = "BarracksLand";
+    }
+    else if (type2 == c_TB_Factory || type2 == "FactoryFlying")
+    {
+         lift2 = "FactoryLiftOff";
+         land2 = "FactoryLand";
+    }
+    else if (type2 == c_TB_Starport || type2 == "StarportFlying")
+    {
+         lift2 = "StarportLiftOff";
+         land2 = "StarportLand";
+    }
+    else { return false; }
+
+
+    if ((((type1 == "Barracks") || (type1 == "Factory") || (type1 == "Starport"))
+    &&  ((type2 == "Barracks") || (type2 == "Factory") || (type2 == "Starport" )))
+//    ||
+//    (((type1 == "Barracks") || (type1 == "Factory") || (type1 == "Starport"))
+//        &&  ((type2 == "BarracksFlying") || (type2 == "FactoryFlying") || (type2 == "StarportFlying" ))) ||
+//        (((type1 == "BarracksFlying") || (type1 == "FactoryFlying") || (type1 == "StarportFlying"))
+//            &&  ((type2 == "Barracks") || (type2 == "Factory") || (type2 == "Starport" )))
+            )
+    {
+    	  buildingLocation[player][1] = UnitGetPosition(building1);
+    	  buildingLocation[player][2] = UnitGetPosition(building2);
+        //building 1 lift
+          ord1 = AICreateOrder(player, lift1, 0);
+
+          if (ord1 !=null  ){
+              AICast(building1, ord1, c_noMarker, c_castHold);
+          }
+        //building 2 lift
+          ord2 = AICreateOrder(player, lift2, 0);
+          if (ord1 !=null  ){
+              AICast(building2, ord2, c_noMarker, c_castHold);
+          }
+  //        i = i + 1;
+    }
+    else if (((type1 == "Barracks") || (type1 == "Factory") || (type1 == "Starport"))
+       &&   ((type2 == "BarracksFlying") || (type2 == "FactoryFlying") || (type2 == "StarportFlying" ))){
+        ord1 = AICreateOrder(player, lift1, 0);
+
+              if (ord1 !=null  ){
+                  AICast(building1, ord1, c_noMarker, c_castHold);
+              }
+    //          i = i + 1;
+
+    }
+    else if (((type2 == "Barracks") || (type2 == "Factory") || (type2 == "Starport"))
+       &&   ((type1 == "BarracksFlying") || (type1 == "FactoryFlying") || (type1 == "StarportFlying" ))){
+        ord2 = AICreateOrder(player, lift2, 0);
+
+              if (ord2 !=null  ){
+                  AICast(building2, ord2, c_noMarker, c_castHold);
+              }
+   //           i = i + 1;
+
+    }
+    else if (((type1 == "BarracksFlying") || (type1 == "FactoryFlying") || (type1 == "StarportFlying"))
+        &&  ((type2 == "BarracksFlying") || (type2 == "FactoryFlying") || (type2 == "StarportFlying" )))
+    {
+        //Building1 Land
+        ord1 = AICreateOrder(player, land1, 0);
+        if (ord1 !=null )
+        {
+            OrderSetTargetPoint(ord1, buildingLocation[player][2]);
+            AICast(building1, ord1, c_noMarker, c_castHold);
+            i = i + 1;
+        }
+
+        //Building2 Land
+        ord2 = AICreateOrder(player, land2, 0);
+        if (ord2 != null)
+        {
+            OrderSetTargetPoint(ord2, buildingLocation[player][1]);
+            AICast(building2, ord2, c_noMarker, c_castHold);
+            i = i + 1;
+        }
+    }
+    if (i >= 2) { return true; }
+    else        { return false;}
+}
+
+// MorphArchon if there are 2 HT without mana
+ void GTGroupArchon(int player){
+     unit u;
+     order ord;
+     unitgroup   group;
+     int size ;
+
+    if (!GTFinishA(player, c_PU_HighTemplar, 2) ){
+        return;
+    }
+    if (!AIWaveIsInCombat(AIWaveGet(player, c_waveAttack))){
+    	return;
+    }
+    group = UnitGroup (  c_PU_HighTemplar, player, RegionPlayableMap(), null, 0);
+    size = 1;
+    u = UnitGroupUnit(group, size);
+    while( u != null){
+        if (UnitGetPropertyInt(u, c_unitPropEnergyPercent, c_unitPropCurrent) >= 25 ){
+            UnitGroupRemove(group, u);
+        }
+        else{
+            size = size + 1;
+        }
+        u = UnitGroupUnit(group, size);
+    }
+    //DebugAI("Lost:" + IntToString(UnitGroupCount(group, c_unitCountAlive)));
+    if (UnitGroupCount(group, c_unitCountAlive) >= 2){
+        ord = AICreateOrder(player, "ArchonWarp", 0);
+        UnitGroupIssueOrder(group, ord, 0);
+    }
+ }
+ 
+ bool GTWaveIsInAttackState(int player) {
+	return (AIWaveState(AIWaveGet(player, c_waveAttack)) == c_waveStateAttack);
+ }
+ 
+ bool GTThreadInTowns(int player, int scanMinTown, int scanMaxTown) {
+	int index = scanMinTown;
+	if (scanMinTown > scanMaxTown) {
+		DebugAI("Warning scanMinTown > scanMaxTown");
+		return false;
+	}
+	while (index <= scanMaxTown) {	
+		if (UnitGroupCount(AIGetTownThreats (player, index),c_unitCountAlive) > 0) {
+			return true;
+		}
+		index += 1;
+	}
+	return false;
+ }

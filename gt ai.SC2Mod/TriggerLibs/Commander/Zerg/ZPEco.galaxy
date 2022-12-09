@@ -1,0 +1,107 @@
+//==================================================================================================
+//  Zerg First Edition
+//==================================================================================================
+
+
+//--------------------------------------------------------------------------------------------------
+//  ZergEco
+//--------------------------------------------------------------------------------------------------
+void ZVPeco (int player) {
+    int towns = GTTowns (player);
+    int i = 1;
+
+    GTMicro(player);
+    GTName(player, "Test"); 
+    GTShowTimer(player);
+
+//------------------------------------
+// Economy Management
+//---------------------------------------
+    GTCreateWorkers (player);
+    GTSupply (player, 2);
+    GTExpand(player);
+    if (GTFinishIA(player, c_ZU_Drone, 20)){
+        GTExpand(player);
+    }
+    if (towns >= 3){
+        GTExpand(player);
+    }
+    GTCreepTumor(player);
+
+//----------------------------
+// Unit Production
+//----------------------------
+  	if (GTFinishIA(player, c_ZB_Hatchery_Alias, 3)){
+        GTTrainQueen(player, 0);
+        GTTrainQueen(player, 1);
+        GTTrainI(player, 2, c_townMain, c_ZU_Zergling, 2, c_ZB_Hatchery_Alias, 2);
+    }
+    if (GTFinishIA(player, c_ZU_Zergling, 2)){
+        GTTrainQueen(player, 0);
+        GTTrainQueen(player, 1);
+        GTTrainI(player, 2, c_townMain, c_ZU_Zergling, 4, c_ZB_SpawningPool, 1);
+    }
+    if (towns >= 3){
+        GTTrainA(player, 2, c_townMain, c_ZU_Zergling, 20, c_ZB_SpawningPool, 1);
+        GTTrainA(player, 2, c_townMain, c_ZU_Hydralisk, 10, c_ZB_HydraliskDen_Alias, 1);
+    }
+    if (towns >= 4){
+        GTTrainA(player, 2, c_townMain, c_ZU_Zergling, 40, c_ZB_SpawningPool, 1);
+        GTTrainA(player, 2, c_townMain, c_ZU_Baneling, 10, c_ZB_BanelingNest, 1);
+        GTTrainA(player, 2, c_townMain, c_ZU_Hydralisk, 20, c_ZB_HydraliskDen_Alias, 1);
+        GTTrainA (player, 2, c_townMain, c_ZU_Corruptor, 10, c_ZB_Spire_Alias, 1);
+        GTTrainA (player, 4, c_townMain, c_ZU_BroodLord, 4, c_ZB_GreaterSpire, 1);
+        GTBasicTrain(player);
+    }
+
+//--------------------------------------
+// Build Management
+//--------------------------------------
+    GTBuildI(player, 2, 0, c_ZB_SpawningPool, 1, c_nearResource, c_ZB_Hatchery_Alias, 2);
+    //GTAutoBDefend(player, 0);
+    GTQueenBuild(player, 0);
+    GTMoveQueen(player);
+    GTBuildI(player, 2, 0, c_ZB_Extractor, 1, c_onVespeneGas, c_ZB_Hatchery_Alias, 2);
+    GTResearch(player, 2, 0, c_ZR_ZerglingSpeed);
+    GTBuildTI (player, 2, 0, c_ZB_Lair_Alias, 1, 0, c_ZU_Drone, 50); 
+    if (towns >= 3){
+        GTBuildI(player, 2, 0, c_ZB_Extractor, 2, c_onVespeneGas, c_ZB_Lair_Alias, 1);
+        GTBuildI(player, 2, 0, c_ZB_BanelingNest, 1, c_nearResource, c_ZB_Lair_Alias, 1);
+        GTResearch(player, 2, 0, c_ZR_BanelingSpeed);
+        GTBuildTA(player, 2, 0, c_ZB_HydraliskDen_Alias, 1, c_nearResource, c_ZU_Drone, 60);
+    }
+    if (towns >= 4){
+    GTBuildTI (player, 2, 0, c_ZB_Spire_Alias, 1, c_nearResource, c_ZB_HydraliskDen_Alias, 1);
+    GTBuildTA(player, 2, 0, c_ZB_InfestationPit, 1, c_nearResource, c_ZU_Drone, 70);
+    GTBuildTA(player, 2, 0, c_ZB_Hive, 1, c_nearResource, c_ZU_Drone, 70);
+    GTBuildTA (player, 2, 0, c_ZB_GreaterSpire, 1, c_nearResource, c_ZB_Hive, 1);
+    GTAutoResearch(player);
+    }
+
+//--------------------------------------------
+//   Expansion Town
+//------------------------------------------
+    while ( i <= 16 ){
+        if (AIGetTownState(player, i ) == c_townStateEstablished){
+	             GTAutoBExpand(player, i);
+        }
+		i = i + 1;
+	}
+
+//----------------------------------------
+// Strategy
+//-----------------------------------------
+    //GTDefend(player);
+    if (GTTowns(player) >= 2){
+        GTRock(player); 
+    }
+    if (GTCanAttack(player)){
+        GTAttack(player);
+    }
+    else if (GTNeedRetreat(player)){
+    GTRetreat(player);
+    }
+
+// Run
+
+}

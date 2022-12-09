@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TriggerData>
+    <Root>
+        <Item Type="Trigger" Id="87E5681B"/>
+    </Root>
+    <Element Type="Trigger" Id="87E5681B">
+        <Event Type="FunctionCall" Id="2854087D"/>
+        <Action Type="FunctionCall" Id="5D57F2C1"/>
+    </Element>
+    <Element Type="FunctionCall" Id="2854087D">
+        <FunctionDef Type="FunctionDef" Library="Ntve" Id="00000120"/>
+    </Element>
+    <Element Type="FunctionCall" Id="5D57F2C1">
+        <FunctionDef Type="FunctionDef" Library="Ntve" Id="00000116"/>
+        <Parameter Type="Param" Id="01778CE4"/>
+        <Parameter Type="Param" Id="B6A4255B"/>
+        <Parameter Type="Param" Id="7B8A49CA"/>
+    </Element>
+    <Element Type="Param" Id="01778CE4">
+        <ParameterDef Type="ParamDef" Library="Ntve" Id="00000183"/>
+        <Preset Type="PresetValue" Library="Ntve" Id="00000065"/>
+    </Element>
+    <Element Type="Param" Id="B6A4255B">
+        <ParameterDef Type="ParamDef" Library="Ntve" Id="00000184"/>
+        <Preset Type="PresetValue" Library="Ntve" Id="00000068"/>
+    </Element>
+    <Element Type="Param" Id="7B8A49CA">
+        <ParameterDef Type="ParamDef" Library="Ntve" Id="00000182"/>
+        <ValueType Type="trigger"/>
+        <ValueElement Type="Trigger" Library="UTES" Id="52E6E42E"/>
+    </Element>
+</TriggerData>

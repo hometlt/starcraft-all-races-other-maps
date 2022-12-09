@@ -1,0 +1,123 @@
+//==================================================================================================
+//  Terran First Edition
+//==================================================================================================
+
+
+//--------------------------------------------------------------------------------------------------
+//  TerranOpenGnd0
+//--------------------------------------------------------------------------------------------------
+void Terran2 (int player) {
+	 int towns = GTTowns (player);
+
+	 int i = 1;
+	 GTMicro(player);
+	 GTName(player, DataTableGetString(true, IntToString(player)+ "GTName"));
+     GTShowTimer(player);
+
+     if (GTerranOpening2(player)){
+    	 GTPreventScout(player);
+    	 return;
+     }
+
+
+
+	 //----------------------------------------
+	 // Expansion Management
+	 //-------------------------------------------
+
+	 GTSupply (player, 4);
+	 GTExpand(player);
+
+	 if (!GTFinishA(player, c_TB_CommandCenter_Alias, 2) || GTFinishIA(player, c_TB_OrbitalCommand, 2) || GTFinishIA(player, c_TB_PlanetaryFortress, 1)  ) {
+		 GTCreateWorkers (player);
+	 }
+
+
+
+
+	  //----------------------------
+	  // Unit Production
+	  //---------------------------
+	     GTBasicTrain(player);
+	 	 if (GTFinishA(player, c_TB_BarracksReactor, 1)){
+	 		 GTrain(player, c_TU_Marine, MinI(16, 2*GTCountI2(player, c_TU_Marauder) + 4 ));
+	 		 GTrain(player, c_TU_Marine, GCounterFull(player, c_TU_Marine));
+	 	 }
+		 GTrain(player, c_TU_Marauder,GCounterFull(player, c_TU_Marauder));
+	     GTrain(player, c_TU_Thor, MaxI(GCounterFull(player, c_TU_Thor), 3));
+	     GTrain(player, c_TU_SiegeTank, MaxI(GCounterFull(player, c_TU_SiegeTank),3));
+
+	 	 GTrainA(player, c_TU_Medivac , GTOSoldier(player)/7, c_TB_StarportTechLab, 1 );
+	 	 GTrainA(player, c_TU_Hellion , MinI(9, GCounterFull(player, c_TU_Hellion)), c_TB_FactoryReactor, 1);
+
+	  //--------------------------------------
+	  // Build Management
+	  //--------------------------------------
+	  	  GTAutoBDefend(player, 0);
+	  	  if (GTTowns(player) >= 2){
+	  		 GTDefendTown(player, 1 );
+	  	  }
+	  	 GTDefendTown(player, 0 );
+
+	  	  GBuildA(player, c_TB_FactoryReactor, 1,  c_TB_Factory, 2);
+	  	 GTBuildTA(player, 7, 0, c_TB_BarracksReactor, 1, 0, c_TB_Barracks, 2);
+
+	  	 GResearchI(player, c_TR_MarauderSlow, c_TR_MarineStimPack, 1);
+
+	  	 GBuildI(player, c_TB_Armory, 1, c_TB_FactoryTechLab, 2);
+	     GBuildI(player, c_TB_Starport, 1, c_TB_Armory, 1);
+	     GBuildA(player, c_TB_StarportTechLab, 1, c_TB_Starport, 1);
+
+
+	 	 GBuildA(player, c_TB_FactoryTechLab, 2,  c_TB_Factory, 3);
+
+	 	 GBuildI(player, c_TB_Starport, 2, c_TB_Barracks, 3);
+	     GBuildA(player, c_TB_StarportTechLab, 2, c_TB_Starport, 2);
+	     GBuildI(player, c_TB_Barracks, 3,  c_TB_CommandCenter_Alias, 3);
+	     GTBuildTA(player, 7, 0, c_TB_BarracksTechLab, 2, 0, c_TB_Barracks, 3);
+	     	 if (GTFinishIA(player, c_TR_SiegeTankSiege, 1)){
+	     		 GTAutoResearch(player);
+	     	 }
+
+
+	     //Orbital Command
+		 GTBuildTA ( player, 7, 0,  c_TB_OrbitalCommand , 2, 0, c_TB_CommandCenter_Alias, 2);
+		 if (GTFinishA (player, c_TB_CommandCenter_Alias, 3)){
+			 GTBuildT ( player, 5, 0,  c_TB_PlanetaryFortress , AITechCount(player, c_TB_CommandCenter_Alias, c_techCountCompleteOnly) - 2, 0 );
+		 }
+
+
+
+		//--------------------------------------------
+		//   Expansion Town
+		//------------------------------------------
+
+	    while ( i <= 16 ) {
+	    	if (AIGetTownState(player, i ) == c_townStateEstablished) {
+                GTAutoBExpand(player, i);
+	      	}
+			i = i + 1;
+		}
+
+
+//----------------------------------------
+// Strategy
+//-----------------------------------------
+
+		 GTDefend(player);
+		 if (towns >= 3){
+			 GTRock(player);
+		 }
+		 if( GTCanAttack(player ) ){
+			 GTAttack(player);
+		 }
+		 else if (GTNeedRetreat(player)){
+			 GTRetreat(player);
+		 }
+
+
+
+// Run
+
+}
+

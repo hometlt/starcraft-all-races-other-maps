@@ -1,0 +1,264 @@
+//-------------------
+//Enemy status
+//--------------------
+void GTScoutE (int player, string scout, int scoutCount) {
+    if (!g_fakeScout) {
+		if( PlayerDifficulty(player) > c_skirEasy) { 
+			return; 
+		}	
+	}	
+    AISetFlag(player, e_flagsScouting, AITechCount(player, scout, c_techCountCompleteOnly) >= scoutCount);
+}
+
+void GTScoutA (int player,  string scout, int scoutCount, string preReq, int count) {
+    bool enableScouting = false;
+	if (!g_fakeScout) {
+		if( PlayerDifficulty(player) > c_skirEasy ) { 
+			return; 
+		}	
+	}
+    if (AITechCount(player, scout, c_techCountCompleteOnly) >= scoutCount) {
+        if (AITechCount(player, preReq, c_techCountCompleteOnly) >= count) {
+            enableScouting = true;
+        }
+    }
+
+    AISetFlag(player, e_flagsScouting, enableScouting);
+}
+
+
+bool GTCanAttack (int player){
+	int all = PlayerGetPropertyInt(player, c_playerPropSuppliesUsed);
+    string Race = PlayerRace(player);
+    fixed k;
+    if (PlayerDifficulty(player) == c_skirVeryEasy && TimerGetElapsed(GTAttackTime) < 600 ){
+    	return false;
+    }
+    if (GTEAir(player) > 0 && GTOGroA(player) + GTOAirA(player) <= GTEAirG(player)/2 ){
+    	return false;
+    }
+   // DebugVarInt("1Player", player);
+   // DebugVarInt("1OArmy", GTOArmy(player));
+   // DebugVarInt("1EArmy", GTEArmy(player));
+ if (Race == "Zerg" ){
+    	if (GTime() < 300 ){
+    		k = 0;
+    	}
+        else if (GTime() < 900 ){
+        	k = 3;
+        }
+        else if (GTime() < 1500){
+        	k = 6;
+        }
+        else{
+        	k = 8;
+        }
+	 }
+    else{
+		if (GTime() < 300 ){
+    		k = 3;
+    	}
+    	else if (GTime() < 900 ){
+    		k = 5;
+    	}
+    	else if (GTime() < 1500){
+    		k = 7;
+    	}
+    	else{
+			k = 9;
+    	}
+    }
+//	if (g_useNewAVS) {
+//		if (GTOArmy(player) > GTEArmy(player) + k ||  lastAttackRation > 110 || all >= 192 ){
+//			return true;
+//		}
+//		return false;
+//	}
+	// old AVS
+    if (GTOArmy(player) >= GTEArmy(player) + GTEGroD(player) + k || all >= 192 ){
+		return true;
+	}	
+    return false;
+}
+
+bool GTCanAttack2 (int player, int d){
+	int all = PlayerGetPropertyInt(player, c_playerPropSuppliesUsed);
+    string Race = PlayerRace(player);
+    fixed k;
+    if (PlayerDifficulty(player) == c_skirVeryEasy && TimerGetElapsed(GTAttackTime) < 600 ){
+      	return false;
+    }
+    if (GTEAir(player) > 0 && GTOGroA(player) + GTOAirA(player) <= GTEAirG(player)/2 ){
+      	return false;
+      }
+  //    DebugVarInt("2Player", player);
+  //     DebugVarInt("2OArmy", GTOArmy(player));
+  //     DebugVarInt("2EArmy", GTEArmy(player));
+ if (Race == "Zerg" ){
+    	if (GTime() < 300 ){
+    		k = 0;
+    	}
+        else if (GTime() < 900 ){
+        	k = 3;
+        }
+        else if (GTime() < 1500){
+        	k = 6;
+        }
+        else{
+        	k = 8;
+        }
+	 }
+    else{
+		if (GTime() < 300 ){
+    		k = 3;
+    	}
+    	else if (GTime() < 900 ){
+    		k = 5;
+    	}
+    	else if (GTime() < 1500){
+    		k = 7;
+    	}
+    	else{
+			k = 9;
+    	}
+    }
+//	if (g_useNewAVS) {
+//		if (GTOArmy(player) > GTEArmy(player) + k ||  lastAttackRation > 110 || all >= 192 ){
+//			return true;
+//		}
+//		return false;
+//	}
+	// old AVS
+    if (GTOArmy(player) >= GTEArmy(player) + GTEGroD(player) + k ||   all >= 192 ){
+		return true;
+	}	
+    return false;
+}
+
+bool GTCanAttack3 (int player, int d){
+	int all = PlayerGetPropertyInt(player, c_playerPropSuppliesUsed);
+    string Race = PlayerRace(player);
+    fixed k;
+
+    if (PlayerDifficulty(player) == c_skirVeryEasy && TimerGetElapsed(GTAttackTime) < 600 ){
+      	return false;
+      }
+    if (GTEAir(player) > 0 && GTOGroA(player) + GTOAirA(player) <= GTEAirG(player)/2 ){
+      	return false;
+      }
+	//	  DebugVarInt("3Player", player);
+     //     DebugVarInt("3OArmy", GTOArmy(player));
+     //     DebugVarInt("3EArmy", GTEArmy(player));
+  if (Race == "Zerg" ){
+    	if (GTime() < 300 ){
+    		k = 0;
+    	}
+        else if (GTime() < 900 ){
+        	k = 3;
+        }
+        else if (GTime() < 1500){
+        	k = 6;
+        }
+        else{
+        	k = 8;
+        }
+	 }
+    else{
+		if (GTime() < 300 ){
+    		k = 3;
+    	}
+    	else if (GTime() < 900 ){
+    		k = 5;
+    	}
+    	else if (GTime() < 1500){
+    		k = 7;
+    	}
+    	else{
+			k = 9;
+    	}
+    }
+//	if (g_useNewAVS) {
+//		if (GTOArmy(player) > GTEArmy(player) + k ||  lastAttackRation > 110 || all >= 192 ){
+//			return true;
+//		}
+//		return false;
+//	}
+	// old AVS
+    if (GTOArmy(player) >= GTEArmy(player) + GTEGroD(player) + k ||  all >= 192 ){
+		return true;
+	}	
+    return false;
+}
+
+bool GTNeedRetreat (int player){
+	if (GTOArmy(player) < GTEArmy(player) ){
+		return true;
+    }
+    return false;
+}
+
+bool GTEIsRush (int player)
+{   int EID = GTEnemyID(player);
+	string Race = GTEnemyRace(player);
+
+	if (Race == "Terr" && GTime() < 270 && GTCountE(player, c_TB_Barracks) > 1 && GTCountE(player, c_TB_BarracksReactor ) > 0 )
+	{ return true; }
+	if (Race == "Prot" && GTime() < 270 && GTCountE(player, c_PB_Gateway) > 1)
+    { return true; }
+	if (Race == "Zerg" && GTime() < 100 &&   GTCountE(player, c_ZB_SpawningPool) > 0)
+	{ return true; }
+   return false;
+}
+
+bool GTEIsExpandEarly (int player)
+{
+	string Race = GTEnemyRace(player);
+	if (GTime() >= 360 )
+	{return false; }
+	if (Race == "Terr"  && GTCountE(player, c_TB_CommandCenter_Alias) > 1)
+	{ return true; }
+	if (Race == "Prot"  && GTCountE(player, c_PB_Nexus) > 1)
+    { return true; }
+	if (Race == "Zerg"  && GTCountE(player, c_ZB_Hatchery_Alias) > 1)
+	{ return true; }
+   return false;
+}
+
+bool GTEIsTurtle (int player){
+	if (GTEGroD(player) >= 8){
+		return true;
+	}
+    return false;
+}
+//---------------------------
+// Our status
+//--------------------------
+
+bool GTNeedGhost (int player){
+	if (!GTFinishA(player, c_TB_GhostAcademy, 1) ||  GTFinishIA(player, c_TU_Ghost, 1)){
+		return false;
+	}
+	return true;
+}
+
+bool GTNeedExpand(int player){
+	int town = GTTowns(player);
+	string mbase = GTBase(player);
+	string p_race = PlayerRace(player);
+	if (AIGetUserInt(player, 10) == 1){
+		return false;
+	}
+	if(town > AITechCount(player, mbase, c_techCountInProgressOrBetter) && !AIHasRes(player, 400, 0) && GTime() > 500){
+		return true;
+	}
+	return false;
+}
+
+
+bool GTIsBase (string build){
+
+	if (build == c_TB_CommandCenter || build == c_TB_CommandCenter_Alias || build == c_ZB_Hatchery || build == c_ZB_Hatchery_Alias || build == c_PB_Nexus ){
+		return true;
+	}
+	return false;
+}

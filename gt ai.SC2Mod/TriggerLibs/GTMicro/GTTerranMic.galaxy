@@ -1,0 +1,612 @@
+include "TriggerLibs/Green Tea Main/GTZInformation"
+//  *** RepairSCV ***
+//--------------------------------------------------------------------------------------------------
+
+order RepairSCV (int player, unit aiUnit, marker mark) {
+    order ord;
+	unitgroup group;
+	aifilter filter;
+
+	ord = AICreateOrder(player, "Repair", 0);
+	if (!UnitOrderIsValid(aiUnit, ord)) {
+        return null;
+    }
+
+	group = AIFindUnits(player, null, UnitGetPosition(aiUnit), 12,c_noMaxCount);
+	filter = AIFilter(player);
+    AISetFilterAlliance(filter, c_playerGroupAlly);
+	AISetFilterBits(filter, UnitFilterStr("Mechanical,Visible;Biological,Self,Enemy,Missile,UnderConstruction,Dead,Hidden"));
+	AISetFilterLifeLost(filter, 40, 2000);
+	AISetFilterMarker(filter, c_noMarkersMin, 1, mark);
+    group = AIGetFilterGroup(filter, group);
+
+    return AIUnitGroupGetValidOrder(group, ord, aiUnit, c_forwards);
+}
+//--------------------------------------------------------------------------------------------------
+//  *** SCV ***
+//--------------------------------------------------------------------------------------------------
+
+
+void AIThinkSCV (int player, unit aiUnit, unitgroup scanGroup) {
+
+	order ord;
+	marker mark;
+	if (!g_micro){
+		DebugAI("Load 'unitdata.xml'.");
+		DebugAI("Enough AI Micro");
+		g_micro = true;
+
+	}
+	mark = AIMarker(aiUnit, "Effect/Repair");
+	ord = RepairSCV(player, aiUnit, mark);
+	if (ord != null) {
+        AICast(aiUnit, ord, mark, c_castHold);
+        return;
+    }
+}
+
+order HoldRepair (int player, unit aiUnit) {
+    order ord;
+	unitgroup group;
+
+
+	ord = AICreateOrder(player, "stop", 0);
+	if (!UnitOrderIsValid(aiUnit, ord)) {
+        return null;
+    }
+
+	if (UnitValidateEffectUnit(null, "Repair", aiUnit)){
+		return ord;
+	}
+	return null;
+}
+////==================================================================================================
+////  *** Flying Terrans ***
+////==================================================================================================
+//const int c_GroundRange = 6;
+//const int c_AirRange = 6;
+//const int c_LiftOffLifeP = 50;
+//
+//
+//bool Lift (int player, unit aiUnit, unitgroup scanGroup) {
+//	aifilter filter;
+//	aifilter filter1;
+//	unitgroup airG;
+//	int air;
+//	int ground;
+//	airG = scanGroup;
+//
+//	if (UnitGetPropertyInt(aiUnit, c_unitPropVitalityPercent, c_unitPropCurrent) < c_LiftOffLifeP ){
+//		filter = AIFilter(player);
+//		AISetFilterAlliance(filter, c_playerGroupEnemy);
+//		AISetFilterCanAttackAlly (filter, true, false);
+//		AISetFilterRange(filter, aiUnit, c_GroundRange);
+//		scanGroup = AIGetFilterGroup(filter, scanGroup);
+//		ground = UnitGroupCount(scanGroup, c_unitCountAlive);
+//
+//		filter = AIFilter(player);
+//		AISetFilterAlliance(filter, c_playerGroupEnemy);
+//		AISetFilterCanAttackAlly (filter, false, true);
+//		AISetFilterRange(filter, aiUnit, c_AirRange);
+//		airG = AIGetFilterGroup(filter, airG);
+//		air = UnitGroupCount(airG, c_unitCountAlive);
+//
+//		if ( ground > air){
+//			//TriggerDebugOutput(1, StringToText("Player:" + IntToString(player) + "   Ground:" + IntToString(ground) + "   air:" + IntToString(air) ),true);
+//			return true;
+//		}
+//	}
+//	return false;
+//}
+//
+//bool Land (int player, unit aiUnit, unitgroup scanGroup) {
+//	aifilter filter;
+//	aifilter filter1;
+//	unitgroup airG;
+//	int air;
+//	int ground;
+//	airG = scanGroup;
+//
+//	filter = AIFilter(player);
+//	AISetFilterAlliance(filter, c_playerGroupEnemy);
+//	AISetFilterCanAttackAlly (filter, true, false);
+//	AISetFilterRange(filter, aiUnit, c_GroundRange);
+//	scanGroup = AIGetFilterGroup(filter, scanGroup);
+//	ground = UnitGroupCount(scanGroup, c_unitCountAlive);
+//
+//	filter = AIFilter(player);
+//	AISetFilterAlliance(filter, c_playerGroupEnemy);
+//	AISetFilterCanAttackAlly (filter, false, true);
+//	AISetFilterRange(filter, aiUnit, c_AirRange);
+//	airG = AIGetFilterGroup(filter, airG);
+//	air = UnitGroupCount(airG, c_unitCountAlive);
+//
+//	if ((air > ground) || ( ground == 0 )){
+//		//TriggerDebugOutput(1, StringToText("Player:" + IntToString(player) + "   Ground:" + IntToString(ground) + "   air:" + IntToString(air) ),true);
+//		return true;
+//	}
+//
+//	return false;
+//}
+//
+////--------------------------------------------------------------------------------------------------
+////  *** Barracks ***
+////--------------------------------------------------------------------------------------------------
+//
+//void BarracksLift(int player, unit aiUnit){
+//	order ord;
+//	ord = AICreateOrder(player, "BarracksLiftOff", 0);
+//	AICast(aiUnit, ord, c_noMarker, c_castHold);
+//}
+//void BarracksLand(int player, unit aiUnit){
+//	order ord;
+//	ord = AICreateOrder(player, "BarracksLand", 0);
+//	OrderSetTargetPoint(ord, AIPlacementNearbyFindTest(player, UnitGetPosition(aiUnit), 10, c_TB_Barracks));
+//	AICast(aiUnit, ord, c_noMarker, c_castHold);
+//}
+//void AIThinkBarracksFlying (int player, unit aiUnit, unitgroup scanGroup) {
+//	if (AIGetUserInt(player, 170) == 2) {
+//		return;
+//		}
+//	if ( Land(player,aiUnit,scanGroup)) {
+//		BarracksLand(player, aiUnit);
+//	}
+//}
+//void AIThinkBarracks(int player, unit aiUnit, unitgroup scanGroup) {
+//	if ( Lift(player,aiUnit,scanGroup)) {
+//		AIWaveAddUnitPriority(AIWaveGet(player, c_waveHome), aiUnit, c_prioWavePeon);
+//		BarracksLift(player, aiUnit);
+//	}
+//}
+//
+//
+////--------------------------------------------------------------------------------------------------
+////  *** Factory ***
+////--------------------------------------------------------------------------------------------------
+//
+//void FactoryLift(int player, unit aiUnit){
+//	order ord;
+//	ord = AICreateOrder(player, "FactoryLiftOff", 0);
+//	AICast(aiUnit, ord, c_noMarker, c_castHold);
+//}
+//void FactoryLand(int player, unit aiUnit){
+//	order ord;
+//	ord = AICreateOrder(player, "FactoryLand", 0);
+//	OrderSetTargetPoint(ord, AIPlacementNearbyFindTest(player, UnitGetPosition(aiUnit), 10, c_TB_Factory));
+//	AICast(aiUnit, ord, c_noMarker, c_castHold);
+//}
+//void AIThinkFactoryFlying (int player, unit aiUnit, unitgroup scanGroup) {
+//	if (AIGetUserInt(player, 170) == 2) {
+//		return;
+//		}
+//	if ( Land(player,aiUnit,scanGroup)) {
+//		FactoryLand(player, aiUnit);
+//	}
+//}
+//void AIThinkFactory(int player, unit aiUnit, unitgroup scanGroup) {
+//    if ( Lift(player,aiUnit,scanGroup)) {
+//		AIWaveAddUnitPriority(AIWaveGet(player, c_waveHome), aiUnit, c_prioWavePeon);
+//		FactoryLift(player, aiUnit);
+//	}
+//}
+//
+////--------------------------------------------------------------------------------------------------
+////  *** Starport ***
+////--------------------------------------------------------------------------------------------------
+//
+//void StarportLift(int player, unit aiUnit){
+//	order ord;
+//	ord = AICreateOrder(player, "StarportLiftOff", 0);
+//	AICast(aiUnit, ord, c_noMarker, c_castHold);
+//}
+//void StarportLand(int player, unit aiUnit){
+//	order ord;
+//	ord = AICreateOrder(player, "StarportLand", 0);
+//	OrderSetTargetPoint(ord, AIPlacementNearbyFindTest(player, UnitGetPosition(aiUnit), 10, c_TB_Starport));
+//	AICast(aiUnit, ord, c_noMarker, c_castHold);
+//}
+//void AIThinkStarportFlying (int player, unit aiUnit, unitgroup scanGroup) {
+//	if (AIGetUserInt(player, 170) == 2) {
+//		return;
+//	}
+//	if ( Land(player,aiUnit,scanGroup)) {
+//		StarportLand(player, aiUnit);
+//	}
+//}
+//void AIThinkStarport(int player, unit aiUnit, unitgroup scanGroup) {
+//    if ( Lift(player,aiUnit,scanGroup)) {
+//	AIWaveAddUnitPriority(AIWaveGet(player, c_waveHome), aiUnit, c_prioWavePeon);
+//	StarportLift(player, aiUnit);
+//	}
+//
+//}
+
+////--------------------------------------------------------------------------------------------------
+////  *** Command Center ***
+////--------------------------------------------------------------------------------------------------
+//
+//void CommandCenterLift(int player, unit aiUnit){
+//	order ord;
+//	ord = AICreateOrder(player, "CommandCenterLiftOff", 0);
+//	AICast(aiUnit, ord, c_noMarker, c_castHold);
+//}
+//void CommandCenterLand(int player, unit aiUnit){
+//	order ord;
+//	ord = AICreateOrder(player, "CommandCenterLand", 0);
+//	OrderSetTargetPoint(ord, AIPlacementNearbyFindTest(player, UnitGetPosition(aiUnit), 10, c_TB_CommandCenter));
+//	AICast(aiUnit, ord, c_noMarker, c_castHold);
+//}
+//void AIThinkCommandCenterFlying (int player, unit aiUnit, unitgroup scanGroup) {
+//	if ( Land(player,aiUnit,scanGroup)) {
+//		CommandCenterLand(player, aiUnit);
+//	}
+//}
+//
+//
+//	void AIThinkCommandCenter(int player, unit aiUnit, unitgroup scanGroup) {
+//	    // also used for planetary fortress
+//	    order ord;
+//
+//		if (Lift(player,aiUnit,scanGroup)) {
+//			AIWaveAddUnitPriority(AIWaveGet(player, c_waveHome), aiUnit, c_prioWavePeon);
+//			CommandCenterLift(player, aiUnit);
+//
+//		}
+//	    if (CargoDefend(player, aiUnit, scanGroup, 10, 10, c_TU_SCV, c_AB_CommandCenterChange))
+//	    {
+//	        return;
+//	    }
+//
+//	    // rally
+//	    if (AIEvalTacticalData( aiUnit, null)) {
+//	        return;
+//	    }
+//	}
+//
+//
+////--------------------------------------------------------------------------------------------------
+////  *** SURVEILLANCE STATION ***
+////--------------------------------------------------------------------------------------------------
+//
+//void OrbitalCommandLift(int player, unit aiUnit){
+//	order ord;
+//	ord = AICreateOrder(player, "OrbitalLiftOff", 0);
+//	AICast(aiUnit, ord, c_noMarker, c_castHold);
+//}
+//void OrbitalCommandLand(int player, unit aiUnit){
+//	order ord;
+//	ord = AICreateOrder(player, "OrbitalCommandLand", 0);
+//	OrderSetTargetPoint(ord, AIPlacementNearbyFindTest(player, UnitGetPosition(aiUnit), 10, c_TB_OrbitalCommand));
+//	AICast(aiUnit, ord, c_noMarker, c_castHold);
+//}
+//void AIThinkOrbitalCommandFlying (int player, unit aiUnit, unitgroup scanGroup) {
+//	if ( Land(player,aiUnit,scanGroup)) {
+//		OrbitalCommandLand(player, aiUnit);
+//	}
+//}
+//static bool CallDownMule (int player, unit aiUnit) {
+//    int scanCount;
+//    unit peon;
+//    order ord;
+//    unitgroup targetGroup;
+//
+//    if (AIIsCampaign(player)) {
+//        return false;
+//    }
+//
+//    ord = AICreateOrder(player, c_AB_CalldownMULE, 0);
+//    if (!UnitOrderIsValid(aiUnit, ord)) {
+//        return false;
+//    }
+//
+//    targetGroup = AIFindUnits(player, c_TU_SCV, UnitGetPosition(aiUnit),
+//                            AIAbilityFixed(player, c_AB_CalldownMULE, c_fieldRange0),
+//                            c_noMaxCount
+//    );
+//
+//    //  Find only scv's that are gathering minerals and are close to their mineral target.
+//    targetGroup = AIFilterGathering(targetGroup, c_resourceTypeMinerals, c_maxDistanceToMinerals);
+//    scanCount = UnitGroupCount(targetGroup, c_unitCountAll);
+//    while (scanCount > 0) {
+//        //  Pick one to cast on / next to.
+//        peon = UnitGroupUnit(targetGroup, scanCount);
+//        scanCount = scanCount - 1;
+//
+//        ord = AICreateOrder(player, c_AB_CalldownMULE, 0);
+//        OrderSetTargetPoint(ord, UnitGetPosition(peon));
+//        if (!UnitOrderIsValid(aiUnit, ord)) {
+//            continue;
+//        }
+//        AICast(aiUnit, ord, c_noMarker, c_castHold);
+//        return true;
+//    }
+//    return false;
+//}
+//void AIThinkOrbitalCommand (int player, unit aiUnit, unitgroup scanGroup) {
+//    // rally
+//	if ( Lift(player,aiUnit,scanGroup)) {
+//			OrbitalCommandLift(player, aiUnit);
+//
+//		}
+//    if (AIEvalTacticalData(aiUnit, null)) {
+//        return;
+//    }
+//
+//    if (ScannerSweep(player, aiUnit)) {
+//        return;
+//    }
+//
+//    if (CargoDefend(player, aiUnit, scanGroup, 10, 10, c_TU_SCV, c_AB_CommandCenterChange))
+//    {
+//        return;
+//    }
+//
+//    // rally
+//
+//
+//    if (AISuspectDetectionDanger(player)) {
+//        if (UnitGetPropertyInt(aiUnit, c_unitPropEnergy, c_unitPropCurrent) < 110) {
+//            return; // save for two comsats
+//        }
+//    }
+//
+//    if (CallDownMule(player, aiUnit)) {
+//        return;
+//    }
+//
+//    ////  Save energy instead
+//    //ord = CallDownSupply(player, aiUnit);
+//    //if (ord != null) {
+//    //    AICast(aiUnit, ord, c_noMarker, c_castHold);
+//    //    return;
+//    //}
+//}
+
+void AIThinkMarine(int player, unit aiUnit, unitgroup scanGroup) {
+	GTHitRunGround(player, aiUnit, scanGroup);
+    return;
+}
+void AIThinkMarauder(int player, unit aiUnit, unitgroup scanGroup) {
+	GTHitRunGround(player, aiUnit, scanGroup);
+    return;
+}
+void AIThinkHellion(int player, unit aiUnit, unitgroup scanGroup) {
+	TriggerAddEventUnitProperty(GTUnitChangeHealth, UnitRefFromUnit(aiUnit), c_unitPropVitality);
+	GTHitRunGround(player, aiUnit, scanGroup);
+	return;
+}
+//void AIThinkReaper(int player, unit aiUnit, unitgroup scanGroup) {
+//	GTHitRunGround(player, aiUnit, scanGroup);
+//	return;
+//}
+void AIThinkSiegeTank(int player, unit aiUnit, unitgroup scanGroup) {
+    if (AIEvalTacticalData(aiUnit, null)) {
+        return;
+    }
+//	GTHitRunGround(player, aiUnit, scanGroup);
+//	return;
+}
+//void GTMedivacTransport (int player, unit aiUnit, unitgroup group) {
+//    int TCount;
+//    unit unitToCheck;
+//    unitfilter buildingfilter;
+//    bool wantsToBeInBunker;
+//    order ord;
+//    order ord2;
+//    unitgroup Tgroup;
+//    //  When loading, check to see if there is space in the bunker at all.
+//    //
+//    buildingfilter =  UnitFilterStr("-;Structure");
+//    Tgroup = UnitGroupFilter(null, c_playerAny, group, buildingfilter, 0);
+//
+//    if (UnitCargoValue(aiUnit, c_unitCargoSpaceFree) == 0) {
+//    	return;
+//    }
+//
+//    TCount = UnitGroupCount(Tgroup, c_unitCountAlive);
+//    if (TCount == 0){
+//    	return;
+//    }
+//    while (TCount > 0) {
+//        unitToCheck = UnitGroupUnit(Tgroup, TCount);
+//        TCount = TCount - 1;
+//
+//        //  Make sure the unit is alive.
+//		if (!UnitIsAlive(unitToCheck)) {
+//           continue;
+//		}
+//		// is a AirUnit ?
+//        if (UnitTestPlane(unitToCheck, c_planeAir)) {
+//            continue;
+//        }
+//        //  is not allready in a transport.
+//        if (UnitTestState(unitToCheck, c_unitStateInsideTransport)) {
+//        	continue;
+//        }
+//
+//        //ord = AICreateOrder(player, c_AB_Move, 0);
+//		//ord = AICreateOrder(player, "MedivacTransport,Load", 0);
+//		//ord = AITacticalOrderIndex(player, aiUnit, "MedivacTransport", e_AB_TransportLoadUnit);
+//		ord2 = AICreateOrder(player, c_AB_Move, 0);
+//		OrderSetTargetPoint(ord2, UnitGetPosition(aiUnit));
+//
+//		ord = AICreateOrder(player, "MedivacTransport", 0); // 0 = load, 2 = unload all, 3 = unload one
+//        OrderSetTargetUnit(ord, unitToCheck);
+//		UnitIssueOrder(aiUnit, ord, c_orderQueueAddToEnd);
+//        //AICast(aiUnit, ord, c_orderQueueAddToEnd, c_castHold);
+//    }
+//}
+
+// void AIThinkMedivac(int player, unit aiUnit, unitgroup scanGroup) {
+	// order ord1 = AITacticalOrder(player, aiUnit, "MedivacTransport");
+	// order ord2 = AITacticalOrder(player, aiUnit, c_AB_Move);
+	
+	// DebugAI("called");
+
+	// if (UnitCargoValue(aiUnit, c_unitCargoSpaceFree) <= 1 && DistanceBetweenPoints(UnitGetPosition(aiUnit),  PlayerStartLocation(GTEnemyID(player)) ) > 20){
+		// DebugAI("Try to fly");
+		// OrderSetTargetPoint(ord2, PlayerStartLocation(GTEnemyID(player)));
+		// UnitIssueOrder(aiUnit, ord2, c_orderQueueReplace);
+	    // //AICast(aiUnit, ord2, c_noMarker, c_castHold);
+	    // return;
+	// }
+	// // else if (UnitCargoValue(aiUnit, c_unitCargoSpaceFree) <= 1 && DistanceBetweenPoints(UnitGetPosition(aiUnit),  PlayerStartLocation(GTEnemyID(player)) ) < 20){
+		// // ord2 = AICreateOrder(player, "MedivacTransport", 2)
+		// // OrderSetTargetPoint(ord2, UnitGetPosition(aiUnit));
+		// // UnitIssueOrder(aiUnit, ord2, c_orderQueueReplace);
+	// // }
+	// else if (UnitCargoValue(aiUnit, c_unitCargoSpaceFree) > 1 && DistanceBetweenPoints(UnitGetPosition(aiUnit),  PlayerStartLocation(GTEnemyID(player)) ) > 20 ){
+		// DebugAI("Waiting to load");
+		// GTMedivacTransport(player, aiUnit, UnitGroup(c_TU_Marine, player, RegionCircle(UnitGetPosition(aiUnit), 10), null, 0));
+		// return;
+	// }
+// }
+
+void AIThinkBanshee(int player, unit aiUnit, unitgroup scanGroup) {
+	    GTHitRunGround(player, aiUnit, scanGroup);
+}
+
+//--------------------------------------------------------------------------------------------------
+//  *** VIKING (ground mode) ***
+//--------------------------------------------------------------------------------------------------
+
+point VikingModeChange (int player, unit aiUnit, unitgroup scanGroup, bool inAssault) {
+    int scanCount;
+    int inAir;
+    int onGround;
+    int cliffLevel;
+    int testCliffLevel;
+    string type = AIGetBullyType(aiUnit);
+    point here = UnitGetPosition(aiUnit);
+    point there;
+    unitgroup targetGroupThreat;
+    int onGroundThreatCount;
+    unitgroup targetGroup;
+
+    //  First, find all units within viking range.
+    //
+    targetGroup = UnitGroupFilterRegion(scanGroup, RegionCircle(here, AIWeaponFixed(player, c_WE_VikingFighter, c_fieldRange)+2), 0);
+    inAir = UnitGroupCount(targetGroup, c_unitCountAll);
+
+    //  Next, find the number of ground and air units within viking range.
+    //
+    targetGroup = UnitGroupFilterPlane(targetGroup, c_planeGround, 0);
+    onGround = UnitGroupCount(targetGroup, c_unitCountAll);
+    inAir = inAir - onGround; // air = all - ground
+
+    //  If a bully type is set, check to see if we're in the right mode if idle.
+    if (type != null && onGround == 0 && inAir == 0 && UnitOrderCount(aiUnit) == 0) {
+        if (type == UnitGetType(aiUnit)) {
+            return null;
+        }
+        else {
+            return UnitGetPosition(aiUnit);
+        }
+    }
+
+    //  Only pay attention to threats on the ground.
+    //
+    targetGroupThreat = UnitGroupFilterThreat(targetGroup, aiUnit, null, 0);
+    onGroundThreatCount = UnitGroupCount(targetGroupThreat, c_unitCountAlive);
+
+    if (inAssault) { // viking is on ground.
+        //  Go to air mode when there's nothing on the ground anymore.
+        //
+        if (onGround == 0) {
+            return UnitGetPosition(aiUnit);
+        }
+        //  Also, go to air mode when a pack of new air units shows up and we have killed most of the
+        //  ground units.
+        if (inAir >= onGroundThreatCount + 3 || (inAir > 0 && onGroundThreatCount == 0)) {
+            return UnitGetPosition(aiUnit);
+        }
+    }
+    else { // viking is in air.
+        //  If air targets remain, finish them off before switching.
+        //
+        if (inAir != 0 )
+          {  return null; }
+
+
+
+
+        if (onGround > 0) {
+            cliffLevel = CliffLevel(here);
+
+            //  Only switch if there is a ground target on the same or lower cliff level so that
+            //  we are guaranteed to be able to navigate to it.
+            //
+            while (onGround > 0) {
+                there = UnitGetPosition(UnitGroupUnit(targetGroup, onGround));
+                testCliffLevel = CliffLevel(there);
+                if (cliffLevel >= testCliffLevel) {
+                    return there;
+                }
+                onGround = onGround - 1;
+            }
+        }
+    }
+    return null;
+}
+
+//---------------------------------------------------------------------------------------------
+void AIThinkVikingAssault (int player, unit aiUnit, unitgroup scanGroup) {
+    order ord = AICreateOrder(player, c_AB_FighterMode, 0);
+    unitgroup airGroup;
+    int inAir;
+
+    //  Check to see if this is a valid order at all.
+    //
+    if (!UnitOrderIsValid(aiUnit, ord)) {
+        return;
+    }
+
+    //  Check the number of air units to decide whether to ignore based on order count.
+    //
+    airGroup = UnitGroupFilterRegion(scanGroup,
+                                     RegionCircle(UnitGetPosition(aiUnit), AIWeaponFixed(player, c_WE_VikingFighter, c_fieldRange)+2),
+                                     0)
+                                     ;
+    airGroup = UnitGroupFilterPlane(airGroup, c_planeAir, 0);
+    inAir = UnitGroupCount(airGroup, c_unitCountAlive) + UnitGroupCount(UnitGroupFilter(c_PU_Colossus, c_playerAny, scanGroup, null, 0), c_unitCountAlive );
+
+    //  Do not switch to an air unit while processing an order on the ground. That way we won't
+    //  interrupt the queued attack move order we get when we were told to land.
+    //
+    if (inAir == 0 && UnitOrderCount(aiUnit) > 0) {
+        return;
+    }
+
+//    if (VikingModeChange(player, aiUnit, scanGroup, true) == null) {
+//        return;
+//    }
+
+    AICast(aiUnit, ord, c_noMarker, c_castHold);
+}
+
+//--------------------------------------------------------------------------------------------------
+//  *** VIKING (air mode) ***
+//--------------------------------------------------------------------------------------------------
+void AIThinkVikingFighter (int player, unit aiUnit, unitgroup scanGroup) {
+    point there;
+    int airCount;
+    int ColossusCount;
+    order ord = AICreateOrder(player, c_AB_AssaultMode, 0);
+    GTHitRunAir(player, aiUnit, scanGroup);
+    if (!UnitOrderIsValid(aiUnit, ord)) {
+        return;
+    }
+    airCount = UnitGroupCount(UnitGroupFilterPlane(scanGroup, c_planeAir, 0), c_unitCountAlive);
+    ColossusCount = UnitGroupCount(UnitGroupFilter(c_PU_Colossus, c_playerAny, scanGroup, null, 0), c_unitCountAlive );
+    there = VikingModeChange(player, aiUnit, scanGroup, false);
+    if (there == null || airCount + ColossusCount > 0) {
+        return;
+    }
+
+    AICast(aiUnit, ord, c_noMarker, c_castHold);
+
+    //  Queue an attack move towards the threat to make sure we path past a LOS blocker.
+    //
+    AISetTacticalAttackTargetPoint(aiUnit, there);
+
+}

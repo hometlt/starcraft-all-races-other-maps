@@ -1,0 +1,111 @@
+//==================================================================================================
+//  Zerg First Edition
+//==================================================================================================
+
+
+//--------------------------------------------------------------------------------------------------
+//  Nerchio
+//--------------------------------------------------------------------------------------------------
+void Zerg19 (int player) {
+	int towns = GTTowns (player);
+	int tech_level = 0;
+	int i = 1;
+	
+	GTMicro(player);
+	GTName(player, "Nerchio");
+
+	GTShowTimer(player);
+
+	if (!GTFinishIA(player, c_ZU_Overlord, 2 ))
+		{      if (!GTFinishIA(player, c_ZB_SpawningPool, 1))
+	        { GTTrain(player, 2, 0, c_ZU_Drone, 10); }
+		    GTTrainI(player, 2, 0, c_ZU_Overlord, 2, c_ZB_SpawningPool, 1);
+	 		GTBuildI(player, 2, 0, c_ZB_SpawningPool, 1, c_nearResource, c_ZU_Drone, 10 );
+	 		
+	 		return;
+		}
+		tech_level = GTGetTech(player, c_ZB_RoachWarren,   c_ZB_Lair_Alias ,   c_ZB_HydraliskDen_Alias);
+
+
+    { GTTrainI(player, 2, 0, c_ZU_Drone, 14, c_ZU_Overlord, 2); }
+
+
+//---------------------------------------
+// Economy Management
+//---------------------------------------
+	 if ( GTFinishIA(player, c_ZU_Zergling, 6) )
+	 { GTCreateWorkers (player); }
+	 GTSupply (player, 6 + tech_level);
+	  // Expand
+	 if (towns == 1 || GTFinishA(player, c_ZB_Lair_Alias, 1))
+	 { GTExpand(player); }
+
+        GTCreepTumor(player);
+
+//----------------------------
+// Unit Production
+//----------------------------
+
+  	GTTrain (player, 2, c_townMain, c_ZU_Zergling, 6 );
+  	GTTrainI (player, 2, c_townMain, c_ZU_Zergling, 12, c_ZU_Drone, 19 );
+  	GTTrainI (player, 2, c_townMain, c_ZU_Zergling, 18, c_ZB_Hatchery_Alias, 2 );
+
+  	GTBasicTrain(player);
+  	GTTrainQueen(player, 0);
+    GTTrainA(player, 2,  c_townMain, c_ZU_Roach, 15, c_ZB_RoachWarren, 1);
+  	GTTrainA (player, 4, c_townMain, c_ZU_Hydralisk, 15, c_ZB_HydraliskDen_Alias, 1);
+  	    if (GTFinishIA(player, c_ZB_Hatchery_Alias, 3)){
+  	    GTTrain (player, 2, c_townMain, c_ZU_Zergling, 30);
+  	    GTTrainA(player, 2,  c_townMain, c_ZU_Roach, 20, c_ZB_RoachWarren, 1);
+  	    GTTrainA (player, 4, c_townMain, c_ZU_Hydralisk, 20, c_ZB_HydraliskDen_Alias, 1);
+  	    }
+  	GTTrainA (player, 2, c_townMain, c_ZU_Corruptor, GTEAir(player)/2 , c_ZB_Spire_Alias, 1);
+  	GTTrainA (player, 4, c_townMain, c_ZU_BroodLord, 10 , c_ZB_GreaterSpire, 1);
+  	GTTrainA (player, 2, c_townMain, c_ZU_Baneling, GTCountE(player, c_TU_Marine)/5 + GTCountE(player, c_ZU_Zergling)/10, c_ZB_BanelingNest,1 );
+
+//--------------------------------------
+// Build Management
+//--------------------------------------
+  	GTAutoBDefend(player, 0);
+  	GTDefendTown(player, 0 );
+  	GTQueenBuild(player, 0);
+  	GTMoveQueen(player);
+  	GTBasicTrain(player);
+  	GTBuildI ( player, 2, 0, c_ZB_Extractor, 1, c_onVespeneGas, c_ZB_RoachWarren, 1 );
+  	GTResearch(player, 3, 0, c_ZR_ZerglingSpeed);
+  	GTBuildTI (player, 4, 0, c_ZB_Lair_Alias, 1, 0, c_ZU_Queen, 1);
+  	GTBuildTI(player, 2, 0, c_ZB_RoachWarren, 1, c_nearResource, c_ZB_Hatchery_Alias, 2);
+    GTBuildI(player, 4, 0, c_ZB_BanelingNest, 1, c_nearResource, c_ZB_Hive, 1);
+                
+  	GTBuildI ( player, 2, 0, c_ZB_Extractor, 2, c_onVespeneGas, c_ZB_Lair_Alias, 1);
+    GTBuildTA (player, 2, 0, c_ZB_HydraliskDen_Alias, 1, c_nearResource, c_ZB_Lair_Alias, 1);
+    GTBuildTI (player, 2, 0, c_ZB_Spire_Alias, 1, c_nearResource, c_ZB_HydraliskDen_Alias, 1);
+    GTBuildTA (player, 10, 0, c_ZB_Hive, 1, c_nearResource, c_ZB_InfestationPit, 1);
+    GTBuildTA (player, 2, 0, c_ZB_InfestationPit, 1, c_nearResource, c_ZB_Lair_Alias, 1);
+    GTBuildTA (player, 4, 0, c_ZB_GreaterSpire, 1, c_nearResource, c_ZB_Hive, 1);
+
+    TAutoResearch(player);
+
+//--------------------------------------------
+//   Expansion Town
+//--------------------------------------------
+	while ( i <= 16 ){
+	    if (AIGetTownState(player, i ) == c_townStateEstablished){
+	        GTAutoBExpand(player, i);
+	      	}
+		i = i + 1;
+	}
+	
+//-----------------------------------------
+// Strategy
+//-----------------------------------------
+  	GTDefend(player);
+		if (GTTowns(player) >= 2)
+			{ GTRock(player); }
+		if (GTCanAttack(player ))
+			{ GTAttack(player);}
+  	  	else if (GTNeedRetreat(player))
+  	  		{ GTRetreat(player);}
+// Run
+}
+

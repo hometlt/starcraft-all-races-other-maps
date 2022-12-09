@@ -1,0 +1,7 @@
+﻿Button/Tooltip/ProtossBuilderMP=
+MapInfo/Player00/Name=
+MapInfo/Player01/Name=
+MapInfo/Player02/Name=
+Unit/Name/ProtossBuilderMP=Protoss MP Builder
+Unit/Name/TerranBuilderMP=Terran MP Builder
+Unit/Name/ZergBuilderMP=Zerg MP Builder

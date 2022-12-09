@@ -1,0 +1,599 @@
+//==================================================================================================
+//  Zerg Melee AI
+//==================================================================================================
+
+include "TriggerLibs/Green Tea Main/GTZFunction"
+
+include "TriggerLibs/Commander/Zerg/ZergCustom"
+include "TriggerLibs/Commander/Zerg/Zerg0"
+include "TriggerLibs/Commander/Zerg/Zerg1"
+include "TriggerLibs/Commander/Zerg/Zerg2"
+include "TriggerLibs/Commander/Zerg/Zerg3"
+include "TriggerLibs/Commander/Zerg/Zerg4"
+include "TriggerLibs/Commander/Zerg/Zerg5"
+include "TriggerLibs/Commander/Zerg/Zerg6"
+include "TriggerLibs/Commander/Zerg/Zerg7"
+include "TriggerLibs/Commander/Zerg/Zerg8"
+include "TriggerLibs/Commander/Zerg/Zerg9"
+include "TriggerLibs/Commander/Zerg/ZTBoss"
+include "TriggerLibs/Commander/Zerg/ZTEco"
+include "TriggerLibs/Commander/Zerg/Zerg10"
+include "TriggerLibs/Commander/Zerg/Zerg11"
+include "TriggerLibs/Commander/Zerg/Zerg12"
+include "TriggerLibs/Commander/Zerg/Zerg13"
+include "TriggerLibs/Commander/Zerg/Zerg14"
+include "TriggerLibs/Commander/Zerg/Zerg15"
+include "TriggerLibs/Commander/Zerg/Zerg16"
+include "TriggerLibs/Commander/Zerg/Zerg17"
+include "TriggerLibs/Commander/Zerg/ZPBoss"
+include "TriggerLibs/Commander/Zerg/ZPEco"
+include "TriggerLibs/Commander/Zerg/ZZBoss"
+include "TriggerLibs/Commander/Zerg/ZZEco"
+//--------------------------------------------------------------------------------------------------
+//  Counter-Attack Units
+//--------------------------------------------------------------------------------------------------
+static void InitCounters (int player) {
+	return;
+    AICounterUnitSetup(player, c_PU_Zealot,             3.00, c_ZU_Zergling,    1.00, c_ZU_Roach);
+}
+
+static void GInitCounters1 (int player) {
+
+    AICounterUnitSetup(player, c_PU_Zealot,             4.00, c_ZU_Zergling,    1.00, c_ZU_Roach);
+    AICounterUnitSetup(player, c_PU_Stalker,            5.00, c_ZU_Zergling,    5.00, c_ZU_Zergling);
+    AICounterUnitSetup(player, c_PU_Sentry,             1.00, c_ZU_Roach,       1.00, c_ZU_Roach);
+    AICounterUnitSetup(player, c_PU_HighTemplar,        1.00, c_ZU_Roach,       1.00, c_ZU_Roach);
+    AICounterUnitSetup(player, c_PU_DarkTemplar,        2.00, c_ZU_Roach,       2.00, c_ZU_Roach);
+    AICounterUnitSetup(player, c_PU_Archon,             2.00, c_ZU_Hydralisk,   2.00, c_ZU_Hydralisk);
+    AICounterUnitSetup(player, c_PU_Immortal,           10.00, c_ZU_Zergling,    3.00, c_ZU_Hydralisk);
+    AICounterUnitSetup(player, c_PU_Colossus,           2.00, c_ZU_Infestor,    2.00, c_ZU_Corruptor);
+    AICounterUnitSetup(player, c_PU_Phoenix,            1.00, c_ZU_Hydralisk,   1.00, c_ZU_Corruptor);
+    AICounterUnitSetup(player, c_PU_VoidRay,            1.80, c_ZU_Mutalisk,    1.80, c_ZU_Mutalisk);
+    AICounterUnitSetup(player, c_PU_Carrier,            2.00, c_ZU_Corruptor,   2.00, c_ZU_Corruptor);
+    AICounterUnitSetup(player, c_PB_PhotonCannon,       3.00, c_ZU_Roach,       1.00, c_ZU_BroodLord);
+    // versus Terran
+
+    AICounterUnitSetup(player, c_TU_Marine,             2.00, c_ZU_Zergling,    0.35, c_ZU_Baneling);
+    AICounterUnitSetup(player, c_TU_Marauder,           4.00, c_ZU_Zergling,    4.00, c_ZU_Zergling);
+    AICounterUnitSetup(player, c_TU_Reaper,             1.00, c_ZU_Roach,       1.00, c_ZU_Roach);
+    AICounterUnitSetup(player, c_TU_Ghost,              3.00, c_ZU_Zergling,    3.00, c_ZU_Zergling);
+    AICounterUnitSetup(player, c_TU_Hellion,            1.00, c_ZU_Roach,       1.00, c_ZU_Roach);
+
+    AICounterUnitSetup(player, c_TU_SiegeTank_Alias,    3.00, c_ZU_Roach,    	1.00, c_ZU_Mutalisk);
+    AICounterUnitSetup(player, c_TU_Thor,               8.00, c_ZU_Zergling,    5.00, c_ZU_Roach);
+    AICounterUnitSetup(player, c_TU_Viking_Alias,       1.20, c_ZU_Mutalisk,   1.20, c_ZU_Mutalisk);
+    AICounterUnitSetup(player, c_TU_Medivac,            1.00, c_ZU_Mutalisk,   1.00, c_ZU_Mutalisk);
+    AICounterUnitSetup(player, c_TU_Raven,              1.00, c_ZU_Mutalisk,   1.00, c_ZU_Mutalisk);
+    AICounterUnitSetup(player, c_TU_Banshee,            1.00, c_ZU_Mutalisk,   1.00, c_ZU_Mutalisk);
+    AICounterUnitSetup(player, c_TU_Battlecruiser,      2.00, c_ZU_Corruptor,   2.00, c_ZU_Corruptor);
+    AICounterUnitSetup(player, c_TB_MissileTurret,      3.00, c_ZU_Zergling,    1.00, c_ZU_Roach);
+ //   AICounterUnitSetup(player, c_TB_Bunker,             2.00, c_ZU_Baneling,    1.00, c_ZU_BroodLord);
+
+    // versus Zerg
+    AICounterUnitSetup(player, c_ZU_Zergling,           1.00, c_ZU_Zergling,    0.25, c_ZU_Baneling);
+    AICounterUnitSetup(player, c_ZU_Baneling,           0.75, c_ZU_Roach,       0.75, c_ZU_Roach);
+    AICounterUnitSetup(player, c_ZU_Roach,              1.00, c_ZU_Roach,       1.00, c_ZU_Roach);
+    AICounterUnitSetup(player, c_ZU_Hydralisk,          1.00, c_ZU_Baneling,   1.00, c_ZU_Hydralisk);
+    AICounterUnitSetup(player, c_ZU_Infestor,           2.00, c_ZU_Roach,      2.00, c_ZU_Roach);
+    AICounterUnitSetup(player, c_ZU_Mutalisk,           1.00, c_ZU_Hydralisk,   0.80, c_ZU_Corruptor);
+    AICounterUnitSetup(player, c_ZU_Corruptor,          1.0, c_ZU_Hydralisk,    1.00, c_ZU_Hydralisk);
+    AICounterUnitSetup(player, c_ZU_Ultralisk,          1.00, c_ZU_Mutalisk,    1.00, c_ZU_Mutalisk);
+    AICounterUnitSetup(player, c_ZU_BroodLord,          1.00, c_ZU_Mutalisk,    1.00, c_ZU_Corruptor);
+    AICounterUnitSetup(player, c_ZB_SpineCrawler,       1.00,  c_ZU_Roach,    1.00, c_ZU_Roach);
+}
+
+//--------------------------------------------------------------------------------------------------
+//  ZergSubStateName
+//--------------------------------------------------------------------------------------------------
+string ZergSubStateName (int state) {
+    // TODO Call the individual difficulties to return a real substate name
+    return "-" + IntToString(state) + "-";
+}
+
+//--------------------------------------------------------------------------------------------------
+//  DebugCallbackZerg
+//--------------------------------------------------------------------------------------------------
+void DebugCallbackZerg (int player) {
+    DebugAI("=====ZERG=====\n");
+    DebugMelee(player);
+    DebugAI("e_mainState = "        + MainStateName(AIState(player, e_mainState))           +
+            ", e_mainSubState = "   + ZergSubStateName(AIState(player, e_mainSubState))     +
+            ", e_attackState = "    + AttackStateName(AIState(player, e_attackState))
+    );
+
+}
+//--------------------------------------------------------------------------------------------------
+//  AINewUnitZerg
+//--------------------------------------------------------------------------------------------------
+void AINewUnitZerg (int player, unit u) {
+    wave w;
+    unit drop;
+    string type = UnitGetType(u);
+
+    if (type == c_ZU_Larva || 
+        type == c_ZU_Broodling ||
+        type == c_ZU_Mantaling) {
+        return;
+    }
+    if (g_transform[player] == 3){
+	if (type == c_ZU_Zergling || type == c_ZU_Drone){
+		UnitWeaponRemove(u, UnitWeaponGet(u, 1));
+   		UnitWeaponAdd(u, "GuassRifle", null);
+   	}
+   	if (type == c_ZU_Roach){
+		UnitWeaponRemove(u, UnitWeaponGet(u, 2));
+   		UnitWeaponAdd(u, "PunisherGrenades", null);
+   	}
+	if (type == c_ZU_Queen){
+		UnitWeaponRemove(u, UnitWeaponGet(u, 1));
+		UnitWeaponRemove(u, UnitWeaponGet(u, 2));
+		UnitWeaponAdd(u, "LongboltMissile", null);
+		UnitWeaponAdd(u, "CrucioShockCannon", null);
+   	}
+	if (type == c_ZU_Hydralisk){
+		UnitWeaponRemove(u, UnitWeaponGet(u, 1));
+		UnitWeaponRemove(u, UnitWeaponGet(u, 2));
+		UnitWeaponAdd(u, "90mmCannons", null);
+		UnitWeaponAdd(u, "LanzerTorpedoes", null);
+   	}
+	if (type == c_ZU_Mutalisk){
+		UnitWeaponAdd(u, "BacklashRockets", null);
+   	}
+	if (type == c_ZU_Corruptor){
+		UnitWeaponAdd(u, "D8Charge", null);
+   	}
+	if (type == c_ZU_BroodLord){
+		UnitWeaponAdd(u, "ATALaserBattery", null);
+   	}
+	if (type == c_ZU_Ultralisk){
+		UnitWeaponRemove(u, UnitWeaponGet(u, 1));
+		UnitWeaponAdd(u, "JavelinMissileLaunchers", null);
+		UnitWeaponAdd(u, "ThorsHammer", null);
+   	}
+    }
+    if (g_transform[player] == 2){
+    if (type == c_ZU_Drone ){
+    		UnitWeaponRemove(u, UnitWeaponGet(u, 1));
+       		UnitWeaponAdd(u, "DisruptionBeam", null);
+       	}
+	if (type == c_ZU_Zergling ){
+		UnitWeaponRemove(u, UnitWeaponGet(u, 1));
+   		UnitWeaponAdd(u, "InterceptorBeam", null);
+   	}
+   	if (type == c_ZU_Roach){
+		UnitWeaponRemove(u, UnitWeaponGet(u, 2));
+   		UnitWeaponAdd(u, "ParticleDisruptors", null);
+   	}
+	if (type == c_ZU_Queen){
+		UnitWeaponRemove(u, UnitWeaponGet(u, 1));
+		UnitWeaponRemove(u, UnitWeaponGet(u, 2));
+		UnitWeaponAdd(u, "MothershipBeam", null);
+   	}
+	if (type == c_ZU_Hydralisk){
+		UnitWeaponRemove(u, UnitWeaponGet(u, 2));
+		UnitWeaponAdd(u, "PhotonCannon", null);
+   	}
+	if (type == c_ZU_Mutalisk){
+		UnitWeaponRemove(u, UnitWeaponGet(u, 1));
+		UnitWeaponAdd(u, "PrismaticBeam", null);
+   	}
+	if (type == c_ZU_Corruptor){
+		UnitWeaponAdd(u, "PsiBlades", null);
+   	}
+	if (type == c_ZU_BroodLord){
+		UnitWeaponAdd(u, "IonCannons", null);
+   	}
+	if (type == c_ZU_Ultralisk){
+		UnitWeaponRemove(u, UnitWeaponGet(u, 1));
+		UnitWeaponAdd(u, "ThermalLances", null);
+   	}
+    if (UnitTypeTestAttribute(type, c_unitAttributeStructure)) {
+        return;
+    }
+
+    }
+    if (g_transform[player] == 1){
+
+	if (type == c_ZU_Zergling ){
+		UnitWeaponRemove(u, UnitWeaponGet(u, 1));
+   		UnitWeaponAdd(u, "Talons", null);
+   	}
+   	if (type == c_ZU_Roach){
+		UnitWeaponRemove(u, UnitWeaponGet(u, 2));
+   		UnitWeaponAdd(u, "GlaiveWurm", null);
+   	}
+	if (type == c_ZU_Queen){
+		UnitWeaponRemove(u, UnitWeaponGet(u, 1));
+		UnitWeaponRemove(u, UnitWeaponGet(u, 2));
+		UnitWeaponAdd(u, "ImpalerTentacle", null);
+		UnitWeaponAdd(u, "AcidSpew", null);
+   	}
+	if (type == c_ZU_Hydralisk){
+		UnitWeaponRemove(u, UnitWeaponGet(u, 2));
+		UnitWeaponAdd(u, "ImpalerTentacle", null);
+   	}
+	if (type == c_ZU_Mutalisk){
+		UnitWeaponRemove(u, UnitWeaponGet(u, 1));
+		UnitWeaponAdd(u, "NeedleSpines", null);
+   	}
+	if (type == c_ZU_Corruptor){
+		UnitWeaponAdd(u, "AcidSaliva", null);
+   	}
+	if (type == c_ZU_BroodLord){
+		UnitWeaponAdd(u, "ParasiteSpore", null);
+   	}
+	if (type == c_ZU_Ultralisk){
+		UnitWeaponAdd(u, "AcidSpew", null);
+   	}
+    }
+    if (UnitTypeTestAttribute(type, c_unitAttributeStructure)) {
+        return;
+    }
+    if (UnitTypeTestFlag(type, c_unitFlagWorker)) {
+        return;
+    }
+
+    // units that stay near home
+    //
+    if (type == c_ZB_SpineCrawler || type == c_ZB_SporeCrawler) {
+        AIWaveAddUnitPriority(AIWaveGet(player, c_waveHome), u, c_prioWavePeon);
+        return;
+    }
+    if (type == c_ZU_Queen) {
+//        drop = AIGetDropoffWithFewestGuards(player, c_ZU_Queen);
+//        if (drop == c_nullUnit) {
+//            AIWaveAddUnitPriority(AIWaveGet(player, c_waveHome), u, c_prioWavePeon);
+//        }
+//        else {
+//            w = AIWaveCreate(AIWaveInfoCreate(), player, AIWaveTargetGatherDPoint(player, c_townMain));
+//            AIWaveSetType(w, c_waveStateGuardHome, AIWaveTargetGuardHomeUnit(drop));
+//            AIWaveAddUnitPriority(w, u, c_prioWavePeon);
+//            AIWaveSetDeleteWhenEmpty(w, true);
+//        }
+        return;
+    }
+    
+    // detector
+    //    if (type == c_ZU_Overseer) {
+    //    AINewDetector(player, u, false);
+    //    return;
+   // }
+
+    // extra scout units
+    //
+    if (type == c_ZU_Overlord || type == c_ZU_OverlordCocoon ) {
+       // AIAddToExtraScoutGroup(player, u);
+        return;
+    }
+
+    // clear obstacle units
+    //
+//    if (AIWaveNeedClearObsUnits(player)) {
+//        if (type == c_ZU_Zergling || type == c_ZU_Roach || type == c_ZU_Hydralisk) {
+//            AIMergeUnit(player, u, AIWaveGet(player, c_waveClearObs));
+//            return;
+//        }
+ //   }
+
+    // main wave units
+    //
+    AINewUnitDefault(player, u);
+}
+
+//--------------------------------------------------------------------------------------------------
+//  AIGetScoutZerg
+//--------------------------------------------------------------------------------------------------
+unit AIGetScoutZerg (int player, int index, unit prev, bool allowWorkers) {    
+    unit scout;
+    string prevType = UnitGetType(prev);
+
+    if (!AIGetFlag(player, e_flagsScouting)) {
+        return c_nullUnit;
+    }
+    if (prevType == c_ZU_Overseer) {
+        return prev;
+    }   
+    scout = AIGrabUnit(player, c_ZU_Overseer, c_prioScout, null);
+    if (scout) {
+        return scout;
+    }
+    if  (AITechCount(player, c_ZR_OverseerSpeed, c_techCountCompleteOnly) > 0) {
+        scout = AIGrabUnit(player, c_ZU_Overlord, c_prioScout, null);
+        if (scout) {
+            return scout;
+        }
+    }
+    if (prevType == c_ZU_Zergling) {
+        return prev;
+    }  
+    scout = AIGrabUnit(player, c_ZU_Zergling, c_prioScout, null);
+    if (scout) {
+        return scout;
+    }
+    if (prev) {
+        return prev;
+    }
+    if (!AIGetFlag(player, e_flagsLateScout)) {
+        scout =  AIGrabUnit(player, c_ZU_Overlord, c_prioScout, null);
+        if (scout) {
+            return scout;
+        }
+    }
+    if (!allowWorkers) {
+        return c_nullUnit;
+    }
+    return AIGrabUnit(player, c_ZU_Drone, c_prioScout, null);
+}
+
+//--------------------------------------------------------------------------------------------------
+//  AIEarlyDefScoutZerg
+//--------------------------------------------------------------------------------------------------
+unit AIEarlyDefScoutZerg (int player, unit prev, bool allowWorkers) {
+    unit obs;
+    string prevType;
+    
+    if (!AIGetFlag(player, e_flagsEarlyDefScout)) {
+        return c_nullUnit;
+    }
+    prevType = UnitGetType(prev);
+    if (prevType == c_ZU_Overseer) {
+        return prev;
+    }
+    obs = AIGrabUnit(player, c_ZU_Overseer, c_prioScout, null);
+    if (obs) {
+        return obs;
+    }
+    if (prevType == c_ZU_Zergling) {
+        return prev;
+    }
+    obs = AIGrabUnit(player, c_ZU_Zergling, c_prioScout, null);
+    if (obs) {
+        return obs;
+    }
+    if (prev) {
+        return prev;
+    }
+    if (!allowWorkers) {
+        return c_nullUnit;
+    }
+    return AIGrabUnit(player, c_ZU_Drone, c_prioScout, null);
+}
+
+//--------------------------------------------------------------------------------------------------
+//  AIWaveThinkZerg
+//--------------------------------------------------------------------------------------------------
+void AIWaveThinkZerg (int player, wave w, int type) {
+    GTWaveThinkDefault(player, w, type);
+}
+
+
+//--------------------------------------------------------------------------------------------------
+//  Zerg Init
+//--------------------------------------------------------------------------------------------------
+static void ZergInit (int player) {
+    int state;
+    int rnd  ;
+    int rnd2 = RandomInt(1, 2);
+    int rstyle = DataTableGetInt(true, c_RandomStyle);
+    string section;
+ 	GInitCounters1(player);
+    GTInitCounterArrays();          // init Counter Array for later purpose
+//	GTC_Init(player);				// init commander config
+	// Pause Starting
+    if ( DialogIsVisible(GOpenMenu,  player) && AIGetTime() < 2){
+   		AITimePause(true);
+   	    TimerPause(GTRoundTime, true);
+   	    PlayerSetAlliance(1, c_allianceIdVision, 1, false);
+   	    UnitPauseAll(true);
+   	    return;
+    }
+
+    //  Micro Warning
+    if (gtbuildselect[player] == 0 && PlayerDifficulty(player) < c_skirHard_VH && !g_showbuild){
+    	UIDisplayMessage(PlayerGroupAlliance(1, player), c_messageAreaChat, StringToText("[") + PlayerColorName(PlayerGetColorIndex(player, false)) + StringToText("] ") + StringToText(GTGreet ()));
+    }
+
+    if (!g_micro && g_alertnomicro && AIGetTime() > 2){
+		 DebugAI("Cannot find 'unitdata.xml'.");
+		 DebugAI("Disable AI Micro.");
+		 g_alertnomicro = false;
+	 }
+
+
+    AISetNumScouts(player, 1);
+
+    AISetFlag(player, e_flagsEarlyDefScout, false);
+    AIReqCountAsBuiltObject(player, c_ZU_Larva);
+    AITechCountFixupSingle(player, c_ZB_Spire, c_ZB_GreaterSpire);
+    AITechCountFixupInOrder(player, c_ZB_Hatchery, c_ZB_Lair, c_ZB_Hive);
+    AISetCreepBuilding(player, c_ZB_CreepTumor, "ZergBuildingNotOnCreep");
+    GTTrain(player, 2, 0, GTWorker(player) , 7);
+
+    if(AIGetEnemyRaceVal(player) == c_raceTerran){
+        if (PlayerDifficulty(player) >= c_skirHard_VH){
+            rnd = RandomInt(5, 9);
+        }
+        else{
+    		rnd = RandomInt(0, 4);
+        }
+    }
+    else if (AIGetEnemyRaceVal(player) == c_raceProtoss ){
+        if (PlayerDifficulty(player) >= c_skirHard_VH){
+            rnd = RandomInt(15, 19);
+        }
+        else{
+            rnd = RandomInt(10, 14);
+    	}
+    }
+    else{
+        if (PlayerDifficulty(player) >= c_skirHard_VH){
+            rnd = RandomInt(25, 29);
+        }
+        else{
+    		rnd = RandomInt(20, 24);
+    	}
+    }
+    //Starting Trigger
+
+    if (rstyle == 1 || (rstyle == 2 && rnd2 == 1)){
+    	section = "GTBO" + "-" + GTShortRace(PlayerRace(player)) + "v" + GTShortRace(GERace(player));
+    	GTableSetInt(player, "CustomBuild", RandomInt(1, BankValueGetAsInt(GTBank, section, "num")));
+    	TriggerDebugOutput(1, StringToText("[") + PlayerColorName(PlayerGetColorIndex(player, false)) + StringToText("] ") + StringToText("Choose Random"), true);
+    	AISetMainState(player, -2, e_mainSubState_Unset);
+    }
+
+	if (GTableGetInt(player, "CustomBuild") > 0 ){
+		section = "GTBO" + "-" + GTShortRace(PlayerRace(player)) + "v" + GTShortRace(GERace(player)) + "-Build" + IntToString( GTableGetInt(player, "CustomBuild"));
+		if (BankSectionExists(GTBank, section)){
+			if (rstyle == 0){
+				TriggerDebugOutput(1, StringToText("[") + PlayerColorName(PlayerGetColorIndex(player, false)) + StringToText("] ") + StringToText("Choose BO ") + TextWithColor(StringToText(BankValueGetAsString(GTBank, section, "name")),Color(42,212,0))  , true);
+			}
+			AISetMainState(player, -2, e_mainSubState_Unset);
+		}
+	}
+
+	else{
+    if (gtbuildselect[player] > 0){
+    	rnd = gtbuildselect[player];
+    	TriggerDebugOutput(1, StringToText("[") + PlayerColorName(PlayerGetColorIndex(player, false)) + StringToText("] ") + StringToText("Choose ") + TextWithColor(StringToText(GTC[1][rnd].name),Color(42,212,0))+ StringToText(" commander.") , true);
+    }
+
+    else {
+    	TriggerDebugOutput(1, StringToText("[") + PlayerColorName(PlayerGetColorIndex(player, false)) + StringToText("] ") + StringToText("Choose Random"), true);
+    }
+        if ( 0 <= rnd && rnd <= 9){
+            GTChat("Bly: gg gl");
+            AISetMainState(player, GTState(rnd), e_mainSubState_Unset);
+        }
+//ZvP
+        else if (rnd == 10){
+            GTChat("TRUE: hf&gl");
+            AISetMainState(player, GTState(rnd), e_mainSubState_Unset);
+		}
+        else if (rnd == 11){
+            GTChat("Zanster: hf gg");
+            AISetMainState(player, GTState(rnd), e_mainSubState_Unset);
+		}
+        else if (rnd == 12){
+            GTChat("Stephano: hfgl");
+            AISetMainState(player, GTState(rnd), e_mainSubState_Unset);
+		}
+        else if (rnd == 13){
+            GTChat("Namshar: gg gl");
+            AISetMainState(player, GTState(rnd), e_mainSubState_Unset);
+		}
+        else if (rnd == 14){
+            GTChat("Scarlett: hf");
+            AISetMainState(player, GTState(rnd), e_mainSubState_Unset);
+        }
+        else if (rnd == 15){
+            GTChat("Lambo: hf gl");
+            AISetMainState(player, GTState(rnd), e_mainSubState_Unset);
+        }
+        else if (rnd == 16){
+            GTChat("Nerchio: glhf");
+            AISetMainState(player, GTState(rnd), e_mainSubState_Unset);
+		}
+        else if (rnd == 17){
+            GTChat("Elazer: hf gl");
+            AISetMainState(player, GTState(rnd), e_mainSubState_Unset);
+		}
+        else if (rnd == 18){
+            GTChat("Reynor: gl & hf");
+            AISetMainState(player, GTState(rnd), e_mainSubState_Unset);
+        }
+        else if (rnd == 19){
+            GTChat("Serral: gl & hf");
+            AISetMainState(player, GTState(rnd), e_mainSubState_Unset);
+        }
+//ZvZ
+        else if (rnd == 20){
+            GTChat("TRUE: hf&gl");
+            AISetMainState(player, GTState(rnd), e_mainSubState_Unset);
+		}
+        else if (rnd == 21){
+            GTChat("Zanster: hf gg");
+            AISetMainState(player, GTState(rnd), e_mainSubState_Unset);
+		}
+        else if (rnd == 22){
+            GTChat("Stephano: hfgl");
+            AISetMainState(player, GTState(rnd), e_mainSubState_Unset);
+		}
+        else if (rnd == 23){
+            GTChat("Namshar: gg gl");
+            AISetMainState(player, GTState(rnd), e_mainSubState_Unset);
+		}
+        else if (rnd == 24){
+            GTChat("Scarlett: hf");
+            AISetMainState(player, GTState(rnd), e_mainSubState_Unset);
+		}
+        else if (rnd == 25){
+            GTChat("Lambo: hf gl");
+            AISetMainState(player, GTState(rnd), e_mainSubState_Unset);
+        }
+        else if (rnd == 26){
+            GTChat("Nerchio: glhf");
+            AISetMainState(player, GTState(rnd), e_mainSubState_Unset);
+		}
+        else if (rnd == 27){
+            GTChat("Elazer: hf gl");
+            AISetMainState(player, GTState(rnd), e_mainSubState_Unset);
+		}
+        else if (rnd == 28){
+            GTChat("Reynor: gl hf");
+            AISetMainState(player, GTState(rnd), e_mainSubState_Unset);
+        }
+        else if (rnd == 29){
+            GTChat("Serral: gl&hf");
+            AISetMainState(player, GTState(rnd), e_mainSubState_Unset);
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+//  AIMeleeZerg
+//--------------------------------------------------------------------------------------------------
+void AIMeleeZerg (int player) {
+    int mainState = AIState(player, e_mainState);
+
+    if (mainState == e_mainState_Init)              { ZergInit(player);       }
+    else if (mainState == -2)     { ZergCustom(player); }
+    else if (mainState == GTState(0))     { ZVTeco(player);   }
+    else if (mainState == GTState(1))     { ZVTeco(player);   }
+    else if (mainState == GTState(2))     { ZVTeco(player);   }
+    else if (mainState == GTState(3))     { ZVTeco(player);   }
+    else if (mainState == GTState(4))     { ZVTeco(player);   }
+    else if (mainState == GTState(5))     { ZVTeco(player);   }
+    else if (mainState == GTState(6))     { ZVTeco(player);   }
+    else if (mainState == GTState(7))     { ZVTeco(player);   }
+    else if (mainState == GTState(8))     { ZVTeco(player);  }
+    else if (mainState == GTState(9))     { ZVTboss(player); }
+
+    else if (mainState == GTState(10))    { ZVPeco(player);  }
+    else if (mainState == GTState(11))    { ZVPeco(player);  }
+    else if (mainState == GTState(12))    { ZVPeco(player);  }
+    else if (mainState == GTState(13))    { ZVPeco(player);  }
+    else if (mainState == GTState(14))    { ZVPeco(player);  }
+    else if (mainState == GTState(15))    { ZVPeco(player);  }
+    else if (mainState == GTState(16))    { ZVPeco(player);  }
+    else if (mainState == GTState(17))    { ZVPeco(player);  }
+    else if (mainState == GTState(18))    { ZVPeco(player);  }
+    else if (mainState == GTState(19))    { ZVPboss(player); }
+
+    else if (mainState == GTState(20))    { ZVZeco(player);  }
+    else if (mainState == GTState(21))    { ZVZeco(player);  }
+    else if (mainState == GTState(22))    { ZVZeco(player);  }
+    else if (mainState == GTState(23))    { ZVZeco(player);  }
+    else if (mainState == GTState(24))    { ZVZeco(player);  }
+    else if (mainState == GTState(25))    { ZVZeco(player);  }
+    else if (mainState == GTState(26))    { ZVZeco(player);  }
+    else if (mainState == GTState(27))    { ZVZeco(player);  }
+    else if (mainState == GTState(28))    { ZVZeco(player);  }
+    else if (mainState == GTState(29))    { ZVZboss(player); }
+//  else if (mainState == e_mainState_Late2)        { ZVZBoss(player); }
+
+    else if (mainState == e_mainState_Off)          { EndMeleeScript(player); }
+    else if (mainState == e_mainState_Disabled)     {                         }
+    
+    else { ErrorMeleeScript(player, "Invalid mainState"); }
+}

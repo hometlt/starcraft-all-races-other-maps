@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Catalog>
+    <CUnit id="OperationHeadquarters">
+        <CardLayouts index="0">
+            <LayoutButtons index="6" Requirements=""/>
+            <LayoutButtons index="7" Requirements=""/>
+        </CardLayouts>
+    </CUnit>
+    <CUnit id="VespenePurificationPlant">
+        <Footprint value="FootprintGeyserRoundedBuilt"/>
+        <PlacementFootprint value="Footprint3x3CappedGeyser"/>
+    </CUnit>
+    <CUnit id="VespenePurificationPlantRich">
+        <Footprint value="FootprintGeyserRoundedBuilt"/>
+        <PlacementFootprint value="Footprint3x3CappedGeyser"/>
+    </CUnit>
+</Catalog>

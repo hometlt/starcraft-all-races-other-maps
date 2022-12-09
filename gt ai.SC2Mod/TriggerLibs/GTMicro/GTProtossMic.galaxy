@@ -1,0 +1,122 @@
+include "TriggerLibs/Green Tea Main/GTZInformation"
+order GTLift (int player, unit aiUnit, unitgroup scanGroup){
+	order ord;
+	aifilter filter;
+	int count;
+	unit u;
+	unitgroup group = UnitGroup(c_PU_Phoenix, player, RegionCircle(UnitGetPosition(aiUnit), 8), null, 0);
+	count = UnitGroupCount(group, c_unitCountAlive);
+	if (count < 2){
+		return AICreateOrder(player, c_AB_GravitonBeam, 1);
+	}
+	while (count != 0){
+		u = UnitGroupUnit(group, count);
+		count = count - 1;
+		if (UnitOrderHasAbil(u, c_AB_GravitonBeam)){
+			return null;
+		}
+	}
+
+	ord = AICreateOrder(player, c_AB_GravitonBeam, 0);
+	if (!UnitOrderIsValid(aiUnit, ord)) {
+		return null;
+	}
+	filter = AIFilter(player);
+	AISetFilterBits(filter, UnitFilterStr(AIAbilityStr(player, c_AB_GravitonBeam, c_fieldTargetFiltersAB)));
+    AISetFilterRange(filter, aiUnit, 6);
+    AISetFilterLife(filter, 40, 160);
+	AISetFilterBits(filter, UnitFilterStr("-;Structure,Air"));
+	scanGroup = AIGetFilterGroup(filter, scanGroup);
+	return AIUnitGroupGetValidOrder(scanGroup, ord, aiUnit, c_backwards);
+}
+
+
+void AIThinkPhoenix (int player, unit aiUnit, unitgroup scanGroup) {
+    order ord;
+    unitgroup enemyGroup;
+    point p0 = GTCenterGroup(UnitGroup(UnitGetType(aiUnit), player, RegionCircle(UnitGetPosition(aiUnit), 10), null, 0));
+    point p1 = UnitGetPosition(aiUnit);
+    point p2;
+    point p3;
+    fixed d;
+    fixed k = 5;
+
+
+    enemyGroup = UnitGroupFilterPlane(scanGroup, c_planeAir, 0);
+
+    if (UnitGroupCount(enemyGroup, c_unitCountAlive) > 0){
+        enemyGroup = UnitGroupFilterThreat(enemyGroup, aiUnit, null, 0);
+        if (UnitGroupCount(enemyGroup, c_unitCountAlive) > 0){
+        	p2 = UnitGetPosition(UnitGroupNearestUnit(enemyGroup, p1));
+        	d = DistanceBetweenPoints(p1, p2);
+        	if ( d < 7 && GTUnitRange(aiUnit) > GTUnitRange(UnitGroupNearestUnit(enemyGroup, p1))) {
+        		ord = AICreateOrder(player, c_AB_Move, 0);
+        		p3 = PointWithOffsetPolar(p1,  k, AngleBetweenPoints(p2, p0) + 15);
+        		OrderSetTargetPoint(ord, p3);
+        		AICast(aiUnit, ord, c_noMarker, c_castHold);
+        		return;
+        	}
+        }
+    }
+    else{
+    	ord = GTLift(player, aiUnit, scanGroup);
+    	if (UnitOrderIsValid(aiUnit, ord)){
+    		AICast(aiUnit, ord, c_noMarker, c_castRetreat);
+    		return;
+    	}
+    }
+    return;
+}
+
+//void AIThinkStalker(int player, unit aiUnit, unitgroup scanGroup) {
+//	GTHitRunGroundWithArmorFocus(player, aiUnit, scanGroup, c_targetFilterArmoredName);
+//	return;
+//}
+//void AIThinkImmortal(int player, unit aiUnit, unitgroup scanGroup) {
+//	GTHitRunGroundWithArmorFocus(player, aiUnit, scanGroup, c_targetFilterArmoredName);
+//    return;
+//}
+void AIThinkColossus(int player, unit aiUnit, unitgroup scanGroup) {
+    GTHitRunGround(player, aiUnit, scanGroup);
+    return;
+}
+void AIThinkCarrier(int player, unit aiUnit, unitgroup scanGroup) {
+    GTHitRunGround(player, aiUnit, scanGroup);
+    return;
+}
+void AIThinkTempest(int player, unit aiUnit, unitgroup scanGroup) {
+    GTHitRunGround(player, aiUnit, scanGroup);
+    return;
+}
+//void AIThinkPhotonCannon(int player, unit aiUnit, unitgroup scanGroup) {
+//    if ( AIEvalTacticalData(aiUnit, null)){
+//        return;
+//    }
+//    //TriggerAddEventUnitDamaged(GTBuildDamage, UnitRefFromUnit(aiUnit), c_unitDamageTypeAny, c_unitDamageEither, null );
+//    return;
+//}
+
+//void AIThinkPylon(int player, unit aiUnit, unitgroup scanGroup) {
+//    if ( AIEvalTacticalData(aiUnit, null)){
+//        return;
+//    }
+//    //TriggerAddEventUnitDamaged(GTBuildDamage, UnitRefFromUnit(aiUnit), c_unitDamageTypeAny, c_unitDamageEither, null );
+//    return;
+//}
+
+void AIThinkProbe(int player, unit aiUnit, unitgroup scanGroup) {
+	if (!g_micro){
+		DebugAI("Load 'unitdata.xml'.");
+		DebugAI("Enough AI Micro");
+	    g_micro = true;
+	}
+    if ( AIEvalTacticalData(aiUnit, null)){
+        return;
+    }
+}
+//void AIThinkArchon(int player, unit aiUnit, unitgroup scanGroup) {
+//    if ( AIEvalTacticalData(aiUnit, null)){
+//        return;
+//    }
+//}
+

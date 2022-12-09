@@ -1,0 +1,201 @@
+//==================================================================================================
+//  Terran First Edition
+//==================================================================================================
+
+
+//--------------------------------------------------------------------------------------------------
+//  TerranOpenGnd0
+//--------------------------------------------------------------------------------------------------
+void Terran10 (int player) {
+	 int towns = GTTowns (player);
+	 int tech_level = 0;
+	 int i = 1;
+	 GTMicro(player);
+	 GTName(player, DataTableGetString(true, IntToString(player)+ "GTName"));
+
+     GTShowTimer(player);
+     GTPreventScout(player);
+     if (GTime() > AIGetUserInt(player, 8) + 600 && GTOArmy(player) < GTEArmy(player) - 20)
+       		 { AISetUserInt(player, 8, FixedToInt(GTime()));
+       	 	   AISetMainState(player, e_mainState_Counter, e_mainSubState_Unset);
+       	 	 }
+     if (!GTFinishIA(player, c_TB_Factory, 1 ) )
+         	 {
+
+         		        GTTrain(player, 1, 0, c_TU_SCV, 10);
+         		       GTBuild(player, 2, 0,  c_TB_SupplyDepot_Alias, 1, c_nearResource);
+         		      GTBuildI(player, 2, 0, c_TB_Barracks, 1, c_nearFarFactory, c_TU_SCV, 12);
+         		     GTBuildI(player, 2, 0,  c_TB_SupplyDepot_Alias, 2, c_nearResource, c_TB_OrbitalCommand, 1);
+         		                		 		GTTrainI(player, 1, 0, c_TU_SCV, 11, c_TB_SupplyDepot_Alias, 1);
+         		        GTTrainA(player, 1, 0, c_TU_SCV, 12, c_TB_SupplyDepot_Alias, 1);
+         		 		GTTrainI(player, 1, 0, c_TU_SCV, 16, c_TB_Barracks, 1 );
+         		 	    GTBuildI ( player, 2, 0, c_TB_Refinery, 1, c_onVespeneGas, c_TB_Barracks, 1 );
+         			    GTBuildTA ( player, 2, 0, c_TB_OrbitalCommand, 1, 0, c_TB_Barracks, 1 );
+         			    GTTrainI(player, 1, 0, c_TU_SCV, 18, c_TB_OrbitalCommand, 1 );
+         			    GTBuildA ( player, 4, 0, c_TB_Factory, 1, 0, c_TB_Barracks, 1 );
+         		 	    GTTrainA(player, 1, 0, c_TU_Marine,4, c_TB_Barracks, 1 );
+          		 		
+         		      return;
+         	 }
+
+	 tech_level = GTGetTech(player, c_TB_Factory, c_TB_BarracksTechLab,  c_TB_Starport, c_TB_StarportTechLab, c_TB_FactoryTechLab,  c_TB_Armory  , c_TB_FusionCore, c_TB_FusionCore);
+
+//------------------------------------
+// Economy Management
+//---------------------------------------
+
+	
+
+	if (GTFinishIA (player, c_TB_BarracksTechLab, 1))
+	{ GTSupply (player, 5 + tech_level); }
+	else
+	{  GTSupply (player, 4 + tech_level); }
+	if (!GTFinishA(player, c_TB_CommandCenter_Alias, 2) || GTFinishIA(player, c_TB_OrbitalCommand, 2) || GTFinishIA(player, c_TB_PlanetaryFortress, 1) )
+	 { GTCreateWorkers (player); }
+
+
+	  // Expand
+        GTExpand(player);
+
+	  //----------------------------
+	  // Unit Production
+	  //---------------------------
+        GTTrainA ( player, 10, c_townMain, c_TU_Ghost   , 3, c_TB_GhostAcademy, 1  );
+        if (!GTNeedGhost(player))
+        {   if ( tech_level >= 0 &&  GTEKMass(player) ==  0)
+	             {    GTTrain (player, 2, c_townMain, c_TU_Marine, 8);
+	                  GTTrainI ( player, 2, c_townMain, c_TU_Marine, 20, c_TB_BarracksReactor, 1);
+
+	                  GTBasicTrain(player);
+	             }
+        GTTrainA ( player, 2, c_townMain, c_TU_Banshee , 8, c_TB_StarportTechLab, 1 );
+
+        if ( tech_level >= 1)
+      	  {   GTTrainI ( player, 2, c_townMain, c_TU_Hellion , 4, c_TU_SiegeTank, 3 );
+      	      GTTrainI ( player, 2, c_townMain, c_TU_Hellion , 6, c_TR_HellionDamage, 1 );}
+        if ( tech_level >= 2 && towns >= 2)
+        { GTTrain( player, 2, c_townMain, c_TU_Marauder , 3 + GTEGroAM(player)/2 + 2*GTCountE(player, c_ZU_Baneling));
+
+  	    }
+
+	  	  if ( tech_level >= 4  )
+	  	  {   GTTrainA ( player, 2, c_townMain, c_TU_Medivac , GTOSoldier(player)/8, c_TB_StarportReactor, 1 );
+	  	      GTTrainA ( player, 2, c_townMain, c_TU_Viking , 2, c_TB_StarportReactor, 1 );
+	  	      GTTrainA ( player, 4, c_townMain, c_TU_Viking, 2*GTEAir(player)/3, c_TB_StarportTechLab, 1);
+	  	    if (AISawCloakedUnit(player))
+	  	    { GTTrain ( player, 2, c_townMain, c_TU_Raven , 1 ); }
+	  	  }
+
+	  	   GTTrainA ( player, 5, c_townMain, c_TU_SiegeTank , 3, c_TB_FactoryTechLab, 1  );
+
+
+	  	  if (tech_level >= 7 )
+	  		{ GTTrain ( player, 10, c_townMain, c_TU_Battlecruiser , 4 ); }
+
+        }
+
+    
+	  //--------------------------------------
+	  // Build Management
+	  //--------------------------------------
+
+	  	  GTDefendTown(player, 0 );
+		  GTAutoBDefend(player, 0);
+	  	  if (tech_level >= 0)
+	    { 	     	GTBuildI ( player, 2, 0,  c_TB_Barracks, 2, c_nearResource, c_TB_CommandCenter_Alias, 2);
+		 if (GTOArmy(player) + 1 < GTEArmy(player) && GTTowns(player) == 1)
+		 { GTBuildPA(player,  c_TB_Bunker, 1 , GTDO(player, 0));}
+	   }
+	    if (GTFinishIA( player, c_TB_CommandCenter_Alias, 2))
+	    {
+		   GTBuildTA ( player, 7, 0,  c_TB_OrbitalCommand , 2, 0, c_TB_CommandCenter_Alias, 2);
+		   GBuild( player,    c_TB_EngineeringBay, 1);
+
+
+		 }
+	    if ( tech_level >= 1)
+	   	    {
+	   	    	GTBuild ( player, 2, 0,  c_TB_Starport, 1, 0);
+	   	    	GTBuildA ( player, 7, 0, c_TB_StarportTechLab, 1, 0, c_TB_Starport, 1);
+	   	    	GTBuildI ( player, 2, 0, c_TB_Barracks, 2, 0, c_TB_CommandCenter_Alias, 2);
+				GTResearchI ( player, 3, 0, c_TR_BansheeCloak, c_TU_Banshee, 1 );
+	   	        GTResearchI ( player, 3, 0, c_TR_SiegeTankSiege, c_TU_Banshee, 1 );
+	   	    	GTBuildI( player, 2, 0,  c_TB_Refinery, 2, c_onVespeneGas, c_TB_Starport, 1 );
+	   	        GTBuildI ( player, 4, 0, c_TB_BarracksTechLab, 1, 0, c_TB_CommandCenter_Alias, 2);
+	   		    GTBuildI ( player, 4, 0, c_TB_Starport, 2, 0, c_TR_BansheeCloak, 1);
+	   			GTBuildA ( player, 2, 0, c_TB_StarportReactor, 1, 0, c_TB_Starport, 2);
+	   		    GTBuildA ( player, 7, 0, c_TB_BarracksReactor, 1, 0, c_TB_Barracks, 2);
+	   		    GTBuildI ( player, 2, 0, c_TB_FactoryTechLab, 1, 0, c_TB_Refinery, 2);
+
+        		 if (GTEnemyRace(player) == "Prot")
+        		{ GTBuildTI (player, 2, 0, c_TB_GhostAcademy, 1, 0, c_TB_BarracksTechLab, 2);
+        	 	}
+        	  }
+	    if (!GTNeedGhost(player))
+	    { if ( tech_level >= 2)
+	 	 {
+	 	    GTResearchI (player, 3, 0, c_TR_MarineShield, c_TU_Marine, 10);
+	 	    GTResearchI (player, 3, 0, c_TR_MarauderSlow, c_TU_Marauder, 1);
+
+	 	 }
+
+		 if ( tech_level >= 4 )
+		 	{
+			  GTBuildI ( player, 2, 0, c_TB_Barracks, 3, 0, c_TB_BarracksReactor, 1);
+			  GTBuildA ( player, 2, 0, c_TB_BarracksTechLab, 2, 0, c_TB_Barracks, 3);
+		      GTBuildTI ( player, 2, 0, c_TB_Armory, 1, c_nearResource, c_TB_StarportTechLab, 2);
+		 	}
+		 if ( tech_level >= 5 )
+				 	{
+				 	GTResearchI (player, 3, 0, c_TR_SiegeTankSiege, c_TU_SiegeTank, 1);
+				 	}
+
+
+
+
+      if ( tech_level >= 6)
+	      {   GTBuildTA ( player, 4, 1, c_TB_FusionCore, 1, c_nearResource, c_TB_Armory, 2);
+	      }
+      if ( tech_level >= 7 )
+        {  GTAutoResearch(player); }
+
+     if (GTFinishA (player, c_TB_CommandCenter_Alias, 3))
+     {  GTBuildT ( player, 5, 0,  c_TB_PlanetaryFortress , AITechCount(player, c_TB_CommandCenter_Alias, c_techCountCompleteOnly) - 2, 0 ); }
+	    }
+
+
+		//--------------------------------------------
+		//   Expansion Town
+		//------------------------------------------
+            while ( i <= 16 )
+     	  	  {
+	      	 if (AIGetTownState(player, i ) == c_townStateEstablished) {
+                GTAutoBExpand(player, i);
+	      	 }
+			i = i + 1;
+		}
+ //----------------------------------------
+	 // Strategy
+     //-----------------------------------------
+	  		                    GTDefend(player);
+
+	  		                    if (GTFinishA(player, c_TU_SiegeTank, 2))
+	  		                    { GTRock(player); }
+	  		    			    if ( GTCanAttack2(player, - GTOHarrass(player)))
+	  		    			    {   AIWaveMerge(player, c_waveDivert2, c_waveAttack);
+	  		    			    	GTAttack(player);}
+	  		    			    else if (GTNeedRetreat(player))
+	  		    			    { GTRetreat(player);}
+	  		    			  else
+	  		    			  	  		    			    {
+	  		    			  	  		    			      GTDivert3(player, c_TU_Banshee, 2);
+
+	  		    			  	  		    			    }
+
+
+
+
+
+// Run
+
+}

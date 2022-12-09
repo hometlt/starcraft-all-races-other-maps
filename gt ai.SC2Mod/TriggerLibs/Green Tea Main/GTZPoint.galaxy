@@ -1,0 +1,486 @@
+//--------------------------------------------------
+//Building Point
+//---------------------------------------------------
+point GTCenterGroup(unitgroup unitGroup) {
+	fixed x = 0.0;
+	fixed y = 0.0;
+	int unitCount = UnitGroupCount(unitGroup, c_unitCountAlive);
+	unit unitFromGroup;
+	if (unitCount == 0){
+		return Point(0,0);
+	}
+	while(unitCount > 0) {
+		unitFromGroup = UnitGroupUnit(unitGroup, unitCount);
+		x = x + PointGetX(UnitGetPosition(unitFromGroup));
+		y = y + PointGetY(UnitGetPosition(unitFromGroup));
+		unitCount = unitCount - 1;
+	}
+
+	x = x / UnitGroupCount(unitGroup, c_unitCountAlive);
+	y = y / UnitGroupCount(unitGroup, c_unitCountAlive);
+
+	return Point(x, y);
+}
+unit GTUnitNearest (int player, string unittype, point p){
+	unitgroup group = UnitGroup( unittype , player, RegionEntireMap(), null,  0);
+	unit u;
+	u = UnitGroupNearestUnit ( group , p );
+	return u;
+}
+
+point GTPUnitNearest (int player, string unittype, point p){
+	unitgroup group = AIFindUnits(player, unittype, p, 10, 0);
+	unit u;
+	u = UnitGroupNearestUnit ( group , p );
+	return UnitGetPosition(u);
+}
+
+point GTPUnitNearest2 (int player, string unittype, string unittype2, point p){
+   unitgroup group1 = AIFindUnits(player, unittype, p, 10, 0);
+   unitgroup group2 = AIFindUnits(player, unittype2, p, 10, 0);
+   unit u1;
+   unit u2;
+   u1 = UnitGroupNearestUnit ( group1 , p );
+   u2 = UnitGroupNearestUnit ( group2 , p );
+   if (DistanceBetweenPoints(UnitGetPosition(u1), p) < DistanceBetweenPoints(UnitGetPosition(u2), p)){
+	   return  UnitGetPosition(u1);
+   }
+   return  UnitGetPosition(u2);
+}
+
+point GTGetNextTownTowerDefencePoint(int player, int town) {
+	// first get Town center;
+	point townCenter = AIGetTownLocation (player, town);
+	// get MainBuilding point
+	point mainBaseBuilding = UnitGetPosition(UnitGroupUnit(AIFindUnits(player, GTBase(player), townCenter, 5, 0),1));	
+	// get all mineralsFields in this town
+	unitgroup mineralFields = AIFindUnits (0, c_NU_Minerals, mainBaseBuilding, 10, 0);
+	// get center point of mineralFields	
+	point mineralCenter = GTCenterGroup(mineralFields);	
+	// get first good defence position 
+	point tmpPos = PointWithOffsetPolar(mainBaseBuilding, DistanceBetweenPoints(mineralCenter, mainBaseBuilding)+3, AngleBetweenPoints(mainBaseBuilding, mineralCenter) + 30);
+	int tmpAngle = 30;
+	int counter = 0;	
+	string towerString;
+	
+	// set towertype
+	if (PlayerRace(player) == "Zerg")      { towerString = c_ZB_SporeCrawler;  }
+	else if (PlayerRace(player) == "Prot") { towerString = c_PB_PhotonCannon;  }
+	else 								   { towerString = c_TB_MissileTurret; }
+	
+	while ( UnitGroupCount(AIFindUnits(player, towerString, tmpPos, 3, 0),c_unitCountAlive) > 0) {
+		tmpAngle -= 70;
+		counter += 1;
+		tmpPos = PointWithOffsetPolar(mainBaseBuilding, DistanceBetweenPoints(mineralCenter, mainBaseBuilding)+3, AngleBetweenPoints(mainBaseBuilding, mineralCenter) + tmpAngle);
+		if (counter == 5) {	tmpPos = mineralCenter; }
+		if (counter == 6) { return tmpPos; }
+	}	
+	return tmpPos;	
+}
+
+unit GTUnitNearestQueen (int player, point p){
+	unitgroup group = UnitGroup( c_ZU_Queen , player, RegionEntireMap(), null,  0);
+	unit u;
+	u = UnitGroupNearestUnit ( group , p );
+	while(DistanceBetweenPoints(UnitGetPosition(u), p) > 12 && u != null){
+		UnitGroupRemove(group, u);
+		u = UnitGroupNearestUnit(group, p);
+	}
+	return u;
+}
+
+unit GTBuilder (int player, point p){
+	string Race = PlayerRace(player);
+	string Worker = GTWorker(player);
+	unitgroup group;
+	unit u;
+	group = UnitGroup(Worker, player, RegionEntireMap(), null,  0);	    
+    while(UnitOrderHasAbil(u, "Repair") || UnitOrderHasAbil(u, "TerranBuild") || UnitOrderHasAbil(u, "move") ) {
+    	if (UnitOrderCount (u) > 0 && !UnitIsHarvesting (u, 0)) {
+			UnitGroupRemove(group, u);    	 
+		}    	
+     }
+	if (UnitGroupCount(group, c_unitCountAlive) == 0) {
+		return null;		
+	}
+	 u = UnitGroupNearestUnit(group, p);	 
+     return u;
+}
+
+unit GTBuilder2 (int player, point p)
+{ 
+	string Race = PlayerRace(player);
+	string Worker = GTWorker(player);
+	unitgroup group;
+	unit u;	
+	group = UnitGroup(Worker, player, RegionEntireMap(), null,  0);
+    u = UnitGroupNearestUnit(group, p);
+    while(UnitOrderHasAbil(u, "TerranBuild") ){
+		if (UnitOrderCount (u) > 0 && !UnitIsHarvesting (u, 0)) {
+			UnitGroupRemove(group, u);    	 
+		}		
+    }
+	u = UnitGroupNearestUnit(group, p);
+    return u;
+}
+
+unit GTWorkerKillScout (int player, point p) { 
+	string Race = PlayerRace(player);
+	string Worker = GTWorker(player);
+	unitgroup group;
+	unit u;
+    int index = 1;
+    
+    u = DataTableGetUnit(true, IntToString(player) + "GTWorkerKillScout");
+    if (u) {
+        return u;
+    }    
+    
+	group = UnitGroup(Worker, player, RegionEntireMap(), null,  0);
+	u = UnitGroupNearestUnit(group, p);
+
+    while (index <= UnitGroupCount(group, c_unitCountAll)) {    
+        u = UnitGroupUnit(group, index);
+		if (UnitOrderCount (u) > 0 && !UnitIsHarvesting(u,0) ) {
+            UnitGroupRemove(group, u);    	 
+		}	   
+        else {
+            index += 1;
+        }        
+	} 
+        
+	u = UnitGroupNearestUnit(group, p);
+    DataTableSetUnit(true, IntToString(player) + "GTWorkerKillScout", u); 
+	return u;
+}
+
+
+unit GTUnitDRW (int player, point p)
+{ string Race = PlayerRace(player);
+  string Worker;
+  unitgroup group;
+  wave waveA = AIWaveGet(player, c_waveAttack);
+  wave waveD = AIWaveGet(player, c_waveDefend);
+  unit u;
+  if (Race == "Terr")
+    {  Worker = c_TU_SCV; }
+    if (Race == "Prot")
+    {  Worker = c_PU_Probe; }
+    if (Race == "Zerg")
+    {  Worker = c_ZU_Drone; }
+
+     group = UnitGroup(Worker, player, RegionEntireMap(), UnitFilterStr("Biological, Light"),  0);
+     u = UnitGroupNearestUnit(group, p);
+     while(UnitOrderHasAbil(u, "TerranBuild") || UnitOrderHasAbil(u, "attack"))
+     { UnitGroupRemove(group, u);
+     u = UnitGroupNearestUnit(group, p);
+     }
+
+
+     return u;
+}
+
+unit GTUnitDR (int player, point p){
+	string Worker = GTWorker(player);
+	unitgroup group;
+	unit u;
+
+     group = UnitGroup(null, player, RegionEntireMap(),  UnitFilterStr("-;Structure"), 0 );
+     u = UnitGroupNearestUnit(group, p);
+     while(UnitOrderHasAbil(u, "attack") || UnitGetType(u) == Worker || DistanceBetweenPoints(UnitGetPosition(u), p) > 20){
+    	 UnitGroupRemove(group, u);
+    	 u = UnitGroupNearestUnit(group, p);
+    	 if (u == null){
+    		 break;
+    	 }
+     }
+     return u;
+}
+
+
+unit GTUnitAA (int player, point p){
+	string Worker = GTWorker(player);
+	unitgroup group;
+	unit u;
+
+     group = UnitGroup(null, player, RegionEntireMap(), UnitFilterStr("-;Structure"), 0 );
+     u = UnitGroupNearestUnit(group, p);
+     while(!UnitWeaponsPlaneTest(u, c_planeAir) || UnitOrderHasAbil(u, "attack") || DistanceBetweenPoints(UnitGetPosition(u), p) > 20){
+    	 UnitGroupRemove(group, u);
+    	 u = UnitGroupNearestUnit(group, p);
+    	 if (u == null){
+    		 break;
+    	 }
+     }
+     return u;
+}
+unit GTUnitAttack (int player, point p, unitgroup group)
+{ unit u;
+     u = UnitGroupNearestUnit(group, p);
+     while(DistanceBetweenPoints(UnitGetPosition(u), p) > 20)
+     { UnitGroupRemove(group, u);
+     u = UnitGroupNearestUnit(group, p);
+     if (u == null)
+      { break; }
+     }
+     return u;
+}
+
+int GTBuildIndex(string Type)
+{   //Terran
+	if ( Type ==  c_TB_Armory  )
+	  	  { return 13; }
+	 if ( Type == c_TB_Barracks  )
+	      { return 3; }
+	 if ( Type == c_TB_Bunker  )
+         { return  6; }
+	if ( Type == c_TB_CommandCenter || Type == c_TB_CommandCenter_Alias )
+	    {  return 0; }
+	 if ( Type == c_TB_EngineeringBay  )
+	       		{ return 4; }
+	   				if ( Type == c_TB_Factory  )
+	   					{ return 10; }
+	   				if ( Type == c_TB_FusionCore  )
+	   					{ return 15; }
+	   				if ( Type == c_TB_GhostAcademy  )
+	   					{ return 9; }
+	   				if ( Type == c_TB_MissileTurret  )
+	   					{ return 5; }
+	   				  if ( Type == c_TB_Refinery  )
+	   					{ return 2; }
+	   					if ( Type == c_TB_SensorTower  )
+	   						{ return 8; }
+	   					if ( Type == c_TB_Starport  )
+	   						{ return 11; }
+	   					if ( Type == c_TB_SupplyDepot  )
+	   						{ return 1; }
+
+
+	   					//Protoss
+
+	   				  if ( Type ==  c_PB_Nexus  )
+	   					  	  { return 0; }
+	   					 if ( Type == c_PB_Pylon  )
+	   					      { return 1; }
+	   					 if ( Type == c_PB_Assimilator  )
+	   				         { return  2; }
+	   					if ( Type == c_PB_Gateway )
+	   					    {  return 3; }
+	   					 if ( Type == c_PB_Forge  )
+	   					   	{ return 4; }
+	   					if ( Type == c_PB_CyberneticsCore  )
+	   						 { return 14; }
+	   					if ( Type == c_PB_PhotonCannon  )
+	   					  { return 7; }
+	   					if ( Type == c_PB_Stargate  )
+	   				    { return 9; }
+	   					if ( Type == c_PB_TemplarArchives  )
+	   					{ return 10; }
+	   					if ( Type == c_PB_RoboticsFacility  )
+	   						   { return 13; }
+	   					if ( Type == c_PB_FleetBeacon  )
+	   					   	{ return 5; }
+	   					if ( Type == c_PB_DarkShrine  )
+	   						{ return 11; }
+	   					if ( Type == c_PB_TwilightCouncil  )
+	   						   { return 6; }
+	   					if ( Type == c_PB_RoboticsBay  )
+	   						 { return 12; }
+
+	   		// Zerg
+	   				                    if ( Type ==  c_ZB_Hatchery || Type ==  c_ZB_Hatchery_Alias )
+	   					   					  	  { return 0; }
+	   					   					 if ( Type == c_ZB_Extractor  )
+	   					   					      { return 2; }
+	   					   					 if ( Type == c_ZB_SpawningPool  )
+	   					   				         { return  3; }
+	   					   					if ( Type == c_ZB_EvolutionChamber )
+	   					   					    {  return 4; }
+	   					   					 if ( Type == c_ZB_BanelingNest )
+                                                 {  return 10; }
+	   					   					if ( Type == c_ZB_RoachWarren  )
+	   					   						 { return 13; }
+	   					   					if ( Type == c_ZB_SpineCrawler  )
+	   					   					  { return 14; }
+	   					   					if ( Type == c_ZB_SporeCrawler  )
+	   					   				    { return 15; }
+	   					   					if ( Type == c_ZB_Spire  )
+	   					   					{ return 6; }
+	   					   					if ( Type == c_ZB_UltraliskCavern  )
+	   					   						   { return 7; }
+	   					   					if ( Type == c_ZB_NydusNetwork  )
+	   					   					   	{ return 9; }
+	   					   					if ( Type == c_ZB_InfestationPit  )
+	   					   						{ return 8; }
+	   					   					if ( Type == c_ZB_HydraliskDen  )
+	   					   						   { return 5; }
+
+                  return 1;
+}
+//--------------------------------------------------------------------------------------------------
+//  PointAlongLine
+//--------------------------------------------------------------------------------------------------
+point GTPointAlongLine (point from, point toward, fixed distance) {
+    return PointWithOffsetPolar(from, distance, AngleBetweenPoints(from, toward));
+}
+
+point GTPointBetweenP ( point p1, point p2, fixed Percent)
+{  fixed k = DistanceBetweenPoints(p1, p2);
+   return GTPointAlongLine(p1, p2, Percent*k);
+}
+
+point GTPointMid (point p1, point p2)
+{ return GTPointBetweenP( p1, p2, 0.5); }
+point GTPNearTownF(int player, int town, point p, fixed f)
+{ fixed k = DistanceBetweenPoints(AIGetTownLocation(player, town),p);
+  if (k <= f) { return p; }
+   return GTPointAlongLine(AIGetTownLocation(player, town), p, f);
+}
+
+point GTPNearTownP (int player, int town, point p, fixed Percent)
+{ fixed k = DistanceBetweenPoints(AIGetTownLocation(player, town),p);
+   if (Percent >= 1) { return p; }
+   return GTPointAlongLine(AIGetTownLocation(player, town), p, Percent*k);
+}
+point GTNearM (int player, int town)
+{ unitgroup Minerals = AIFindUnits(0, c_NU_Minerals, AIGetTownLocation(player, town),  8, c_noMaxCount);
+  unit u1;
+  int count = UnitGroupCount(Minerals, 0);
+  if (count == 0){
+	  return AIGetTownLocation(player, town);
+  }
+  else{
+	  u1 = UnitGroupUnit(Minerals, RandomInt(1, count));
+	  return UnitGetPosition(u1);
+  }
+}
+point GTDO ( int player, int town){
+	if (town == 0){
+		if (AIGetUserInt(player, 5) == 0){
+			return AIGetGatherLocation(player, town);
+		}
+		else{
+			return DataTableGetPoint(true, IntToString(player) + "GTMapB");
+		}
+	}
+	return AIGetGatherLocation(player, town);
+}
+
+point GTDI ( int player, int town)
+{ return AIWaveTargetGatherDPoint(player, town); }
+
+point GTDO1( int player, int town)
+{  return GTPNearTownF (player,town, GTDO(player, town), 12); }
+
+point GTDO2( int player, int town)
+{  return GTPNearTownF (player,town, GTDO(player, town), 20); }
+point GTDO3( int player, int town)
+{  return GTPNearTownP (player,town, GTDO(player, town), 0.92); }
+
+point GTDO4( int player, int town)
+{  return GTPointBetweenP(AIGetTownLocation(player, town), GTDO(player, town), 0.85); }
+point GTPAttack (int player)
+ {  return GTPointBetweenP(GTDO(player, c_townMain), PlayerStartLocation(GTEnemyID(player)), 0.7); }
+
+point GTDI1( int player, int town)
+{  return GTPNearTownF (player,town, GTDO(player, town), 9); }
+point GTDI2( int player, int town)
+{  return GTPNearTownF (player,town, GTDO(player, town), 11); }
+point GTDI3( int player, int town)
+{  return GTPNearTownF (player,town, GTDO(player, town), 6); }
+
+point GTAP1 (int player)
+{
+	unitgroup group = UnitGroup(null, GTEnemyID(player), RegionPlayableMap(), UnitFilterStr("Structure;"), 0);
+	unit u = UnitGroupNearestUnit(group, GTDO(player, c_townMain));
+	return GTPointBetweenP(UnitGetPosition(u), GTDO(player, c_townMain), 0.3);
+}
+
+static unitgroup g_MineralFieldGroup;
+
+
+void GTScanMineralSpot(point MineralPoint) {
+	int index = 1;
+    // Minerals in range 2 of the point
+    unitgroup tmpMinGrp = AIFindUnits (0, c_NU_Minerals, MineralPoint, 2, 0);    
+    int NumMinerals = UnitGroupCount(tmpMinGrp,c_unitCountAlive);
+    unit tmpMineral;
+    
+    // no minerals found
+	if ( NumMinerals == 0 ) {
+		return;
+	}
+    
+    while (index <= NumMinerals) {
+        tmpMineral = UnitGroupUnit(tmpMinGrp, index);
+        if (!UnitGroupHasUnit(g_MineralFieldGroup, tmpMineral)) {
+            // not scanned yet !
+            UnitGroupAdd(g_MineralFieldGroup, tmpMineral);
+            GTScanMineralSpot(UnitGetPosition (tmpMineral));
+        }
+        index += 1;
+    }
+}
+
+point GTGetCaluclateMineralSpotCenter(int player) {
+    point townCenter = AIGetTownLocation (player, 0);
+	// get MainBuilding point
+	point mainBaseBuilding = UnitGetPosition(UnitGroupUnit(AIFindUnits(player, GTBase(player), townCenter, 5, 0),1));	
+	// get all mineralsFields in this town
+	unitgroup mineralFields = AIFindUnits (0, c_NU_Minerals, mainBaseBuilding, 10, 0);
+    
+	g_MineralFieldGroup = UnitGroupEmpty ();
+    // start recursive search !
+    GTScanMineralSpot(UnitGetPosition(UnitGroupUnit(mineralFields, 1)));      
+    DebugAI("Found MineralCount: " + IntToString(UnitGroupCount(g_MineralFieldGroup,c_unitCountAlive)));
+	return mainBaseBuilding;
+}
+
+// try to detect a drop and predict its destination point !
+point GTPredictDrop( int player, int town) {
+	unitgroup groupEnemy;
+	point townMainBuilding;
+	unit tmpUnit;
+	int index = 1;
+	int maxEnemyCount;
+	
+	groupEnemy = UnitGroupAlliance(player, c_unitAllianceEnemy, RegionCircle(AIGetTownLocation(player, town), 30), null, 0);
+	maxEnemyCount = UnitGroupCount(groupEnemy, c_unitCountAlive);
+	while (index <= maxEnemyCount) {
+		tmpUnit = UnitGroupUnit(groupEnemy, index);		
+		if (GTUnitCargoUsedSlots(tmpUnit) > 0) {				
+			townMainBuilding = AIGetTownLocation (player, town);
+			return GTPointBetweenP(townMainBuilding, UnitGetPosition(tmpUnit), 0.40);
+		}		
+		index += 1;
+	}
+	return null;
+}
+
+fixed GTDistanceBetweenGroups( unitgroup grp1, unitgroup grp2) {
+	unit tmpUnit;
+	unit tmpUnit2;
+	point grp_point_1;
+	point grp_point_2;
+	
+	// //if (DistanceBetweenPoints(UnitGetPosition(UnitGroupRandomUnit (enemyGroup1, c_unitCountAll)), UnitGetPosition(UnitGroupRandomUnit (A)) ) < 20 ) {
+	
+	tmpUnit = UnitGroupRandomUnit (grp1, c_unitCountAll);
+	tmpUnit2 = UnitGroupNearestUnit(grp2, UnitGetPosition(tmpUnit));
+	tmpUnit = UnitGroupNearestUnit(grp1, UnitGetPosition(tmpUnit2));
+	return DistanceBetweenPoints(UnitGetPosition(tmpUnit) , UnitGetPosition(tmpUnit2) );
+}
+
+fixed GTDistanceBetweenGroupAndClosestTown(int player, unitgroup grp) {	
+	
+	point groupPoint = UnitGetPosition(UnitGroupRandomUnit (grp, c_unitCountAll));
+	point closestTown = AIGetTownLocation(player, AIGetClosestTown (player, groupPoint));
+		
+	return DistanceBetweenPoints(groupPoint , closestTown);
+}
+
+
+
+
+
+

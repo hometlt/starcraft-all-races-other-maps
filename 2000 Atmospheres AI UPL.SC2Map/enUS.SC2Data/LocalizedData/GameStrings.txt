@@ -1,0 +1,11 @@
+﻿DocInfo/DescLong=Battle for survival on the seabed of this luminous alien planet.<n/><n/>Submitted to TLnet Map Contest<n/>Created by: themusic246
+DocInfo/DescShort=1v1
+DocInfo/Name=2000 Atmospheres LE
+Effect/Name/UnknownEffect=Unknown Effect
+MapInfo/Player00/Name=Neutral
+MapInfo/Player01/Name=Player 1
+MapInfo/Player02/Name=AI 1
+MapInfo/Player03/Name=AI 2
+MapInfo/Player04/Name=AI3 
+MapInfo/Player05/Name=Hostile
+Terrain/Name/DominionLab2=Custom 1

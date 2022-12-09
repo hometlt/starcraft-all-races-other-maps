@@ -1,0 +1,20 @@
+// Function Prototoypes
+
+void GTInitCounterUnits();
+void GTUnitMatchingInit();
+
+void GTRefreshEArmy(int player);
+void GTRefreshOArmyFromWave(int player, int waveNum);
+void GTRefreshOArmy(int player);
+
+fixed GTOurArmyValue(int player, int OurAtkWave);
+fixed GTEnemyArmyValueWithoutStructureDefenceValue(int player);
+fixed GTEnemyArmyValue(int player);
+
+fixed GT_Test_Calculate_Army_Strength(int player, int OurAtkWave);
+
+bool GTisRangedUnit(unit UnitType);
+
+void GenerateDefaultChronoSlot(int player);
+
+bool GTThreadInTowns(int player, int scanMinTown, int scanMaxTown);

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Catalog>
+    <CEffectSet id="KeironChargeDummyCUSet">
+        <EffectArray value="KeironChargeDummyUnderChronoBoostEnergyCost"/>
+        <!--EffectArray value="KeironChargeDummyUnderTimeWarpProduction"/>
+        <EffectArray value="KeironChargeDummyUnderSOASuperChrono"/>
+        <EffectArray value="KeironChargeDummyUnderSOAMapWideChrono"/>
+        <EffectArray value="KeironChargeDummyUnderSOAMapWideChronoPassiveTarget"/-->
+    </CEffectSet>
+    <CEffectApplyBehavior id="KeironChargeDummyUnderChronoBoostEnergyCost">
+        <EditorCategories value="Race:Keiron"/>
+    </CEffectApplyBehavior>
+    <CEffectApplyBehavior id="KeironChargeDummyUnderTimeWarpProduction">
+        <EditorCategories value="Race:Keiron"/>
+        <Behavior value="KeironChargeDummyTimeWarpProduction"/>
+    </CEffectApplyBehavior>
+</Catalog>

@@ -1,0 +1,59 @@
+
+//--------------------------------------------------------------------------------------------------
+//  ProtossOpenGnd0 ( P v T build )
+//--------------------------------------------------------------------------------------------------
+void ZergCustom (int player) {
+	 int slot = GTableGetInt(player, "CustomBuild");
+	 int towns = GTTowns (player);
+	 int i = 1;
+
+	 GTShowTimer(player);
+	 GTPreventScout(player);
+	 GTMicro(player);
+	
+	 GTDefend(player);
+
+//----------------------------------------
+//Attack condition
+//-------------------------------------------
+	 if ( towns > 1 ){
+		 GTRock(player);
+	 }
+	 if ( GTCanAttack(player)){
+		 GTAttack(player);
+	 }
+	 else if (GTNeedRetreat(player)){
+		 GTRetreat(player);
+	 }
+
+
+
+//-----------------------------------------------
+//Opening
+//---------------------------------------------
+	 if (GTBuildStep(player, slot )){
+		 return;
+	 }
+	 if (!g_autobuild){
+		 return;
+	 }
+	 GTDefendTown(player, 0 );
+	 GTAutoBDefend(player, 0);
+	 GTSupply (player, 8);
+	 GTCreateWorkers (player);
+	 GTCounterZerg(player);
+	 GTBasicTrain(player);
+	 GTQueenBuild(player, 0);
+	 GTExpand(player);
+	 GTAutoResearch(player);
+
+//-------------------------------------------
+//Expansion Build
+//---------------------------------------------
+    while ( i <= 15 ){
+   	if (AIGetTownState(player, i ) == c_townStateEstablished) {
+   		GTAutoBExpand(player, i);
+   	}
+		i = i + 1;
+	}
+}

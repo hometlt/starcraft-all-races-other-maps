@@ -1,0 +1,297 @@
+
+bool GTKeyRecord (bool checkConds, bool doActions){
+	string key2;
+	if (!doActions) {
+	        return true;
+	    }
+	key2 = EventButtonPressed();
+	DebugAI(key2);
+	return true;
+
+}
+bool GTAbilityRecord (bool checkConds, bool doActions){
+	string key2;
+	if (!doActions) {
+	        return true;
+	    }
+	key2 = AbilityCommandGetAbility(EventUnitAbility());
+	DebugAI(key2);
+	return true;
+
+}
+trigger GT2Record = TriggerCreate("GTKeyRecord");
+trigger GT2Effect = TriggerCreate("GTAbilityRecord");
+
+//---------------------------------------------
+//Record Trigger
+//--------------------------------------------
+bool GTTrainRecord (bool checkConds, bool doActions){
+	int step;
+	int player = UnitGetOwner(EventUnit());
+	string Buildtype =  EventUnitProgressObjectType();
+	if (player != 1){
+		return false;
+	}
+	if (Buildtype == GTWorker(player) || Buildtype == "CreepTumor"){
+		return false;
+	}
+	if (!doActions) {
+	        return true;
+	    }
+
+	step = GTableGetInt(player, "OrderStep");
+		if (step >= 100){
+//		DebugAI("BO steps can't be more than 100");
+		g_record = false;
+		return false;
+	}
+	if ( GBO[step].what != null){
+		if (Buildtype != GBO[step].what ||  TechTreeUnitCount(player, GTWorker(player), c_techCountInProgressOrBetter) != GBO[step].worker){
+			GTableSetInt(player, "OrderStep", step + 1 );			// WARNING TRIGGER ERROR HERE !! if it step = 99 you will update it to 100 causing an Array Error !!
+		}
+	}
+	step = GTableGetInt(player, "OrderStep");
+
+	GBO[step].what = Buildtype;
+	GBO[step].count = TechTreeUnitCount(player, Buildtype, c_techCountInProgressOrBetter);
+	GBO[step].worker = TechTreeUnitCount(player, GTWorker(player), c_techCountInProgressOrBetter);
+	GBO[step].supply = PlayerGetPropertyInt(player, c_playerPropSuppliesUsed) - UnitGetPropertyInt(EventUnit(), c_unitPropSuppliesUsed, c_unitPropCurrent);
+	GBO[step].type = "t";
+	DialogControlSetPropertyAsText(GRecordStepInfo, c_triggerControlPropertyText, PlayerGroupActive(), StringToText("["+ IntToString(step+ 1)+ "] W" + IntToString(GBO[step].worker)
+					   + "/" + IntToString(GBO[step].supply)
+					   + " - " + GBO[step].what + " "+ IntToString(GBO[step].count)));
+
+
+	return false;
+}
+bool GTBuildRecord (bool checkConds, bool doActions){
+	int step;
+	int player = UnitGetOwner(EventUnit());
+	string Buildtype =  EventUnitProgressObjectType();
+	if (player != 1){
+		return false;
+	}
+	if (Buildtype == "CreepTumor" || Buildtype == c_ZB_NydusWorm || Buildtype == c_ZB_NydusNetwork){
+		return false;
+	}
+
+	if (!doActions) {
+	        return true;
+	    }
+		step = GTableGetInt(player, "OrderStep");
+		if (step >= 100){
+//		DebugAI("BO steps can't be more than 100");
+		g_record = false;
+		return false;
+	}
+	if ( GBO[step].what != null){
+		if (Buildtype != GBO[step].what ||  TechTreeUnitCount(player, GTWorker(player), c_techCountInProgressOrBetter) != GBO[step].worker){
+			GTableSetInt(player, "OrderStep", step + 1 );
+		}
+	}
+	step = GTableGetInt(player, "OrderStep");
+
+	GBO[step].what = Buildtype;
+	if (Buildtype == c_TB_SupplyDepot){
+		GBO[step].count = TechTreeUnitCountEx(player, c_TB_SupplyDepot, c_TB_SupplyDepotLowered, c_techCountInProgressOrBetter);
+	}
+
+	else{
+		GBO[step].count = TechTreeUnitCount(player, Buildtype, c_techCountInProgressOrBetter);
+	}
+	GBO[step].worker = TechTreeUnitCount(player, GTWorker(player), c_techCountInProgressOrBetter) + GifI(PlayerRace(player) == "Zerg", 1, 0);
+	GBO[step].supply = PlayerGetPropertyInt(player, c_playerPropSuppliesUsed) + GifI(PlayerRace(player) == "Zerg", 1, 0);
+	GBO[step].type = "b";
+	DialogControlSetPropertyAsText(GRecordStepInfo, c_triggerControlPropertyText, PlayerGroupActive(), StringToText("["+ IntToString(step+ 1)+ "] W" + IntToString(GBO[step].worker)
+					   + "/" + IntToString(GBO[step].supply)
+					   + " - " + GBO[step].what + " "+ IntToString(GBO[step].count)));
+
+	return false;
+}
+
+bool GTResearchRecord (bool checkConds, bool doActions){
+	int step;
+	int player = UnitGetOwner(EventUnit());
+	string Buildtype =  EventUnitProgressObjectType();
+	if (player != 1){
+		return false;
+	}
+	if (!doActions) {
+	        return true;
+	    }
+	step = GTableGetInt(player, "OrderStep") + 1;
+	if (step >= 100){
+//		DebugAI("BO steps can't be more than 100");
+		g_record = false;
+		return false;
+	}
+	GBO[step].what = Buildtype;
+	GBO[step].count = TechTreeUpgradeCount(player, Buildtype, c_techCountInProgressOrBetter);
+	GBO[step].worker = TechTreeUnitCount(player, GTWorker(player), c_techCountInProgressOrBetter);
+	GBO[step].supply = PlayerGetPropertyInt(player, c_playerPropSuppliesUsed);
+	GBO[step].type = "r";
+
+	DialogControlSetPropertyAsText(GRecordStepInfo, c_triggerControlPropertyText, PlayerGroupActive(), StringToText("["+ IntToString(step+ 1)+ "] W" + IntToString(GBO[step].worker)
+					   + "/" + IntToString(GBO[step].supply)
+					   + " - " + GBO[step].what + " "+ IntToString(GBO[step].count)));
+
+
+	GTableSetInt(player, "OrderStep", step );
+	return false;
+}
+bool GTCancelRecord (bool checkConds, bool doActions){
+	int step;
+	int player = UnitGetOwner(EventUnit());
+	string Buildtype =  EventUnitProgressObjectType();
+	if (!g_record){
+		return false;
+	}
+	if (Buildtype != c_ZB_Extractor){
+		return false;
+	}
+	if (GTime() > 150){
+		return false;
+	}
+	if (player != 1){
+		return false;
+	}
+	if (!doActions) {
+	        return true;
+	    }
+	step = GTableGetInt(player, "OrderStep") + 1;
+	if (step >= 100){
+//		DebugAI("BO steps can't be more than 100");
+		g_record = false;
+		return false;
+	}
+	GBO[step].what = Buildtype;
+	GBO[step].count = TechTreeUpgradeCount(player, Buildtype, c_techCountInProgressOrBetter);
+	GBO[step].worker = TechTreeUnitCount(player, GTWorker(player), c_techCountInProgressOrBetter);
+	GBO[step].supply = PlayerGetPropertyInt(player, c_playerPropSuppliesUsed);
+	GBO[step].type = "c";
+
+	DialogControlSetPropertyAsText(GRecordStepInfo, c_triggerControlPropertyText, PlayerGroupActive(), StringToText("["+ IntToString(step+ 1)+ "] Cancel " + GBO[step].what));
+
+	GTableSetInt(player, "OrderStep", step );
+	return false;
+}
+bool GTUpgradeRecord (bool checkConds, bool doActions){
+	int step;
+	int player = UnitGetOwner(EventUnit());
+	string Upgradetype =  AbilityCommandGetAbility(OrderGetAbilityCommand(EventUnitOrder()));
+	string BuildType;
+	if (player != 1){
+		return false;
+	}
+	if (!doActions) {
+	    return true;
+	}
+    if (Upgradetype == "UpgradeToLair"){
+		BuildType = c_ZB_Lair;
+	}
+	if (Upgradetype == "UpgradeToHive"){
+		BuildType = c_ZB_Hive;
+	}
+	if (Upgradetype == "UpgradeToGreaterSpire"){
+		BuildType = c_ZB_GreaterSpire;
+	}
+	if (Upgradetype == "UpgradeToOrbital"){
+		BuildType = c_TB_OrbitalCommand;
+	}
+	if (Upgradetype == "UpgradeToPlanetaryFortress"){
+		BuildType = c_TB_PlanetaryFortress;
+	}
+
+	step = GTableGetInt(player, "OrderStep") + 1;
+	if (step >= 100){
+//		DebugAI("BO steps can't be more than 100");
+		g_record = false;
+		return false;
+	}
+	GBO[step].what = BuildType;
+	GBO[step].count = TechTreeUnitCount(player, BuildType, c_techCountInProgressOrBetter);
+	GBO[step].worker = TechTreeUnitCount(player, GTWorker(player), c_techCountInProgressOrBetter) + GifI(PlayerRace(player) == "Zerg", 1, 0);
+	GBO[step].supply = PlayerGetPropertyInt(player, c_playerPropSuppliesUsed) + GifI(PlayerRace(player) == "Zerg", 1, 0);
+	GBO[step].type = "b";
+
+	DialogControlSetPropertyAsText(GRecordStepInfo, c_triggerControlPropertyText, PlayerGroupActive(), StringToText("["+ IntToString(step+ 1)+ "] W" + IntToString(GBO[step].worker)
+				   + "/" + IntToString(GBO[step].supply)
+				   + " - " + GBO[step].what + " "+ IntToString(GBO[step].count)));
+
+	GTableSetInt(player, "OrderStep", step );
+	return true;
+}
+bool GTResearchAdd(bool checkConds, bool doActions){
+	int player = EventPlayer();
+	string re = EventUnitProgressObjectType();
+	if (PlayerType(player) == c_playerTypeUser){
+		return false;
+	}
+	if (re == c_ZR_OverseerSpeed || re == c_PR_WarpGateResearch || re == c_TR_MarauderSlow ){
+		return false;
+	}
+	if (!doActions) {
+	        return true;
+	    }
+	if (re == c_ZR_Burrow
+	 || re == c_ZR_ZerglingSpeed
+	 || re == c_TR_MarineShield
+	 || re == c_TR_MarineStimPack ){
+		PlayerModifyPropertyInt(player, c_playerPropMinerals, c_playerPropOperAdd, 50);
+		PlayerModifyPropertyInt(player, c_playerPropVespene, c_playerPropOperAdd, 50);
+		return false;
+	}
+	PlayerModifyPropertyInt(player, c_playerPropMinerals, c_playerPropOperAdd, 100);
+	PlayerModifyPropertyInt(player, c_playerPropVespene, c_playerPropOperAdd, 100);
+	return true;
+}
+
+trigger GT2TrainRecord = TriggerCreate("GTTrainRecord");
+trigger GT2BuildRecord = TriggerCreate("GTBuildRecord");
+trigger GT2CancelRecord = TriggerCreate("GTCancelRecord");
+trigger GT2ResearchRecord = TriggerCreate("GTResearchRecord");
+trigger GT2UpgradeRecord = TriggerCreate("GTUpgradeRecord");
+
+
+
+//---------------------------------------------------
+// Event Trigger
+//---------------------------------------------------
+
+bool GTUnitDead (bool checkConds, bool doActions){
+	string type = UnitGetType(EventUnit());
+	int player = UnitGetOwner(EventUnit());
+	if (type == c_ZB_Extractor || type == c_ZU_Larva || type == "Mule"){
+		return false;
+	}
+	if (!doActions) {
+	    return true;
+	}
+
+	GTableSetUnitDead(player, type, GTableGetUnitDead(player, type) + 1);
+	return true;
+}
+bool GTViewResources (bool checkConds, bool doActions){
+	int type = EventPlayerProperty();
+	if (!doActions) {
+	    return true;
+	}
+	if (type == 0){
+		BoardItemSetText(GTBoard, 1, 1, IntToText(PlayerGetPropertyInt(EventPlayer(), c_playerPropMinerals)));
+	}
+	else if (type == 1){
+		BoardItemSetText(GTBoard, 2, 1, IntToText(PlayerGetPropertyInt(EventPlayer(), c_playerPropVespene)));
+	}
+	else{
+		BoardItemSetText(GTBoard, 3, 1, IntToText(PlayerGetPropertyInt(EventPlayer(), c_playerPropSuppliesUsed)) + StringToText("/")+ IntToText(PlayerGetPropertyInt(EventPlayer(), c_playerPropSuppliesMade)));
+		BoardItemSetText(GTBoard, 4, 1, IntToText(TechTreeUnitCount(EventPlayer(), GTWorker(EventPlayer()), c_techCountInProgressOrBetter)));
+
+	}
+	return true;
+}
+
+
+trigger GT2UnitDead = TriggerCreate("GTUnitDead");
+trigger GT2ViewResources = TriggerCreate("GTViewResources");
+
+

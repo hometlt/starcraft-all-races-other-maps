@@ -1,0 +1,1809 @@
+// not finished yet !!
+
+// Prototypes 
+
+//int GTUnittypeToInt(string UnitType);
+//int GTGetRaceFromUnitType(string UnitType);
+
+// Constants -------------------------------------------------------------------------------------------------------------------------------
+const int g_UnitsToCounter = 15;
+const int g_NumRaces = 3;       // Zerg, Prot, Terr
+const int g_NumCounter = 8;     // max 8 per Race
+
+const int c_Zerg = 0;
+const int c_Terr = 1;
+const int c_Prot = 2;
+
+// Structs ---------------------------------------------------------------------------------------------------------------------------------
+struct GTUnitInfo
+{
+   int UnitID;
+   fixed value;
+};
+
+struct GTFightResult
+{
+   fixed UnitsKilled;
+   fixed UnitsLost;
+};
+
+// Globals ---------------------------------------------------------------------------------------------------------------------------------
+bool g_AllreadyInited = false;
+int g_TempCounter;
+GTFightResult g_fightResult;
+fixed GTMineralArmyValue_OA;
+fixed GTMineralArmyValue_EA;
+fixed GTBuffValue_OA;
+fixed GTBuffValue_EA;
+GTUnitInfo[g_NumRaces][g_UnitsToCounter][g_NumRaces][g_NumCounter] g_CounterUnitArray;
+fixed[g_UnitsToCounter] GTEnemyArmy;
+fixed[g_UnitsToCounter] GTOurArmy;
+int g_AVSLastPlayerCalced = -1;
+
+// Functions -------------------------------------------------------------------------------------------------------------------------------
+
+// converts Race to Int
+int GTGetIntFromRaceString(string Race)
+{
+    if (Race == "Prot")
+        {return c_Prot;}
+    else if (Race == "Terr")
+        {return c_Terr;}
+    else
+        {return c_Zerg;}
+}
+
+// converts Unit to Race 
+int GTGetRaceFromUnitType(string type)
+{    
+    if (type == c_PU_Archon || type == c_PU_Tempest || type == c_PU_Colossus || type == c_PU_DarkTemplar || type == c_PU_HighTemplar || type == c_PU_Immortal || type == c_PU_Mothership || type == c_PU_Phoenix || type == c_PU_Stalker || type == c_PU_VoidRay || type == c_PU_VoidRay || type == c_PU_Zealot || type == c_PU_Sentry)
+        { return c_Prot; }   
+    
+    if (type == c_TU_Banshee || type == c_TU_Battlecruiser || type == c_TU_Ghost || type == c_TU_Hellion || type == c_TU_Marauder || type == c_TU_Marine || type == c_TU_Raven || type == c_TU_Reaper || type == c_TU_SiegeTank || type == c_TU_Thor || type == c_TU_Viking || type == c_TU_SiegeTankSieged )    
+        { return c_Terr;}
+    
+    if (type == c_ZU_Baneling || type == c_ZU_Corruptor || type == c_ZU_Hydralisk || type == c_ZU_Infestor || type == c_ZU_Mutalisk || type == c_ZU_Queen || type == c_ZU_Roach || type == c_ZU_BroodLord || type == c_ZU_Ultralisk || type == c_ZU_Zergling )
+        { return c_Zerg; }
+        
+    DebugAI("GTGetRaceFromUnitType Error: " + type);
+    
+    return c_Zerg;
+}
+
+// converts Int-UnitType back to String-UnitType
+string GTIntToUnittype(int UnitType, string Race)
+{
+	return DataTableGetString(true, "IntToType_" + IntToString(GTGetIntFromRaceString(Race)) + "_" + IntToString(UnitType));
+}
+//
+//
+//// resets all CounterUnit Data to -1
+int GTUnittypeToInt(string UnitType)
+{
+    return DataTableGetInt(true, UnitType);
+}
+
+// converts a Unit to Index of Counter Array
+int GTUnitToInt(unit u)
+{
+	return (GTUnittypeToInt(UnitGetType(u)));
+}
+
+void GTDataTableAddCounterUnit(string UnitType)
+{
+	DataTableSetInt(true, UnitType, g_TempCounter);
+	DataTableSetString(true, "IntToType_" + IntToString(GTGetRaceFromUnitType(UnitType)) + "_" + IntToString(g_TempCounter), UnitType);
+	g_TempCounter += 1;
+}
+// Adds a Units Counterunit with ratio
+void GTAddCounter(string UnitID, fixed ratio, string CounterUnit)
+{
+    int UnitRace         = GTGetRaceFromUnitType(UnitID);
+    int UnitIDIndex      = GTUnittypeToInt(UnitID);
+    int CounterUnitRace  = GTGetRaceFromUnitType(CounterUnit);
+    int index = 0;
+
+    while (index < g_NumCounter)
+    {
+        if (g_CounterUnitArray[UnitRace][UnitIDIndex][CounterUnitRace][index].UnitID == -1)
+        {
+            // set this new CounterUnit !
+            g_CounterUnitArray[UnitRace][UnitIDIndex][CounterUnitRace][index].UnitID = GTUnittypeToInt(CounterUnit);
+            g_CounterUnitArray[UnitRace][UnitIDIndex][CounterUnitRace][index].value = ratio;
+            // DebugAI("g_CUA(" + IntToString(UnitRace) + ")(" + IntToString(UnitIDIndex) + ")(" + IntToString(CounterUnitRace) + ")(" + IntToString(index) + ") = " + IntToString(g_CounterUnitArray[UnitRace][UnitIDIndex][CounterUnitRace][index].UnitID));
+            break;
+        }
+        else
+        {
+            // get next index !
+            index = index + 1;
+        }
+    }
+}
+
+
+void GTUnitMatchingInit()
+{
+	g_TempCounter = 0;
+    // Protoss Units
+    GTDataTableAddCounterUnit(c_PU_VoidRay);
+    GTDataTableAddCounterUnit(c_PU_Zealot);
+    GTDataTableAddCounterUnit(c_PU_Stalker);
+    GTDataTableAddCounterUnit(c_PU_Immortal);
+    GTDataTableAddCounterUnit(c_PU_Sentry);
+    GTDataTableAddCounterUnit(c_PU_Archon);
+    GTDataTableAddCounterUnit(c_PU_HighTemplar);
+    GTDataTableAddCounterUnit(c_PU_DarkTemplar);
+	GTDataTableAddCounterUnit(c_PU_Colossus);
+    GTDataTableAddCounterUnit(c_PU_Tempest);
+    GTDataTableAddCounterUnit(c_PU_Phoenix);
+    GTDataTableAddCounterUnit(c_PU_Mothership);
+
+//--------------------------------------------------------------------------
+//  Terran Units
+//--------------------------------------------------------------------------
+
+	g_TempCounter = 0;
+    GTDataTableAddCounterUnit(c_TU_Banshee);
+    GTDataTableAddCounterUnit(c_TU_Marine);
+    GTDataTableAddCounterUnit(c_TU_Marauder);
+    GTDataTableAddCounterUnit(c_TU_Reaper);
+    GTDataTableAddCounterUnit(c_TU_Hellion);
+	GTDataTableAddCounterUnit(c_TU_Viking);
+    GTDataTableAddCounterUnit(c_TU_SiegeTankSieged);
+    GTDataTableAddCounterUnit(c_TU_SiegeTank);
+    GTDataTableAddCounterUnit(c_TU_Thor);
+    GTDataTableAddCounterUnit(c_TU_Ghost);
+    GTDataTableAddCounterUnit(c_TU_Raven);
+    GTDataTableAddCounterUnit(c_TU_Battlecruiser);
+
+//--------------------------------------------------------------------------
+//  Zerg Units
+//--------------------------------------------------------------------------
+	g_TempCounter = 0;
+    GTDataTableAddCounterUnit(c_ZU_Mutalisk);
+    GTDataTableAddCounterUnit(c_ZU_Zergling);
+    GTDataTableAddCounterUnit(c_ZU_Roach);
+    GTDataTableAddCounterUnit(c_ZU_Baneling);
+    GTDataTableAddCounterUnit(c_ZU_Ultralisk);
+    GTDataTableAddCounterUnit(c_ZU_Infestor);
+    GTDataTableAddCounterUnit(c_ZU_Hydralisk);
+    GTDataTableAddCounterUnit(c_ZU_Corruptor);
+    GTDataTableAddCounterUnit(c_ZU_BroodLord);
+    GTDataTableAddCounterUnit(c_ZU_Queen);
+}
+void GTInitCounterUnits()
+{
+    // ALL ZERG COUNTER !    //////////////////////////////////////////////////////////////////////////////////
+    // Zerg vs Protos Units !
+    GTAddCounter(c_PU_Archon, 10, c_ZU_Zergling);
+    GTAddCounter(c_PU_Archon, 4,  c_ZU_Roach);
+    GTAddCounter(c_PU_Archon, 3,  c_ZU_Hydralisk);
+    GTAddCounter(c_PU_Archon, 4,  c_ZU_Mutalisk);
+
+    GTAddCounter(c_PU_Tempest, 2.5, c_ZU_Corruptor);
+    GTAddCounter(c_PU_Tempest, 5, c_ZU_Hydralisk);
+    GTAddCounter(c_PU_Tempest, 6, c_ZU_Mutalisk);
+    GTAddCounter(c_PU_Tempest, 1, c_ZU_Infestor);
+
+    GTAddCounter(c_PU_Colossus, 2, c_ZU_Corruptor);
+    GTAddCounter(c_PU_Colossus, 10, c_ZU_Zergling);
+    GTAddCounter(c_PU_Colossus, 4.5, c_ZU_Roach);
+    GTAddCounter(c_PU_Colossus, 6, c_ZU_Hydralisk);
+
+    GTAddCounter(c_PU_DarkTemplar, 5, c_ZU_Zergling);
+    GTAddCounter(c_PU_DarkTemplar, 1.5, c_ZU_Roach);
+    GTAddCounter(c_PU_DarkTemplar, 1.5, c_ZU_Hydralisk);
+
+    GTAddCounter(c_PU_HighTemplar, 10, c_ZU_Zergling);
+    GTAddCounter(c_PU_HighTemplar, 6, c_ZU_Hydralisk);
+    GTAddCounter(c_PU_HighTemplar, 3, c_ZU_Roach);
+    GTAddCounter(c_PU_HighTemplar, 2, c_ZU_Mutalisk);
+
+    GTAddCounter(c_PU_Immortal, 7, c_ZU_Zergling);
+    GTAddCounter(c_PU_Immortal, 2.5, c_ZU_Hydralisk);
+    GTAddCounter(c_PU_Immortal, 4.5, c_ZU_Roach);
+    GTAddCounter(c_PU_Immortal, 0.001, c_ZU_Mutalisk);
+    GTAddCounter(c_PU_Immortal, 0.001, c_ZU_BroodLord);
+
+    // Mothership will affect army by + 30% !
+    // GTAddCounter(c_PU_Mothership, 3, c_ZU_Corruptor);
+    // GTAddCounter(c_PU_Mothership, 5, c_ZU_Mutalisk);
+    // GTAddCounter(c_PU_Mothership, 8, c_ZU_Hydralisk);
+
+    GTAddCounter(c_PU_Phoenix, 1, c_ZU_Corruptor);
+    GTAddCounter(c_PU_Phoenix, 2.5, c_ZU_Mutalisk );
+    GTAddCounter(c_PU_Phoenix, 0.001, c_ZU_Hydralisk);
+
+    GTAddCounter(c_PU_Stalker, 1, c_ZU_Hydralisk);
+    GTAddCounter(c_PU_Stalker, 3, c_ZU_Zergling);
+    GTAddCounter(c_PU_Stalker, 1.25, c_ZU_Roach);
+    GTAddCounter(c_PU_Stalker, 1.5, c_ZU_Mutalisk);
+	GTAddCounter(c_PU_Stalker, 0.001, c_ZU_BroodLord);
+
+    GTAddCounter(c_PU_VoidRay, 1.5, c_ZU_Hydralisk);
+    GTAddCounter(c_PU_VoidRay, 2.5, c_ZU_Mutalisk);
+    GTAddCounter(c_PU_VoidRay, 2, c_ZU_Corruptor);
+	GTAddCounter(c_PU_VoidRay, 1.5, c_ZU_Queen);
+
+    GTAddCounter(c_PU_Zealot, 4, c_ZU_Zergling);
+    GTAddCounter(c_PU_Zealot, 1.25, c_ZU_Roach);
+    GTAddCounter(c_PU_Zealot, 1.25, c_ZU_Hydralisk);
+    GTAddCounter(c_PU_Zealot, 5, c_ZU_Baneling);
+    GTAddCounter(c_PU_Zealot, 0.001, c_ZU_Mutalisk);
+	GTAddCounter(c_PU_Zealot, 0.001, c_ZU_BroodLord);
+
+    GTAddCounter(c_PU_Sentry, 4, c_ZU_Zergling);
+    GTAddCounter(c_PU_Sentry, 2, c_ZU_Roach);
+    GTAddCounter(c_PU_Sentry, 1, c_ZU_Hydralisk);
+    GTAddCounter(c_PU_Sentry, 0.75, c_ZU_Mutalisk);
+	GTAddCounter(c_PU_Sentry, 0.001, c_ZU_BroodLord);
+
+
+    // Zerg vs Terran Units///////////////////////////////////////////////////////////////////////////////////
+
+    GTAddCounter(c_TU_Banshee, 0.001, c_ZU_Corruptor);
+	GTAddCounter(c_TU_Banshee, 1.5, c_ZU_Hydralisk);
+    GTAddCounter(c_TU_Banshee, 0.001, c_ZU_Mutalisk);
+
+    GTAddCounter(c_TU_Battlecruiser, 5, c_ZU_Hydralisk);
+    GTAddCounter(c_TU_Battlecruiser, 7, c_ZU_Mutalisk);
+    GTAddCounter(c_TU_Battlecruiser, 2.5, c_ZU_Corruptor);
+	GTAddCounter(c_TU_Battlecruiser, 1, c_ZU_Infestor);
+
+    GTAddCounter(c_TU_Hellion, 6, c_ZU_Zergling);
+	GTAddCounter(c_TU_Hellion, 2, c_ZU_Roach);
+    GTAddCounter(c_TU_Hellion, 1, c_ZU_Hydralisk);
+	GTAddCounter(c_TU_Hellion, 5, c_ZU_Ultralisk);
+    GTAddCounter(c_TU_Hellion, 0.001, c_ZU_Mutalisk);
+	GTAddCounter(c_TU_Hellion, 0.001, c_ZU_BroodLord);
+
+
+    GTAddCounter(c_TU_Marauder, 3, c_ZU_Zergling);
+    GTAddCounter(c_TU_Marauder, 1.2, c_ZU_Roach );
+    GTAddCounter(c_TU_Marauder, 1, c_ZU_Hydralisk);
+	GTAddCounter(c_TU_Marauder, 0.25, c_ZU_Ultralisk);
+	GTAddCounter(c_TU_Marauder, 0.001, c_ZU_Mutalisk);
+	GTAddCounter(c_TU_Marauder, 0.001, c_ZU_BroodLord);
+
+    GTAddCounter(c_TU_Marine, 1.7 , c_ZU_Zergling );
+    GTAddCounter(c_TU_Marine, 0.6, c_ZU_Roach);
+    GTAddCounter(c_TU_Marine, 0.6, c_ZU_Hydralisk);
+	GTAddCounter(c_TU_Marine, 0.125, c_ZU_Ultralisk);
+	GTAddCounter(c_TU_Marine, 0.1, c_ZU_BroodLord);
+
+    GTAddCounter(c_TU_Reaper, 4, c_ZU_Zergling);
+    GTAddCounter(c_TU_Reaper, 0.5, c_ZU_Roach);
+    GTAddCounter(c_TU_Reaper, 0.5, c_ZU_Hydralisk);
+	GTAddCounter(c_TU_Reaper, 0.001, c_ZU_Mutalisk);
+	GTAddCounter(c_TU_Reaper, 0.001, c_ZU_BroodLord);
+
+    GTAddCounter(c_TU_SiegeTank, 6, c_ZU_Zergling);
+    GTAddCounter(c_TU_SiegeTank, 4, c_ZU_Roach);
+    GTAddCounter(c_TU_SiegeTank, 4, c_ZU_Hydralisk);
+	GTAddCounter(c_TU_SiegeTank, 0.75, c_ZU_Ultralisk);
+	GTAddCounter(c_TU_SiegeTank, 0.001, c_ZU_Mutalisk);
+	GTAddCounter(c_TU_SiegeTank, 0.001, c_ZU_BroodLord);
+
+	GTAddCounter(c_TU_SiegeTankSieged, 10, c_ZU_Zergling);
+    GTAddCounter(c_TU_SiegeTankSieged, 5, c_ZU_Roach);
+    GTAddCounter(c_TU_SiegeTankSieged, 6, c_ZU_Hydralisk);
+	GTAddCounter(c_TU_SiegeTankSieged, 1, c_ZU_Ultralisk);
+	GTAddCounter(c_TU_SiegeTankSieged, 0.001, c_ZU_Mutalisk);
+	GTAddCounter(c_TU_SiegeTankSieged, 0.001, c_ZU_BroodLord);
+
+    GTAddCounter(c_TU_Thor, 10, c_ZU_Zergling);
+    GTAddCounter(c_TU_Thor, 5.5, c_ZU_Roach);
+    GTAddCounter(c_TU_Thor, 5.5, c_ZU_Hydralisk);
+	GTAddCounter(c_TU_Thor, 1, c_ZU_Ultralisk);
+	GTAddCounter(c_TU_Thor, 5, c_ZU_Mutalisk);
+	GTAddCounter(c_TU_Thor, 0.66, c_ZU_BroodLord);
+
+    GTAddCounter(c_TU_Viking, 0.75, c_ZU_Corruptor);
+    GTAddCounter(c_TU_Viking, 1.5, c_ZU_Mutalisk);
+    GTAddCounter(c_TU_Viking, 0.001, c_ZU_Hydralisk);
+
+    // Zerg vs Zerg Units !/////////////////////////////////////////////////////////////////////////////
+
+    GTAddCounter(c_ZU_Baneling, 3, c_ZU_Zergling);
+	GTAddCounter(c_ZU_Baneling, 1, c_ZU_Baneling);
+    GTAddCounter(c_ZU_Baneling, 0.5, c_ZU_Roach);
+    GTAddCounter(c_ZU_Baneling, 2, c_ZU_Hydralisk);
+
+    GTAddCounter(c_ZU_Corruptor, 2, c_ZU_Mutalisk);
+	GTAddCounter(c_ZU_Corruptor, 1, c_ZU_Corruptor);
+    GTAddCounter(c_ZU_Corruptor, 0.001, c_ZU_Hydralisk);
+
+    GTAddCounter(c_ZU_Hydralisk, 3, c_ZU_Zergling);
+	GTAddCounter(c_ZU_Hydralisk, 0.25, c_ZU_Ultralisk);
+    GTAddCounter(c_ZU_Hydralisk, 1, c_ZU_Roach);
+    GTAddCounter(c_ZU_Hydralisk, 1, c_ZU_Hydralisk);
+	GTAddCounter(c_ZU_Hydralisk, 1.5, c_ZU_Mutalisk);
+	GTAddCounter(c_ZU_Hydralisk, 0.2, c_ZU_BroodLord);
+
+    GTAddCounter(c_ZU_Mutalisk, 0.5, c_ZU_Corruptor);
+    GTAddCounter(c_ZU_Mutalisk, 0.66, c_ZU_Hydralisk);
+    GTAddCounter(c_ZU_Mutalisk, 1, c_ZU_Mutalisk);
+
+    GTAddCounter(c_ZU_Roach, 3, c_ZU_Zergling);
+	GTAddCounter(c_ZU_Roach, 0.16, c_ZU_Ultralisk);
+    GTAddCounter(c_ZU_Roach, 1, c_ZU_Roach);
+    GTAddCounter(c_ZU_Roach, 1, c_ZU_Hydralisk);
+	GTAddCounter(c_ZU_Roach, 0.001, c_ZU_Mutalisk);
+	GTAddCounter(c_ZU_Roach, 0.001, c_ZU_BroodLord);
+
+	GTAddCounter(c_ZU_Queen, 2, c_ZU_Zergling);
+	GTAddCounter(c_ZU_Queen, 0.16, c_ZU_Ultralisk);
+    GTAddCounter(c_ZU_Queen, 0.75, c_ZU_Roach);
+    GTAddCounter(c_ZU_Queen, 1, c_ZU_Hydralisk);
+	GTAddCounter(c_ZU_Queen, 1, c_ZU_Mutalisk);
+	GTAddCounter(c_ZU_Queen, 0.2, c_ZU_BroodLord);
+
+    GTAddCounter(c_ZU_BroodLord, 5, c_ZU_Hydralisk);
+    GTAddCounter(c_ZU_BroodLord, 0.001, c_ZU_Corruptor);
+    GTAddCounter(c_ZU_BroodLord, 0.001, c_ZU_Mutalisk);
+
+    GTAddCounter(c_ZU_Ultralisk, 11, c_ZU_Zergling);
+	GTAddCounter(c_ZU_Ultralisk, 1, c_ZU_Ultralisk);
+    GTAddCounter(c_ZU_Ultralisk, 0.001, c_ZU_Corruptor);
+    GTAddCounter(c_ZU_Ultralisk, 0.001, c_ZU_Mutalisk);
+
+    GTAddCounter(c_ZU_Zergling, 1, c_ZU_Zergling);
+    GTAddCounter(c_ZU_Zergling, 0.34, c_ZU_Roach);
+    GTAddCounter(c_ZU_Zergling, 0.34, c_ZU_Hydralisk);
+	GTAddCounter(c_ZU_Zergling, 0.09, c_ZU_Ultralisk);
+	GTAddCounter(c_ZU_Zergling, 0.001, c_ZU_Corruptor);
+    GTAddCounter(c_ZU_Zergling, 0.001, c_ZU_Mutalisk);
+
+
+    ///////////////////////////////////////////////////////////////////// ALL Protoss Counter ///////////////////////////////////////////////////////////////////////////////////
+
+    // Protoss vs Protoss Units !
+	GTAddCounter(c_PU_Archon, 2.5, c_PU_Zealot);
+	GTAddCounter(c_PU_Archon, 1,  c_PU_Archon);
+    GTAddCounter(c_PU_Archon, 2.5,  c_PU_Stalker);
+	GTAddCounter(c_PU_Archon, 0.8,  c_PU_Immortal);
+	GTAddCounter(c_PU_Archon, 2,  c_PU_DarkTemplar);
+	GTAddCounter(c_PU_Archon, 1.1,  c_PU_VoidRay);
+	GTAddCounter(c_PU_Archon, 0.5,  c_PU_Tempest);
+
+    GTAddCounter(c_PU_Tempest, 2, c_PU_Phoenix);
+	GTAddCounter(c_PU_Tempest, 4, c_PU_Stalker);
+	GTAddCounter(c_PU_Tempest, 2, c_PU_Archon);
+	GTAddCounter(c_PU_Tempest, 1.5, c_PU_VoidRay);
+    GTAddCounter(c_PU_Tempest, 1, c_PU_Tempest);
+
+    GTAddCounter(c_PU_Colossus, 4.5, c_PU_Zealot);
+    GTAddCounter(c_PU_Colossus, 5, c_PU_Stalker);
+    GTAddCounter(c_PU_Colossus, 1.5, c_PU_Immortal);
+	GTAddCounter(c_PU_Colossus, 0.001, c_PU_VoidRay);
+    GTAddCounter(c_PU_Colossus, 0.001, c_PU_Tempest);
+	GTAddCounter(c_PU_Colossus, 0.001, c_PU_Phoenix);
+
+    GTAddCounter(c_PU_DarkTemplar, 1.5, c_PU_Zealot);
+    GTAddCounter(c_PU_DarkTemplar, 1.2, c_PU_Stalker);
+    GTAddCounter(c_PU_DarkTemplar, 0.25, c_PU_Immortal);
+	GTAddCounter(c_PU_DarkTemplar, 0.001, c_PU_VoidRay);
+    GTAddCounter(c_PU_DarkTemplar, 0.001, c_PU_Tempest);
+
+    GTAddCounter(c_PU_HighTemplar, 1, c_PU_HighTemplar);
+
+    GTAddCounter(c_PU_Immortal, 2, c_PU_Zealot);
+    GTAddCounter(c_PU_Immortal, 3.2, c_PU_Stalker);
+    GTAddCounter(c_PU_Immortal, 1, c_PU_Immortal);
+	GTAddCounter(c_PU_Immortal, 0.001, c_PU_VoidRay);
+    GTAddCounter(c_PU_Immortal, 0.001, c_PU_Tempest);
+
+    // GTAddCounter(c_PU_Mothership, 6, );
+    // GTAddCounter(c_PU_Mothership, 6, );
+    // GTAddCounter(c_PU_Mothership, 6, );
+
+    GTAddCounter(c_PU_Phoenix, 1, c_PU_Phoenix);
+	GTAddCounter(c_PU_Phoenix, 0.5, c_PU_Tempest);
+	GTAddCounter(c_PU_Phoenix, 0.66, c_PU_VoidRay);
+    GTAddCounter(c_PU_Phoenix, 0.001, c_PU_Stalker);
+	GTAddCounter(c_PU_Phoenix, 0.001, c_PU_Archon);
+
+    GTAddCounter(c_PU_Stalker, 1.5, c_PU_Zealot);
+    GTAddCounter(c_PU_Stalker, 0.34, c_PU_Immortal);
+	GTAddCounter(c_PU_Stalker, 1, c_PU_Stalker);
+	GTAddCounter(c_PU_Stalker, 0.2, c_PU_Colossus);
+	GTAddCounter(c_PU_Stalker, 0.45, c_PU_VoidRay);
+	GTAddCounter(c_PU_Stalker, 0.25, c_PU_Tempest);
+
+    GTAddCounter(c_PU_VoidRay, 1.5, c_PU_Phoenix);
+	GTAddCounter(c_PU_VoidRay, 2.2, c_PU_Stalker);
+    GTAddCounter(c_PU_VoidRay, 1, c_PU_VoidRay);
+	GTAddCounter(c_PU_VoidRay, 0.66, c_PU_Tempest);
+
+    GTAddCounter(c_PU_Zealot, 1, c_PU_Zealot);
+    GTAddCounter(c_PU_Zealot, 0.66, c_PU_Stalker);
+    GTAddCounter(c_PU_Zealot, 0.5, c_PU_Immortal);
+	GTAddCounter(c_PU_Zealot, 0.2, c_PU_Colossus);
+	GTAddCounter(c_PU_Zealot, 0.001, c_PU_VoidRay);
+	GTAddCounter(c_PU_Zealot, 0.001, c_PU_Tempest);
+
+	GTAddCounter(c_PU_Sentry, 1,  c_PU_Sentry);				// not tested
+	GTAddCounter(c_PU_Sentry, 1.5,  c_PU_Zealot);			// not tested
+	GTAddCounter(c_PU_Sentry, 0.75,  c_PU_Stalker);			// not tested
+	GTAddCounter(c_PU_Sentry, 0.22,  c_PU_Archon);			// not tested
+
+	// Protoss vs Terran Units    ////////////////////////////////////////////////////////////////////////////
+	GTAddCounter(c_TU_Banshee, 0.001, c_PU_Phoenix);
+	GTAddCounter(c_TU_Banshee, 2, c_PU_Stalker);
+	GTAddCounter(c_TU_Banshee, 0.001, c_PU_VoidRay);
+    GTAddCounter(c_TU_Banshee, 0.001, c_PU_Tempest);
+    GTAddCounter(c_TU_Banshee, 0.6, c_PU_Archon);
+	GTAddCounter(c_TU_Banshee, 2.5, c_PU_Sentry);
+
+
+	GTAddCounter(c_TU_Battlecruiser, 1.5, c_PU_VoidRay);
+	GTAddCounter(c_TU_Battlecruiser, 3.75, c_PU_Stalker);
+    GTAddCounter(c_TU_Battlecruiser, 5, c_PU_Phoenix);
+    GTAddCounter(c_TU_Battlecruiser, 2.5, c_TU_Battlecruiser);
+    GTAddCounter(c_TU_Battlecruiser, 2, c_PU_Archon);
+
+    GTAddCounter(c_TU_Hellion, 2, c_PU_Zealot );
+    GTAddCounter(c_TU_Hellion, 0.5, c_PU_Stalker );
+    GTAddCounter(c_TU_Hellion, 0.25, c_PU_Immortal);
+	GTAddCounter(c_TU_Hellion, 0.001, c_PU_VoidRay);
+	GTAddCounter(c_TU_Hellion, 0.001, c_PU_Tempest);
+	GTAddCounter(c_TU_Hellion, 1.5, c_PU_Sentry);
+
+    GTAddCounter(c_TU_Marauder, 1, c_PU_Stalker);
+    GTAddCounter(c_TU_Marauder, 1, c_PU_Zealot);
+    GTAddCounter(c_TU_Marauder, 0.34, c_PU_Immortal);
+	GTAddCounter(c_TU_Marauder, 2.5, c_PU_Sentry);
+	GTAddCounter(c_TU_Marauder, 0.25, c_PU_Colossus);
+	GTAddCounter(c_TU_Marauder, 0.001, c_PU_VoidRay);
+	GTAddCounter(c_TU_Marauder, 0.001, c_PU_Tempest);
+
+    GTAddCounter(c_TU_Marine, 0.4, c_PU_Zealot);
+    GTAddCounter(c_TU_Marine, 0.5, c_PU_Stalker);
+    GTAddCounter(c_TU_Marine, 0.09, c_PU_Colossus);
+	GTAddCounter(c_TU_Marine, 0.15, c_PU_Archon);
+	GTAddCounter(c_TU_Marine, 0.3, c_PU_VoidRay);
+	GTAddCounter(c_TU_Marine, 0.34, c_PU_Immortal);
+	GTAddCounter(c_TU_Marine, 0.15, c_PU_Tempest);
+	GTAddCounter(c_TU_Marine, 0.5, c_PU_Sentry);
+
+    GTAddCounter(c_TU_Reaper, 0.5, c_PU_Zealot);
+    GTAddCounter(c_TU_Reaper, 0.5, c_PU_Stalker);
+	GTAddCounter(c_TU_Reaper, 0.09, c_PU_Colossus);
+    GTAddCounter(c_TU_Reaper, 0.001, c_PU_VoidRay);
+	GTAddCounter(c_TU_Reaper, 0.001, c_PU_Tempest);
+
+
+    GTAddCounter(c_TU_SiegeTank, 1.5, c_PU_Zealot);
+	GTAddCounter(c_TU_SiegeTank, 0.5, c_PU_Immortal);
+    GTAddCounter(c_TU_SiegeTank, 2, c_PU_Stalker);
+    GTAddCounter(c_TU_SiegeTank, 0.001, c_PU_VoidRay);
+	GTAddCounter(c_TU_SiegeTank, 0.001, c_PU_Tempest);
+
+	GTAddCounter(c_TU_SiegeTankSieged, 4, c_PU_Zealot);
+    GTAddCounter(c_TU_SiegeTankSieged, 4, c_PU_Stalker);
+    GTAddCounter(c_TU_SiegeTankSieged, 1.2, c_PU_Immortal);
+	GTAddCounter(c_TU_SiegeTankSieged, 0.001, c_PU_VoidRay);
+	GTAddCounter(c_TU_SiegeTankSieged, 0.001, c_PU_Tempest);
+
+    GTAddCounter(c_TU_Thor, 4.5, c_PU_Zealot);
+    GTAddCounter(c_TU_Thor, 4, c_PU_Stalker);
+    GTAddCounter(c_TU_Thor, 1, c_PU_Immortal);
+	GTAddCounter(c_TU_Thor, 1, c_PU_Colossus);
+	GTAddCounter(c_TU_Thor, 0.75, c_PU_VoidRay);
+    GTAddCounter(c_TU_Thor, 0.5, c_PU_Tempest);
+
+    GTAddCounter(c_TU_Viking, 0.66, c_PU_VoidRay);
+	GTAddCounter(c_TU_Viking, 0.66, c_PU_Phoenix);
+    GTAddCounter(c_TU_Viking, 0.34, c_PU_Tempest);
+	GTAddCounter(c_TU_Viking, 0.001, c_PU_Stalker);
+	GTAddCounter(c_TU_Viking, 0.001, c_PU_Sentry);
+
+    // Protoss vs Zerg Units ! //////////////////////////////////////////////////////////////////////////
+
+    // GTAddCounter(c_ZU_Baneling, 0, ???);
+    // GTAddCounter(c_ZU_Baneling, 0, ???);
+    // GTAddCounter(c_ZU_Baneling, 0, ???);
+
+    GTAddCounter(c_ZU_Corruptor, 0.75, c_PU_VoidRay);
+    GTAddCounter(c_ZU_Corruptor, 0.1, c_PU_Stalker);
+    GTAddCounter(c_ZU_Corruptor, 1.5, c_PU_Phoenix);
+
+    GTAddCounter(c_ZU_Hydralisk, 1, c_PU_Zealot);
+    GTAddCounter(c_ZU_Hydralisk, 1.25, c_PU_Stalker);
+    GTAddCounter(c_ZU_Hydralisk, 0.2, c_PU_Colossus);
+    GTAddCounter(c_ZU_Hydralisk, 0.5, c_PU_DarkTemplar);
+
+    GTAddCounter(c_ZU_Infestor, 1, c_PU_HighTemplar);
+    GTAddCounter(c_ZU_Infestor, 2, c_PU_Stalker);
+    GTAddCounter(c_ZU_Infestor, 3, c_PU_Zealot);
+    GTAddCounter(c_ZU_Infestor, 0, c_PU_VoidRay);
+
+    GTAddCounter(c_ZU_Mutalisk, 1, c_PU_Stalker);
+    GTAddCounter(c_ZU_Mutalisk, 0.5, c_PU_Phoenix);
+    GTAddCounter(c_ZU_Mutalisk, 0.2, c_PU_Archon);
+
+    GTAddCounter(c_ZU_Queen, 0.5 , c_PU_VoidRay);
+	GTAddCounter(c_ZU_Queen, 1.25 , c_PU_Zealot);
+	GTAddCounter(c_ZU_Queen, 0.34 , c_PU_Stalker);
+	GTAddCounter(c_ZU_Queen, 0.34 , c_PU_Immortal);
+	GTAddCounter(c_ZU_Queen, 0.1 , c_PU_Colossus);
+
+    GTAddCounter(c_ZU_Roach, 1, c_PU_Stalker);
+    GTAddCounter(c_ZU_Roach, 0.75, c_PU_Zealot);
+    GTAddCounter(c_ZU_Roach, 0.3, c_PU_Immortal);
+    GTAddCounter(c_ZU_Roach, 0.25, c_PU_Colossus);
+    GTAddCounter(c_ZU_Roach, 0.001, c_PU_VoidRay);
+	GTAddCounter(c_ZU_Roach, 0.001, c_PU_Tempest);
+
+    GTAddCounter(c_ZU_BroodLord, 3, c_PU_Stalker);
+    GTAddCounter(c_ZU_BroodLord, 0.001, c_PU_VoidRay);
+    GTAddCounter(c_ZU_BroodLord, 0.001, c_PU_Phoenix);
+
+    GTAddCounter(c_ZU_Ultralisk, 1.25, c_PU_Immortal);
+    GTAddCounter(c_ZU_Ultralisk, 3.5, c_PU_Zealot);
+    GTAddCounter(c_ZU_Ultralisk, 6, c_PU_Stalker);
+    GTAddCounter(c_ZU_Ultralisk, 0.001, c_PU_VoidRay);
+
+    GTAddCounter(c_ZU_Zergling, 0.25, c_PU_Zealot);
+    GTAddCounter(c_ZU_Zergling, 0.25, c_PU_Immortal);
+    GTAddCounter(c_ZU_Zergling, 0.5, c_PU_Stalker);
+    GTAddCounter(c_ZU_Zergling, 0.15, c_PU_Colossus);
+    GTAddCounter(c_ZU_Zergling, 0.15, c_PU_Archon);
+    GTAddCounter(c_ZU_Zergling, 0.001, c_PU_VoidRay);
+
+    ///////////////////////////////////////////////////////////////////// ALL Terran Counter ///////////////////////////////////////////////////////////////////////////////////
+    //********************
+    // Terran vs Protos Units !
+    GTAddCounter(c_PU_Archon, 5, c_TU_Marine);
+    GTAddCounter(c_PU_Archon, 2, c_TU_Marauder);
+    GTAddCounter(c_PU_Archon, 0.5, c_TU_Ghost);
+
+    GTAddCounter(c_PU_Tempest, 9, c_TU_Marine );
+    GTAddCounter(c_PU_Tempest, 3.5, c_TU_Viking);
+    GTAddCounter(c_PU_Tempest, 2.5, c_TU_Thor);
+
+    GTAddCounter(c_PU_Colossus, 11, c_TU_Marine);
+	GTAddCounter(c_PU_Colossus, 0.001, c_TU_Viking);
+    GTAddCounter(c_PU_Colossus, 4, c_TU_Marauder);
+	GTAddCounter(c_PU_Colossus, 0.001, c_TU_Banshee);
+
+    GTAddCounter(c_PU_DarkTemplar, 3, c_TU_Marine);
+    GTAddCounter(c_PU_DarkTemplar, 2, c_TU_Marauder);
+    GTAddCounter(c_PU_DarkTemplar, 0.25, c_TU_Thor);
+	GTAddCounter(c_PU_DarkTemplar, 1, c_TU_SiegeTank);
+
+    GTAddCounter(c_PU_HighTemplar, 1, c_TU_Ghost);
+
+    GTAddCounter(c_PU_Immortal, 4.5, c_TU_Marine);
+    GTAddCounter(c_PU_Immortal, 3.5, c_TU_Marauder);
+	GTAddCounter(c_PU_Immortal, 3, c_TU_SiegeTank);
+	GTAddCounter(c_PU_Immortal, 3, c_TU_SiegeTankSieged);
+	GTAddCounter(c_PU_Immortal, 0.001, c_TU_Banshee);
+	GTAddCounter(c_PU_Immortal, 0.001, c_TU_Battlecruiser);
+
+	GTAddCounter(c_PU_Mothership, 10, c_TU_Marine);
+    GTAddCounter(c_PU_Mothership, 4.5, c_TU_Viking);
+	GTAddCounter(c_PU_Mothership, 1, c_TU_Battlecruiser);
+	GTAddCounter(c_PU_Mothership, 2, c_TU_Thor);
+
+    GTAddCounter(c_PU_Phoenix, 1.5, c_TU_Viking);
+    GTAddCounter(c_PU_Phoenix, 2, c_TU_Marine );
+	GTAddCounter(c_PU_Phoenix, 0.15, c_TU_Battlecruiser);
+	GTAddCounter(c_PU_Phoenix, 0.001, c_TU_Thor);
+
+    GTAddCounter(c_PU_Stalker, 2, c_TU_Marine);
+    GTAddCounter(c_PU_Stalker, 1, c_TU_Marauder);
+    GTAddCounter(c_PU_Stalker, 0.22, c_TU_Thor);
+	GTAddCounter(c_PU_Stalker, 1, c_TU_Hellion);
+	GTAddCounter(c_PU_Stalker, 0.75, c_TU_Banshee);
+	GTAddCounter(c_PU_Stalker, 0.5, c_TU_SiegeTank);
+	GTAddCounter(c_PU_Stalker, 0.3, c_TU_SiegeTankSieged);
+	GTAddCounter(c_PU_Stalker, 0.3, c_TU_Battlecruiser);
+
+    GTAddCounter(c_PU_VoidRay, 1.5, c_TU_Viking);
+	GTAddCounter(c_PU_VoidRay, 3, c_TU_Marine);
+    GTAddCounter(c_PU_VoidRay, 1.5, c_TU_Thor);
+	GTAddCounter(c_PU_VoidRay, 0.66, c_TU_Battlecruiser);
+
+    GTAddCounter(c_PU_Zealot, 2.5, c_TU_Marine);
+    GTAddCounter(c_PU_Zealot, 1.5, c_TU_Marauder);
+    GTAddCounter(c_PU_Zealot, 0.5, c_TU_Hellion);
+	GTAddCounter(c_PU_Zealot, 0.4, c_TU_SiegeTank);
+	GTAddCounter(c_PU_Zealot, 0.34, c_TU_SiegeTankSieged);
+	GTAddCounter(c_PU_Zealot, 0.001, c_TU_Banshee);
+	GTAddCounter(c_PU_Zealot, 0.001, c_TU_Battlecruiser);
+
+	GTAddCounter(c_PU_Sentry, 3, c_TU_Marine);
+    GTAddCounter(c_PU_Sentry, 2, c_TU_Marauder);
+	GTAddCounter(c_PU_Sentry, 0.5, c_TU_Hellion);
+
+    // Terran vs Terran Units /////////////////////////////////////////////////////////////////////////////
+
+    GTAddCounter(c_TU_Banshee, 1, c_TU_Banshee);
+    GTAddCounter(c_TU_Banshee, 0.34, c_TU_Thor);
+	GTAddCounter(c_TU_Banshee, 0.001, c_TU_Viking);
+
+    GTAddCounter(c_TU_Battlecruiser, 1, c_TU_Battlecruiser);
+
+	GTAddCounter(c_TU_Viking, 1, c_TU_Viking);
+	GTAddCounter(c_TU_Viking, 0.2, c_TU_Battlecruiser);
+	GTAddCounter(c_TU_Viking, 0.001, c_TU_Marine);
+	GTAddCounter(c_TU_Viking, 0.001, c_TU_Thor);
+
+    GTAddCounter(c_TU_Ghost, 1, c_TU_Ghost);
+
+    GTAddCounter(c_TU_Hellion, 1, c_TU_Hellion);
+	GTAddCounter(c_TU_Hellion, 1.5, c_TU_Marine);
+	GTAddCounter(c_TU_Hellion, 1, c_TU_Marauder);
+	GTAddCounter(c_TU_Hellion, 0.1, c_TU_Thor);
+	GTAddCounter(c_TU_Hellion, 0.07, c_TU_SiegeTank);
+	GTAddCounter(c_TU_Hellion, 0.05, c_TU_SiegeTankSieged);
+	GTAddCounter(c_TU_Hellion, 0.001, c_TU_Battlecruiser);
+	GTAddCounter(c_TU_Hellion, 0.001, c_TU_Banshee);
+
+    GTAddCounter(c_TU_Marauder, 1, c_TU_Marauder);
+	GTAddCounter(c_TU_Marauder, 1.75, c_TU_Marine);
+	GTAddCounter(c_TU_Marauder, 0.34, c_TU_Thor);
+	GTAddCounter(c_TU_Marauder, 0.67, c_TU_SiegeTank);
+	GTAddCounter(c_TU_Marauder, 0.2, c_TU_SiegeTankSieged);
+	GTAddCounter(c_TU_Marauder, 0.001, c_TU_Banshee);
+	GTAddCounter(c_TU_Marauder, 0.001, c_TU_Battlecruiser);
+
+
+    GTAddCounter(c_TU_Marine, 1, c_TU_Marine );
+	GTAddCounter(c_TU_Marine, 1.5, c_TU_Reaper );
+	GTAddCounter(c_TU_Marine, 0.5, c_TU_Marauder );
+	GTAddCounter(c_TU_Marine, 0.09, c_TU_Thor );
+	GTAddCounter(c_TU_Marine, 0.67, c_TU_Hellion);
+	GTAddCounter(c_TU_Marine, 0.2, c_TU_SiegeTank);
+	GTAddCounter(c_TU_Marine, 0.09, c_TU_SiegeTankSieged);
+	GTAddCounter(c_TU_Marine, 0.33, c_TU_Banshee);
+	GTAddCounter(c_TU_Marine, 0.09, c_TU_Battlecruiser);
+
+    GTAddCounter(c_TU_Raven, 1, c_TU_Raven );
+
+    GTAddCounter(c_TU_Reaper, 1, c_TU_Reaper);
+	GTAddCounter(c_TU_Reaper, 0.67, c_TU_Marine);
+	GTAddCounter(c_TU_Reaper, 0.5, c_TU_Marauder);
+	GTAddCounter(c_TU_Reaper, 0.5, c_TU_Hellion);
+
+    GTAddCounter(c_TU_SiegeTank, 1, c_TU_SiegeTank);
+	GTAddCounter(c_TU_SiegeTank, 0.8, c_TU_SiegeTankSieged);
+	GTAddCounter(c_TU_SiegeTank, 0.001, c_TU_Banshee);
+	GTAddCounter(c_TU_SiegeTank, 0.001, c_TU_Battlecruiser);
+
+
+
+	GTAddCounter(c_TU_SiegeTankSieged, 1, c_TU_SiegeTankSieged);
+	GTAddCounter(c_TU_SiegeTankSieged, 0.001, c_TU_Banshee);
+	GTAddCounter(c_TU_SiegeTankSieged, 0.001, c_TU_Battlecruiser);
+
+   GTAddCounter(c_TU_Thor, 1, c_TU_Thor);
+   GTAddCounter(c_TU_Thor, 1, c_TU_SiegeTank);
+   GTAddCounter(c_TU_Thor, 4, c_TU_Marauder);
+   GTAddCounter(c_TU_Thor, 0.3, c_TU_Battlecruiser);
+
+
+    // Terran vs Zerg Units !//////////////////////////////////////////////////////////////
+
+    GTAddCounter(c_ZU_Baneling, 0.15, c_TU_SiegeTankSieged);
+	GTAddCounter(c_ZU_Baneling, 0.2, c_TU_SiegeTank);
+	GTAddCounter(c_ZU_Baneling, 1.5, c_TU_Marine);
+	GTAddCounter(c_ZU_Baneling, 0.5, c_TU_Marine);						// reduce banelings-count in group somehow with this line
+    // GTAddCounter(c_ZU_Baneling, 0, ???);
+    // GTAddCounter(c_ZU_Baneling, 0, ???);
+
+    GTAddCounter(c_ZU_Corruptor, 1.5, c_TU_Viking);
+	GTAddCounter(c_ZU_Corruptor, 0.4, c_TU_Battlecruiser);
+    GTAddCounter(c_ZU_Corruptor, 0.001, c_TU_Marine);
+	GTAddCounter(c_ZU_Corruptor, 0.001, c_TU_Thor);
+	GTAddCounter(c_ZU_Corruptor, 0.001, c_TU_Ghost);
+
+    GTAddCounter(c_ZU_Hydralisk, 1.66, c_TU_Marine);
+    GTAddCounter(c_ZU_Hydralisk, 1, c_TU_Marauder);
+    GTAddCounter(c_ZU_Hydralisk, 2, c_TU_Reaper);
+	GTAddCounter(c_ZU_Hydralisk, 0.2, c_TU_SiegeTank);
+	GTAddCounter(c_ZU_Hydralisk, 0.17, c_TU_SiegeTankSieged);
+	GTAddCounter(c_ZU_Hydralisk, 1, c_TU_Hellion);
+	GTAddCounter(c_ZU_Hydralisk, 0.19, c_TU_Thor);
+
+    GTAddCounter(c_ZU_Infestor, 1, c_TU_Ghost);
+
+    GTAddCounter(c_ZU_Mutalisk, 1, c_TU_Marine);
+    GTAddCounter(c_ZU_Mutalisk, 0.2, c_TU_Thor);
+    GTAddCounter(c_ZU_Mutalisk, 0.67, c_TU_Viking);
+	GTAddCounter(c_ZU_Mutalisk, 0.5, c_TU_Ghost);
+	GTAddCounter(c_ZU_Mutalisk, 0.15, c_TU_Battlecruiser);
+
+    GTAddCounter(c_ZU_Roach, 1.67, c_TU_Marine);
+    GTAddCounter(c_ZU_Roach, 0.84, c_TU_Marauder);
+    GTAddCounter(c_ZU_Roach, 0.18, c_TU_Thor);
+	GTAddCounter(c_ZU_Roach, 0.25, c_TU_SiegeTank);
+	GTAddCounter(c_ZU_Roach, 0.2, c_TU_SiegeTankSieged);
+	GTAddCounter(c_ZU_Roach, 0.001, c_TU_Battlecruiser);
+	GTAddCounter(c_ZU_Roach, 0.001, c_TU_Banshee);
+
+    GTAddCounter(c_ZU_BroodLord, 10, c_TU_Marine);
+    GTAddCounter(c_ZU_BroodLord, 1.5, c_TU_Thor);
+	GTAddCounter(c_ZU_BroodLord, 2, c_TU_Ghost);
+    GTAddCounter(c_ZU_BroodLord, 0.001, c_TU_Battlecruiser);
+	GTAddCounter(c_ZU_BroodLord, 0.001, c_TU_Viking);
+
+    GTAddCounter(c_ZU_Ultralisk, 9, c_TU_Marine);
+    GTAddCounter(c_ZU_Ultralisk, 4, c_TU_Marauder);
+    GTAddCounter(c_ZU_Ultralisk, 1, c_TU_Thor);
+	GTAddCounter(c_ZU_Ultralisk, 1.5, c_TU_SiegeTank);
+	GTAddCounter(c_ZU_Ultralisk, 1, c_TU_SiegeTankSieged);
+	GTAddCounter(c_ZU_Ultralisk, 0.001, c_TU_Battlecruiser);
+	GTAddCounter(c_ZU_Ultralisk, 0.001, c_TU_Banshee);
+
+    GTAddCounter(c_ZU_Zergling, 0.58, c_TU_Marine);
+    GTAddCounter(c_ZU_Zergling, 0.33, c_TU_Marauder);
+    GTAddCounter(c_ZU_Zergling, 0.1, c_TU_Thor);
+    GTAddCounter(c_ZU_Zergling, 0.17, c_TU_SiegeTank);
+	GTAddCounter(c_ZU_Zergling, 0.1, c_TU_SiegeTankSieged);
+	GTAddCounter(c_ZU_Zergling, 0.001, c_TU_Battlecruiser);
+	GTAddCounter(c_ZU_Zergling, 0.001, c_TU_Viking);
+
+	GTAddCounter(c_ZU_Queen, 1.67, c_TU_Marine);
+    GTAddCounter(c_ZU_Queen, 0.84, c_TU_Marauder);
+    GTAddCounter(c_ZU_Queen, 0.18, c_TU_Thor);
+	GTAddCounter(c_ZU_Queen, 0.25, c_TU_SiegeTank);
+	GTAddCounter(c_ZU_Queen, 0.2, c_TU_SiegeTankSieged);
+	GTAddCounter(c_ZU_Queen, 0.2, c_TU_Battlecruiser);
+	GTAddCounter(c_ZU_Queen, 1, c_TU_Banshee);
+}
+
+
+void GTInitCounterArrays()
+{
+    int indexUnit = 0;
+    int indexRace = 0;
+    int indexCounterUnit = 0;
+
+    if (g_AllreadyInited)
+        { return; }
+    g_AllreadyInited = true;
+    // DebugAI("Init Counter Array");
+
+    // create DataTable entries
+    GTUnitMatchingInit();
+
+    // init whole array
+    while (indexUnit < g_UnitsToCounter)
+    {
+        while (indexRace < g_NumRaces)
+        {
+            while (indexCounterUnit < g_NumCounter)
+            {
+                // Zerg = 0
+                g_CounterUnitArray[c_Zerg][indexUnit][indexRace][indexCounterUnit].UnitID = -1;
+                g_CounterUnitArray[c_Zerg][indexUnit][indexRace][indexCounterUnit].value  = -1;
+                // Terr = 1
+                g_CounterUnitArray[c_Terr][indexUnit][indexRace][indexCounterUnit].UnitID = -1;
+                g_CounterUnitArray[c_Terr][indexUnit][indexRace][indexCounterUnit].value  = -1;
+                // Prot = 2
+                g_CounterUnitArray[c_Prot][indexUnit][indexRace][indexCounterUnit].UnitID = -1;
+                g_CounterUnitArray[c_Prot][indexUnit][indexRace][indexCounterUnit].value  = -1;
+                // counter++
+                // DebugAI(IntToString(g_CounterUnitArray[c_Zerg][indexUnit][indexRace][indexCounterUnit].UnitID));
+                indexCounterUnit = indexCounterUnit + 1;
+            }
+            // reset counter
+            indexCounterUnit = 0;
+            // counter++
+            indexRace = indexRace + 1;
+        }
+        // reset counter
+        indexRace = 0;
+        // counter++
+        indexUnit = indexUnit + 1;
+    }
+    // DebugAI("-InitCounterArray-");
+    GTInitCounterUnits();
+}
+
+//// Converts a UnitType to Index of Counter Array
+
+void GTTryToKillOurUnit(int player, int UnitIndex)
+{
+    // GTFightResult g_fightResult;            // global def !
+    int OurRace = GTGetIntFromRaceString(PlayerRace(player));
+    int EnemyRace = GTGetIntFromRaceString(GTEnemyRace(player));
+    int index = 0;
+    fixed multiplyerForDamagedUnit = 1;
+    bool enoughUnitsInArmy = false;
+    if ( GTOurArmy[UnitIndex] > 0 )     // is any Unit alive ?
+    {
+        while (index < g_NumCounter)
+        {
+            if (g_CounterUnitArray[OurRace][UnitIndex][EnemyRace][index].UnitID == -1 || g_CounterUnitArray[OurRace][UnitIndex][EnemyRace][index].value == -1)             {
+                break;
+            }
+            if (GTOurArmy[UnitIndex] > 0.1 && GTOurArmy[UnitIndex] < 1) { // damaged Unit !
+                multiplyerForDamagedUnit = GTOurArmy[UnitIndex];
+            }
+            enoughUnitsInArmy = (GTEnemyArmy[g_CounterUnitArray[OurRace][UnitIndex][EnemyRace][index].UnitID] >= (g_CounterUnitArray[OurRace][UnitIndex][EnemyRace][index].value*multiplyerForDamagedUnit));
+
+            // Ok does the enemy has enough units ?
+            while (enoughUnitsInArmy && GTOurArmy[UnitIndex] > 0.1) {
+                //Ok there are some counter units
+                // DebugAI("----GTTryToKillOurUnit----" + IntToString(UnitIndex));
+                // DebugAI("-2- GTEnemyArmy[" + IntToString(g_CounterUnitArray[OurRace][UnitIndex][EnemyRace][index].UnitID) + "]=" + FixedToString(GTEnemyArmy[g_CounterUnitArray[OurRace][UnitIndex][EnemyRace][index].UnitID],2) + " - " + FixedToString(g_CounterUnitArray[OurRace][UnitIndex][EnemyRace][index].value * multiplyerForDamagedUnit,2));
+                GTEnemyArmy[g_CounterUnitArray[OurRace][UnitIndex][EnemyRace][index].UnitID] -= g_CounterUnitArray[OurRace][UnitIndex][EnemyRace][index].value * multiplyerForDamagedUnit;
+                // DebugAI("-2- GTOurArmy[" + IntToString(UnitIndex) + "]=" + FixedToString(GTOurArmy[UnitIndex],2) + " - 1");
+                GTOurArmy[UnitIndex] -= 1;      // this unit is supposed to die !
+                // DebugAI("-2- UnitsKilled=" + FixedToString(g_fightResult.UnitsKilled,2) + " + " + FixedToString(g_CounterUnitArray[OurRace][UnitIndex][EnemyRace][index].value * multiplyerForDamagedUnit,2));
+                g_fightResult.UnitsKilled += g_CounterUnitArray[OurRace][UnitIndex][EnemyRace][index].value * multiplyerForDamagedUnit;
+                // DebugAI("-2- UnitsLost=" + FixedToString(g_fightResult.UnitsLost,2) + " + 1");
+                g_fightResult.UnitsLost += 1;
+                if (GTOurArmy[UnitIndex] > 0.1 && GTOurArmy[UnitIndex] < 1) { // damaged Unit !
+                    multiplyerForDamagedUnit = GTOurArmy[UnitIndex];
+                }
+                enoughUnitsInArmy = (GTEnemyArmy[g_CounterUnitArray[OurRace][UnitIndex][EnemyRace][index].UnitID] >= (g_CounterUnitArray[OurRace][UnitIndex][EnemyRace][index].value*multiplyerForDamagedUnit));
+            }
+            index = index + 1;
+        }
+    }
+    // return fightResult;
+}
+
+void GTTryToKillEnemyUnit(int player, int UnitIndex)
+{
+    // GTFightResult g_fightResult;   global def
+    int OurRace = GTGetIntFromRaceString(PlayerRace(player));
+    int EnemyRace = GTGetIntFromRaceString(GTEnemyRace(player));
+    int index = 0;
+    fixed multiplyerForDamagedUnit = 1;
+    bool enoughUnitsInArmy = false;
+
+    if ( GTEnemyArmy[UnitIndex] > 0 )     // is any Unit alive ?
+    {
+        while (index < g_NumCounter)
+        {
+            if (g_CounterUnitArray[EnemyRace][UnitIndex][OurRace][index].UnitID == -1 || g_CounterUnitArray[EnemyRace][UnitIndex][OurRace][index].value == -1) {
+                break;
+            }
+            if (GTOurArmy[UnitIndex] > 0.1 && GTOurArmy[UnitIndex] < 1) { // damaged Unit !
+                multiplyerForDamagedUnit = GTOurArmy[UnitIndex];
+            }
+            enoughUnitsInArmy = (GTOurArmy[g_CounterUnitArray[EnemyRace][UnitIndex][OurRace][index].UnitID] >= g_CounterUnitArray[EnemyRace][UnitIndex][OurRace][index].value * multiplyerForDamagedUnit);
+            // Ok do we have enough units ?
+            while (enoughUnitsInArmy && GTEnemyArmy[UnitIndex] > 0.1)
+            {
+                // DebugAI("----GTTryToKillEnemyUnit----" + IntToString(UnitIndex));
+                //Ok there are some counter units
+                // DebugAI("-1- GTOurArmy[" + IntToString(g_CounterUnitArray[EnemyRace][UnitIndex][OurRace][index].UnitID) + "]=" + FixedToString(GTOurArmy[g_CounterUnitArray[EnemyRace][UnitIndex][OurRace][index].UnitID],2) + " - " + FixedToString(g_CounterUnitArray[EnemyRace][UnitIndex][OurRace][index].value,2));
+                GTOurArmy[g_CounterUnitArray[EnemyRace][UnitIndex][OurRace][index].UnitID] -= g_CounterUnitArray[EnemyRace][UnitIndex][OurRace][index].value;
+                // DebugAI("-1- GTEnemyArmy[" + IntToString(UnitIndex) + "]=" + FixedToString(GTEnemyArmy[UnitIndex],2) + " - 1");
+                GTEnemyArmy[UnitIndex] -= 1;      // this unit is supposed to die !
+                // DebugAI("-1- UnitsLost=" + FixedToString(g_fightResult.UnitsLost,2) + " + " + FixedToString(g_CounterUnitArray[EnemyRace][UnitIndex][OurRace][index].value,2));
+                g_fightResult.UnitsLost += g_CounterUnitArray[EnemyRace][UnitIndex][OurRace][index].value;
+                // DebugAI("-1- UnitsKilled=" + FixedToString(g_fightResult.UnitsKilled,2) + " + 1");
+                g_fightResult.UnitsKilled += 1;
+                if (GTOurArmy[UnitIndex] > 0.1 && GTOurArmy[UnitIndex] < 1) { // damaged Unit !
+                    multiplyerForDamagedUnit = GTOurArmy[UnitIndex];
+                }
+                enoughUnitsInArmy = (GTOurArmy[g_CounterUnitArray[EnemyRace][UnitIndex][OurRace][index].UnitID] >= g_CounterUnitArray[EnemyRace][UnitIndex][OurRace][index].value * multiplyerForDamagedUnit);
+            }
+            index = index + 1;
+        }
+    }
+    // return fightResult;
+}
+
+// Size of our army
+fixed GTGetUnitCountOArmy()
+{
+    int index = 0;
+    fixed unitcount = 0;
+    while (index < g_UnitsToCounter)
+    {
+        unitcount += GTOurArmy[index];
+        index = index + 1;
+    }
+    return unitcount;
+}
+
+// Size KnownEnemies army
+fixed GTGetUnitCountEArmy()
+{
+    int index = 0;
+    fixed unitcount = 0;
+    while (index < g_UnitsToCounter)
+    {
+        unitcount += GTEnemyArmy[index];
+        index = index + 1;
+    }
+    return unitcount;
+}
+
+// Size of our army
+fixed GTGetMineralCountOArmy(int player)
+{
+	string race = PlayerRace(player);
+    int index = 0;
+    fixed mineralCount = 0;
+    while (index < g_UnitsToCounter)
+    {
+		if (GTOurArmy[index] > 0)
+		{
+			mineralCount += (GTOurArmy[index] * GTCostM(GTIntToUnittype(index,race)));
+			mineralCount += (GTOurArmy[index] * (1.2 * GTCostG(GTIntToUnittype(index,race)))) ;
+		}
+        index = index + 1;
+    }
+    return mineralCount;
+}
+
+// Size KnownEnemies army
+fixed GTGetMineralCountEArmy(int player)
+{
+    string race = GTEnemyRace(player);
+    int index = 0;
+    fixed mineralCount = 0;
+    while (index < g_UnitsToCounter)
+    {
+		if (GTEnemyArmy[index] > 0)
+		{
+			mineralCount += (GTEnemyArmy[index] * GTCostM(GTIntToUnittype(index,race)));
+			mineralCount += (GTEnemyArmy[index] * (1.2 * GTCostG(GTIntToUnittype(index,race)))) ;
+
+		}
+        index = index + 1;
+    }
+    return mineralCount;
+}
+
+int GTGetCompleteBuildingsInRegion(int player, string buildingType, region scanRegion) {
+	return MinI(UnitGroupCount(UnitGroup(buildingType, player, scanRegion,null, 0), c_unitCountAll),
+				AITechCount(player, buildingType, c_techCountCompleteOnly) );
+}
+
+// until i find a solution to determine when there is a defence fight or aggresive fight
+// i will use GTEGroD - Function of original GTAI - but with removed SiegeTanks !
+fixed GTEnemyStructureDefenceValue(int player)
+{
+	region scanRegion;
+	int EID = GTEnemyID(player);
+	string Race = PlayerRace(EID);
+	fixed count = 0;
+	unitgroup group;
+	unit u;
+
+	if (GTCountE(player,GTBase(EID)) > 2) {
+		group = UnitGroup(null, EID, RegionEntireMap(), UnitFilterStr("Structure"), 0);
+		u = UnitGroupNearestUnit(group, AIGetGatherLocation(player, c_townMain));
+		scanRegion = RegionCircle(UnitGetPosition(u), 15);
+	}
+	else{
+		scanRegion = RegionEntireMap();
+	}
+
+	// Toss
+	if (Race == "Prot")	{
+		count += 450 * GTGetCompleteBuildingsInRegion(EID, c_PB_PhotonCannon, scanRegion);
+	}
+	// Terran
+	else if (Race == "Terr") {
+		count += 450*GTGetCompleteBuildingsInRegion(EID, c_TB_Bunker, scanRegion);
+		count += 700*GTGetCompleteBuildingsInRegion(EID, c_TB_PlanetaryFortress, scanRegion);
+	}
+	// Zerg
+	else {
+		count += 450*GTGetCompleteBuildingsInRegion(EID, c_ZB_SpineCrawler, scanRegion);
+		if (GTOAirG(player) > 0 && (GTime() < 600) ) {
+			count += 325*GTGetCompleteBuildingsInRegion(EID, c_ZB_SporeCrawler, scanRegion);
+		}
+	}
+	return count;
+}
+
+fixed GTUpgradeBuff(int player)
+{
+	string Race = PlayerRace(player);
+	fixed buffMultiplier = 0;
+
+	if (Race == "Terr") {
+		if (GTTerranSoldier(player) >= 10) {
+			if (GTFinishA(player, c_TR_InfantryArmor1, 1 )) {buffMultiplier += 0.02;}
+			if (GTFinishA(player, c_TR_InfantryArmor2, 1 )) {buffMultiplier += 0.03; }
+			if (GTFinishA(player, c_TR_InfantryArmor3, 1 )) {buffMultiplier += 0.04; }
+
+			if (GTFinishA(player, c_TR_InfantryWeapons1, 1 )) {buffMultiplier += 0.02; }
+			if (GTFinishA(player, c_TR_InfantryWeapons2, 1 )) {buffMultiplier += 0.03; }
+			if (GTFinishA(player, c_TR_InfantryWeapons3, 1 )) {buffMultiplier += 0.04; }
+			if (GTFinishA(player, c_BF_Stimpack, 1 )) 		  {buffMultiplier += 0.08; }
+		}
+		if (GTTerranMech(player) >= 15) {
+			if (GTFinishA(player, c_TR_VehicleWeapons1, 1 )) {buffMultiplier += 0.02;}
+			if (GTFinishA(player, c_TR_VehicleWeapons2, 1 )) {buffMultiplier += 0.03;}
+			if (GTFinishA(player, c_TR_VehicleWeapons3, 1 )) {buffMultiplier += 0.04;}
+
+			if (GTFinishA(player, c_TR_VehiclePlating1, 1 )) {buffMultiplier += 0.02;}
+			if (GTFinishA(player, c_TR_VehiclePlating2, 1 )) {buffMultiplier += 0.03;}
+			if (GTFinishA(player, c_TR_VehiclePlating3, 1 )) {buffMultiplier += 0.04;}
+		}
+		if (GTTerranAir(player) >= 15) {
+			if (GTFinishA(player, c_TR_VehicleWeapons1, 1 )) {buffMultiplier += 0.02;}
+			if (GTFinishA(player, c_TR_VehicleWeapons2, 1 )) {buffMultiplier += 0.03;}
+			if (GTFinishA(player, c_TR_VehicleWeapons3, 1 )) {buffMultiplier += 0.04;}
+
+			if (GTFinishA(player, c_TR_VehiclePlating1, 1 )) {buffMultiplier += 0.02;}
+			if (GTFinishA(player, c_TR_VehiclePlating2, 1 )) {buffMultiplier += 0.03;}
+			if (GTFinishA(player, c_TR_VehiclePlating3, 1 )) {buffMultiplier += 0.04;}
+		}
+	}
+	else if (Race == "Zerg") {
+		if (GTZergGround(player) >= 12) {
+			if (GTFinishA(player, c_ZR_GroundCarapace1, 1 )) {buffMultiplier += 0.02;}
+			if (GTFinishA(player, c_ZR_GroundCarapace2, 1 )) {buffMultiplier += 0.03;}
+			if (GTFinishA(player, c_ZR_GroundCarapace3, 1 )) {buffMultiplier += 0.04;}
+
+			if (GTFinishA(player, c_ZR_MeleeAttacks1, 1 )) {buffMultiplier += 0.02;}
+			if (GTFinishA(player, c_ZR_MeleeAttacks2, 1 )) {buffMultiplier += 0.03;}
+			if (GTFinishA(player, c_ZR_MeleeAttacks3, 1 )) {buffMultiplier += 0.04;}
+		}
+		if (GTZergMissile(player) >= 15) {
+			if (GTFinishA(player, c_ZR_MissileAttacks1, 1 )) {buffMultiplier += 0.02;}
+			if (GTFinishA(player, c_ZR_MissileAttacks2, 1 )) {buffMultiplier += 0.03;}
+			if (GTFinishA(player, c_ZR_MissileAttacks3, 1 )) {buffMultiplier += 0.04;}
+
+			if (GTFinishA(player, c_ZR_GroundCarapace1, 1 )) {buffMultiplier += 0.02;}
+			if (GTFinishA(player, c_ZR_GroundCarapace2, 1 )) {buffMultiplier += 0.03;}
+			if (GTFinishA(player, c_ZR_GroundCarapace3, 1 )) {buffMultiplier += 0.04;}
+		}
+		if (GTZergAir(player) >= 12) {
+			if (GTFinishA(player, c_ZR_FlyerAttacks1, 1 )) {buffMultiplier += 0.02;}
+			if (GTFinishA(player, c_ZR_FlyerAttacks2, 1 )) {buffMultiplier += 0.03;}
+			if (GTFinishA(player, c_ZR_FlyerAttacks3, 1 )) {buffMultiplier += 0.04;}
+
+			if (GTFinishA(player, c_ZR_FlyerCarapace1, 1 )) {buffMultiplier += 0.02;}
+			if (GTFinishA(player, c_ZR_FlyerCarapace2, 1 )) {buffMultiplier += 0.03;}
+			if (GTFinishA(player, c_ZR_FlyerCarapace3, 1 )) {buffMultiplier += 0.04;}
+		}
+	}
+	else { // Protoss
+		if (GTProtossGround(player) >= 15) {
+			if (GTFinishA(player, c_PR_GroundArmor1, 1 )) {buffMultiplier += 0.02;}
+			if (GTFinishA(player, c_PR_GroundArmor2, 1 )) {buffMultiplier += 0.03;}
+			if (GTFinishA(player, c_PR_GroundArmor3, 1 )) {buffMultiplier += 0.04;}
+
+			if (GTFinishA(player, c_PR_GroundWeapons1, 1 )) {buffMultiplier += 0.02;}
+			if (GTFinishA(player, c_PR_GroundWeapons2, 1 )) {buffMultiplier += 0.03;}
+			if (GTFinishA(player, c_PR_GroundWeapons3, 1 )) {buffMultiplier += 0.04;}
+		}
+		if ( GTProtossAir(player) >= 12 ) {
+			if (GTFinishA(player, c_PR_AirArmor1, 1 )) {buffMultiplier += 0.02;}
+			if (GTFinishA(player, c_PR_AirArmor2, 1 )) {buffMultiplier += 0.03;}
+			if (GTFinishA(player, c_PR_AirArmor3, 1 )) {buffMultiplier += 0.04;}
+
+			if (GTFinishA(player, c_PR_AirWeapons1, 1 )) {buffMultiplier += 0.02;}
+			if (GTFinishA(player, c_PR_AirWeapons2, 1 )) {buffMultiplier += 0.03;}
+			if (GTFinishA(player, c_PR_AirWeapons3, 1 )) {buffMultiplier += 0.04;}
+		}
+	}
+	return buffMultiplier;
+}
+
+// isOurArmy true = sets OurArmy[Unit] to value
+// isOurArmy false = sets EnemyArmy[Unit] to value
+void setUnitCountInArmyTo(bool isOurArmy, string Unittype, fixed value)
+{
+	if (isOurArmy) {
+		GTOurArmy[GTUnittypeToInt(Unittype)] = value;
+	}
+	else {
+		GTEnemyArmy[GTUnittypeToInt(Unittype)] = value;
+	}
+}
+
+// returns the Army Buffmultiplier !
+fixed GTBuffArmy(int player, int targetPlayer)
+{
+	string Race = PlayerRace(targetPlayer);
+	fixed buffMultiplier = 0;
+	bool isOurArmy = (player == targetPlayer);
+
+	if (GFuncIsDelay(player, "GTBuffArmy_" + IntToString(targetPlayer), 1)) {
+		return GTGetFuncResultFixed(player, "GTBuffArmy_" + IntToString(targetPlayer));
+	}
+
+	// Protoss
+	if (Race == "Prot") {
+		buffMultiplier += 0.02 * AIKnownUnitCount(player, targetPlayer, c_PU_Sentry);	//setUnitCountInArmyTo(isOurArmy, c_PU_Sentry, 0);
+		buffMultiplier += 0.15 * AIKnownUnitCount(player, targetPlayer, c_PU_Mothership);  setUnitCountInArmyTo(isOurArmy, c_PU_Mothership, 0);
+		buffMultiplier += 0.04 * AIKnownUnitCount(player, targetPlayer, c_PU_HighTemplar); setUnitCountInArmyTo(isOurArmy, c_PU_HighTemplar, 0);
+		buffMultiplier += 0.08 * AIKnownUnitCount(player, targetPlayer, c_PU_Colossus);	//setUnitCountInArmyTo(isOurArmy, c_PU_Colossus, 0);
+
+	}
+	else if (Race == "Terr") {	// Terran
+		buffMultiplier += 0.04 * AIKnownUnitCount(player, targetPlayer, c_TU_Medivac); setUnitCountInArmyTo(isOurArmy, c_TU_Medivac, 0);
+		buffMultiplier += 0.05 * AIKnownUnitCount(player, targetPlayer, c_TU_SiegeTankSieged);
+		buffMultiplier += 0.04 * AIKnownUnitCount(player, targetPlayer, c_TU_SiegeTank);
+		buffMultiplier += 0.02 * AIKnownUnitCount(player, targetPlayer, c_TU_Ghost); setUnitCountInArmyTo(isOurArmy, c_TU_Ghost, 0);
+		buffMultiplier += 0.03 * AIKnownUnitCount(player, targetPlayer, c_TU_Raven); setUnitCountInArmyTo(isOurArmy, c_TU_Raven, 0);
+	}
+	else {	// Zerg
+		buffMultiplier += 0.03 * AIKnownUnitCount(player, targetPlayer, c_ZU_Infestor); setUnitCountInArmyTo(isOurArmy, c_ZU_Infestor, 0);
+		buffMultiplier += 0.015 * AIKnownUnitCount(player, targetPlayer, c_ZU_Baneling); setUnitCountInArmyTo(isOurArmy, c_ZU_Baneling, 0);
+	}
+
+
+	// now add some buff for tech degree of units
+	// yes this is maphack :(
+	buffMultiplier += GTUpgradeBuff(targetPlayer);
+
+	GTSetFuncResultFixed(player, "GTBuffArmy_" + IntToString(targetPlayer), 1+ buffMultiplier);
+	GFuncSetDelay(player, "GTBuffArmy_" + IntToString(targetPlayer));
+	return (1+ buffMultiplier );
+}
+void GTRefreshEArmy(int player)
+{
+    int index = 0;
+    int counter;
+    int EnemyPlayerID = GTEnemyID(player);
+    string EnemyRace = GTEnemyRace(player);
+
+    // clear Array
+    while (index < g_UnitsToCounter)
+    {
+        GTEnemyArmy[index] = 0;
+        index = index + 1;
+    }
+
+    if (EnemyRace == "Prot")
+    {
+        // Protoss Units
+        counter = AIKnownUnitCount(player, EnemyPlayerID, c_PU_Archon);
+        if (counter > 0)
+            { GTEnemyArmy[GTUnittypeToInt(c_PU_Archon)] = counter; }
+        else
+            { GTEnemyArmy[GTUnittypeToInt(c_PU_Archon)] = 0; }
+
+        counter = AIKnownUnitCount(player, EnemyPlayerID, c_PU_Tempest);
+        if (counter > 0)
+            { GTEnemyArmy[GTUnittypeToInt(c_PU_Tempest)] = counter; }
+        else
+            { GTEnemyArmy[GTUnittypeToInt(c_PU_Tempest)] = 0; }
+
+        counter = AIKnownUnitCount(player, EnemyPlayerID, c_PU_Colossus);
+        if (counter > 0)
+            { GTEnemyArmy[GTUnittypeToInt(c_PU_Colossus)] = counter; }
+        else
+            { GTEnemyArmy[GTUnittypeToInt(c_PU_Colossus)] = 0; }
+
+        counter = AIKnownUnitCount(player, EnemyPlayerID, c_PU_DarkTemplar);
+        if (counter > 0)
+            { GTEnemyArmy[GTUnittypeToInt(c_PU_DarkTemplar)] = counter; }
+        else
+            { GTEnemyArmy[GTUnittypeToInt(c_PU_DarkTemplar)] = 0; }
+
+        counter = AIKnownUnitCount(player, EnemyPlayerID, c_PU_HighTemplar);
+        if (counter > 0)
+            { GTEnemyArmy[GTUnittypeToInt(c_PU_HighTemplar)] = counter; }
+        else
+            { GTEnemyArmy[GTUnittypeToInt(c_PU_HighTemplar)] = 0; }
+
+        counter = AIKnownUnitCount(player, EnemyPlayerID, c_PU_Immortal);
+        if (counter > 0)
+            { GTEnemyArmy[GTUnittypeToInt(c_PU_Immortal)] = counter; }
+        else
+            { GTEnemyArmy[GTUnittypeToInt(c_PU_Immortal)] = 0; }
+
+        counter = AIKnownUnitCount(player, EnemyPlayerID, c_PU_Mothership);
+        if (counter > 0)
+            { GTEnemyArmy[GTUnittypeToInt(c_PU_Mothership)] = counter; }
+        else
+            { GTEnemyArmy[GTUnittypeToInt(c_PU_Mothership)] = 0; }
+
+        counter = AIKnownUnitCount(player, EnemyPlayerID, c_PU_Phoenix);
+        if (counter > 0)
+            { GTEnemyArmy[GTUnittypeToInt(c_PU_Phoenix)] = counter; }
+        else
+            { GTEnemyArmy[GTUnittypeToInt(c_PU_Phoenix)] = 0; }
+
+        counter = AIKnownUnitCount(player, EnemyPlayerID, c_PU_Stalker);
+        if (counter > 0)
+            { GTEnemyArmy[GTUnittypeToInt(c_PU_Stalker)] = counter; }
+        else
+            { GTEnemyArmy[GTUnittypeToInt(c_PU_Stalker)] = 0; }
+
+        counter = AIKnownUnitCount(player, EnemyPlayerID, c_PU_VoidRay);
+        if (counter > 0)
+            { GTEnemyArmy[GTUnittypeToInt(c_PU_VoidRay)] = counter; }
+        else
+            { GTEnemyArmy[GTUnittypeToInt(c_PU_VoidRay)] = 0; }
+
+        counter = AIKnownUnitCount(player, EnemyPlayerID, c_PU_Zealot);
+        if (counter > 0)
+            { GTEnemyArmy[GTUnittypeToInt(c_PU_Zealot)] = counter; }
+        else
+            { GTEnemyArmy[GTUnittypeToInt(c_PU_Zealot)] = 0; }
+
+        counter = AIKnownUnitCount(player, EnemyPlayerID, c_PU_Sentry);
+        if (counter > 0)
+            { GTEnemyArmy[GTUnittypeToInt(c_PU_Sentry)] = counter; }
+        else
+            { GTEnemyArmy[GTUnittypeToInt(c_PU_Sentry)] = 0; }
+    }
+    else if (EnemyRace == "Terr")
+    {
+        // //  Terran Units
+        counter = AIKnownUnitCount(player, EnemyPlayerID, c_TU_Banshee);
+        if (counter > 0)
+            { GTEnemyArmy[GTUnittypeToInt(c_TU_Banshee)] = counter; }
+        else
+            { GTEnemyArmy[GTUnittypeToInt(c_TU_Banshee)] = 0; }
+
+        counter = AIKnownUnitCount(player, EnemyPlayerID, c_TU_Battlecruiser);
+        if (counter > 0)
+            { GTEnemyArmy[GTUnittypeToInt(c_TU_Battlecruiser)] = counter; }
+        else
+            { GTEnemyArmy[GTUnittypeToInt(c_TU_Battlecruiser)] = 0; }
+
+        counter = AIKnownUnitCount(player, EnemyPlayerID, c_TU_Ghost);
+        if (counter > 0)
+            { GTEnemyArmy[GTUnittypeToInt(c_TU_Ghost)] = counter; }
+        else
+            { GTEnemyArmy[GTUnittypeToInt(c_TU_Ghost)] = 0; }
+
+        counter = AIKnownUnitCount(player, EnemyPlayerID, c_TU_Hellion);
+        if (counter > 0)
+            { GTEnemyArmy[GTUnittypeToInt(c_TU_Hellion)] = counter; }
+        else
+            { GTEnemyArmy[GTUnittypeToInt(c_TU_Hellion)] = 0; }
+
+        counter = AIKnownUnitCount(player, EnemyPlayerID, c_TU_Marauder);
+        if (counter > 0)
+            { GTEnemyArmy[GTUnittypeToInt(c_TU_Marauder)] = counter; }
+        else
+            { GTEnemyArmy[GTUnittypeToInt(c_TU_Marauder)] = 0; }
+
+        counter = AIKnownUnitCount(player, EnemyPlayerID, c_TU_Marine);
+        if (counter > 0)
+            { GTEnemyArmy[GTUnittypeToInt(c_TU_Marine)] = counter; }
+        else
+            { GTEnemyArmy[GTUnittypeToInt(c_TU_Marine)] = 0; }
+
+        counter = AIKnownUnitCount(player, EnemyPlayerID, c_TU_Raven);
+        if (counter > 0)
+            { GTEnemyArmy[GTUnittypeToInt(c_TU_Raven)] = counter; }
+        else
+            { GTEnemyArmy[GTUnittypeToInt(c_TU_Raven)] = 0; }
+
+        counter = AIKnownUnitCount(player, EnemyPlayerID, c_TU_Reaper);
+        if (counter > 0)
+            { GTEnemyArmy[GTUnittypeToInt(c_TU_Reaper)] = counter; }
+        else
+            { GTEnemyArmy[GTUnittypeToInt(c_TU_Reaper)] = 0; }
+
+        counter = AIKnownUnitCount(player, EnemyPlayerID, c_TU_SiegeTank);
+        if (counter > 0)
+            { GTEnemyArmy[GTUnittypeToInt(c_TU_SiegeTank)] = counter; }
+        else
+            { GTEnemyArmy[GTUnittypeToInt(c_TU_SiegeTank)] = 0; }
+
+        counter = AIKnownUnitCount(player, EnemyPlayerID, c_TU_Thor);
+        if (counter > 0)
+            { GTEnemyArmy[GTUnittypeToInt(c_TU_Thor)] = counter; }
+        else
+            { GTEnemyArmy[GTUnittypeToInt(c_TU_Thor)] = 0; }
+
+        counter = AIKnownUnitCount(player, EnemyPlayerID, c_TU_Viking);
+        if (counter > 0)
+            { GTEnemyArmy[GTUnittypeToInt(c_TU_Viking)] = counter; }
+        else
+            { GTEnemyArmy[GTUnittypeToInt(c_TU_Viking)] = 0; }
+
+    }
+    // //  Zerg Units
+    else
+    {
+        counter = AIKnownUnitCount(player, EnemyPlayerID, c_ZU_Baneling);
+        if (counter > 0)
+            { GTEnemyArmy[GTUnittypeToInt(c_ZU_Baneling)] = counter; }
+        else
+            { GTEnemyArmy[GTUnittypeToInt(c_ZU_Baneling)] = 0; }
+
+        counter = AIKnownUnitCount(player, EnemyPlayerID, c_ZU_Corruptor);
+        if (counter > 0)
+            { GTEnemyArmy[GTUnittypeToInt(c_ZU_Corruptor)] = counter; }
+        else
+            { GTEnemyArmy[GTUnittypeToInt(c_ZU_Corruptor)] = 0; }
+
+        counter = AIKnownUnitCount(player, EnemyPlayerID, c_ZU_Hydralisk);
+        if (counter > 0)
+            { GTEnemyArmy[GTUnittypeToInt(c_ZU_Hydralisk)] = counter; }
+        else
+            { GTEnemyArmy[GTUnittypeToInt(c_ZU_Hydralisk)] = 0; }
+
+        counter = AIKnownUnitCount(player, EnemyPlayerID, c_ZU_Infestor);
+        if (counter > 0)
+            { GTEnemyArmy[GTUnittypeToInt(c_ZU_Infestor)] = counter; }
+        else
+            { GTEnemyArmy[GTUnittypeToInt(c_ZU_Infestor)] = 0; }
+
+        counter = AIKnownUnitCount(player, EnemyPlayerID, c_ZU_Mutalisk);
+        if (counter > 0)
+            { GTEnemyArmy[GTUnittypeToInt(c_ZU_Mutalisk)] = counter; }
+        else
+            { GTEnemyArmy[GTUnittypeToInt(c_ZU_Mutalisk)] = 0; }
+
+        counter = AIKnownUnitCount(player, EnemyPlayerID, c_ZU_Queen);
+        if (counter > 0)
+            { GTEnemyArmy[GTUnittypeToInt(c_ZU_Queen)] = counter; }
+        else
+            { GTEnemyArmy[GTUnittypeToInt(c_ZU_Queen)] = 0; }
+
+        counter = AIKnownUnitCount(player, EnemyPlayerID, c_ZU_Roach);
+        if (counter > 0)
+            { GTEnemyArmy[GTUnittypeToInt(c_ZU_Roach)] = counter; }
+        else
+            { GTEnemyArmy[GTUnittypeToInt(c_ZU_Roach)] = 0; }
+
+        counter = AIKnownUnitCount(player, EnemyPlayerID, c_ZU_BroodLord);
+        if (counter > 0)
+            { GTEnemyArmy[GTUnittypeToInt(c_ZU_BroodLord)] = counter; }
+        else
+            { GTEnemyArmy[GTUnittypeToInt(c_ZU_BroodLord)] = 0; }
+
+        counter = AIKnownUnitCount(player, EnemyPlayerID, c_ZU_Ultralisk);
+        if (counter > 0)
+            { GTEnemyArmy[GTUnittypeToInt(c_ZU_Ultralisk)] = counter; }
+        else
+            { GTEnemyArmy[GTUnittypeToInt(c_ZU_Ultralisk)] = 0; }
+
+        counter = AIKnownUnitCount(player, EnemyPlayerID, c_ZU_Zergling);
+        if (counter > 0)
+            { GTEnemyArmy[GTUnittypeToInt(c_ZU_Zergling)] = counter; }
+        else
+            { GTEnemyArmy[GTUnittypeToInt(c_ZU_Zergling)] = 0; }
+    }
+}
+
+// translate wave into Array
+void GTRefreshOArmyFromWave(int player, int waveNum)
+{
+	unitgroup waveUnitGroup;
+	unitgroup armyGroup;
+	point p;
+	unit currentUnit;
+	int index;
+
+	// first search for mid-point of wave ! and build a group
+	waveUnitGroup = AIWaveGetUnits(AIWaveGet(player, waveNum));
+	// get nearest (to enemybase) unit of this wave
+	currentUnit = UnitGroupNearestUnit(waveUnitGroup, PlayerStartLocation(GTEnemyID(player)));
+	// create group
+	p = UnitGetPosition(currentUnit);
+	armyGroup = UnitGroup(null, player, RegionCircle(p,15), null, 0);
+
+	// first reset GTOurArmy Array
+	index = 0;
+    while (index < g_UnitsToCounter)
+    {
+        GTOurArmy[index] = 0;
+        index = index + 1;
+    }
+
+	index = 1;
+	currentUnit = UnitGroupUnit(armyGroup, index);
+	while (currentUnit != null){
+		GTOurArmy[GTUnitToInt(currentUnit)] += 1;
+
+		// update unit and index ++
+		index += 1;
+		currentUnit = UnitGroupUnit(armyGroup, index);
+	}
+}
+
+void GTRefreshOArmy(int player)
+{
+    int index = 0;
+    int counter;
+    string OurRace = PlayerRace(player);
+
+    // clear Array
+    while (index < g_UnitsToCounter)
+    {
+        GTOurArmy[index] = 0;
+        index = index + 1;
+    }
+
+    if (OurRace == "Prot")
+    {
+        // Protoss Units
+        counter = AIKnownUnitCount(player, player, c_PU_Archon);
+        if (counter > 0)
+            { GTOurArmy[GTUnittypeToInt(c_PU_Archon)] = counter; }
+        else
+            { GTOurArmy[GTUnittypeToInt(c_PU_Archon)] = 0; }
+
+        counter = AIKnownUnitCount(player, player, c_PU_Tempest);
+        if (counter > 0)
+            { GTOurArmy[GTUnittypeToInt(c_PU_Tempest)] = counter; }
+        else
+            { GTOurArmy[GTUnittypeToInt(c_PU_Tempest)] = 0; }
+
+        counter = AIKnownUnitCount(player, player, c_PU_Colossus);
+        if (counter > 0)
+            { GTOurArmy[GTUnittypeToInt(c_PU_Colossus)] = counter; }
+        else
+            { GTOurArmy[GTUnittypeToInt(c_PU_Colossus)] = 0; }
+
+        counter = AIKnownUnitCount(player, player, c_PU_DarkTemplar);
+        if (counter > 0)
+            { GTOurArmy[GTUnittypeToInt(c_PU_DarkTemplar)] = counter; }
+        else
+            { GTOurArmy[GTUnittypeToInt(c_PU_DarkTemplar)] = 0; }
+
+        counter = AIKnownUnitCount(player, player, c_PU_HighTemplar);
+        if (counter > 0)
+            { GTOurArmy[GTUnittypeToInt(c_PU_HighTemplar)] = counter; }
+        else
+            { GTOurArmy[GTUnittypeToInt(c_PU_HighTemplar)] = 0; }
+
+        counter = AIKnownUnitCount(player, player, c_PU_Immortal);
+        if (counter > 0)
+            { GTOurArmy[GTUnittypeToInt(c_PU_Immortal)] = counter; }
+        else
+            { GTOurArmy[GTUnittypeToInt(c_PU_Immortal)] = 0; }
+
+        counter = AIKnownUnitCount(player, player, c_PU_Mothership);
+        if (counter > 0)
+            { GTOurArmy[GTUnittypeToInt(c_PU_Mothership)] = counter; }
+        else
+            { GTOurArmy[GTUnittypeToInt(c_PU_Mothership)] = 0; }
+
+        counter = AIKnownUnitCount(player, player, c_PU_Phoenix);
+        if (counter > 0)
+            { GTOurArmy[GTUnittypeToInt(c_PU_Phoenix)] = counter; }
+        else
+            { GTOurArmy[GTUnittypeToInt(c_PU_Phoenix)] = 0; }
+
+        counter = AIKnownUnitCount(player, player, c_PU_Stalker);
+        if (counter > 0)
+            { GTOurArmy[GTUnittypeToInt(c_PU_Stalker)] = counter; }
+        else
+            { GTOurArmy[GTUnittypeToInt(c_PU_Stalker)] = 0; }
+
+        counter = AIKnownUnitCount(player, player, c_PU_VoidRay);
+        if (counter > 0)
+            { GTOurArmy[GTUnittypeToInt(c_PU_VoidRay)] = counter; }
+        else
+            { GTOurArmy[GTUnittypeToInt(c_PU_VoidRay)] = 0; }
+
+        counter = AIKnownUnitCount(player, player, c_PU_Zealot);
+        if (counter > 0)
+            { GTOurArmy[GTUnittypeToInt(c_PU_Zealot)] = counter; }
+        else
+            { GTOurArmy[GTUnittypeToInt(c_PU_Zealot)] = 0; }
+
+        counter = AIKnownUnitCount(player, player, c_PU_Sentry);
+        if (counter > 0)
+            { GTOurArmy[GTUnittypeToInt(c_PU_Sentry)] = counter; }
+        else
+            { GTOurArmy[GTUnittypeToInt(c_PU_Sentry)] = 0; }
+    }
+    else if (OurRace == "Terr")
+    {
+        // //  Terran Units
+        counter = AIKnownUnitCount(player, player, c_TU_Banshee);
+        if (counter > 0)
+            { GTOurArmy[GTUnittypeToInt(c_TU_Banshee)] = counter; }
+        else
+            { GTOurArmy[GTUnittypeToInt(c_TU_Banshee)] = 0; }
+
+        counter = AIKnownUnitCount(player, player, c_TU_Battlecruiser);
+        if (counter > 0)
+            { GTOurArmy[GTUnittypeToInt(c_TU_Battlecruiser)] = counter; }
+        else
+            { GTOurArmy[GTUnittypeToInt(c_TU_Battlecruiser)] = 0; }
+
+        counter = AIKnownUnitCount(player, player, c_TU_Ghost);
+        if (counter > 0)
+            { GTOurArmy[GTUnittypeToInt(c_TU_Ghost)] = counter; }
+        else
+            { GTOurArmy[GTUnittypeToInt(c_TU_Ghost)] = 0; }
+
+        counter = AIKnownUnitCount(player, player, c_TU_Hellion);
+        if (counter > 0)
+            { GTOurArmy[GTUnittypeToInt(c_TU_Hellion)] = counter; }
+        else
+            { GTOurArmy[GTUnittypeToInt(c_TU_Hellion)] = 0; }
+
+        counter = AIKnownUnitCount(player, player, c_TU_Marauder);
+        if (counter > 0)
+            { GTOurArmy[GTUnittypeToInt(c_TU_Marauder)] = counter; }
+        else
+            { GTOurArmy[GTUnittypeToInt(c_TU_Marauder)] = 0; }
+
+        counter = AIKnownUnitCount(player, player, c_TU_Marine);
+        if (counter > 0)
+            { GTOurArmy[GTUnittypeToInt(c_TU_Marine)] = counter; }
+        else
+            { GTOurArmy[GTUnittypeToInt(c_TU_Marine)] = 0; }
+
+        counter = AIKnownUnitCount(player, player, c_TU_Raven);
+        if (counter > 0)
+            { GTOurArmy[GTUnittypeToInt(c_TU_Raven)] = counter; }
+        else
+            { GTOurArmy[GTUnittypeToInt(c_TU_Raven)] = 0; }
+
+        counter = AIKnownUnitCount(player, player, c_TU_Reaper);
+        if (counter > 0)
+            { GTOurArmy[GTUnittypeToInt(c_TU_Reaper)] = counter; }
+        else
+            { GTOurArmy[GTUnittypeToInt(c_TU_Reaper)] = 0; }
+
+        counter = AIKnownUnitCount(player, player, c_TU_SiegeTank);
+        if (counter > 0)
+            { GTOurArmy[GTUnittypeToInt(c_TU_SiegeTank)] = counter; }
+        else
+            { GTOurArmy[GTUnittypeToInt(c_TU_SiegeTank)] = 0; }
+
+        counter = AIKnownUnitCount(player, player, c_TU_Thor);
+        if (counter > 0)
+            { GTOurArmy[GTUnittypeToInt(c_TU_Thor)] = counter; }
+        else
+            { GTOurArmy[GTUnittypeToInt(c_TU_Thor)] = 0; }
+
+        counter = AIKnownUnitCount(player, player, c_TU_Viking);
+        if (counter > 0)
+            { GTOurArmy[GTUnittypeToInt(c_TU_Viking)] = counter; }
+        else
+            { GTOurArmy[GTUnittypeToInt(c_TU_Viking)] = 0; }
+
+    }
+    // //  Zerg Units
+    else
+    {
+        counter = AIKnownUnitCount(player, player, c_ZU_Baneling);
+        if (counter > 0)
+            { GTOurArmy[GTUnittypeToInt(c_ZU_Baneling)] = counter; }
+        else
+            { GTOurArmy[GTUnittypeToInt(c_ZU_Baneling)] = 0; }
+
+        counter = AIKnownUnitCount(player, player, c_ZU_Corruptor);
+        if (counter > 0)
+            { GTOurArmy[GTUnittypeToInt(c_ZU_Corruptor)] = counter; }
+        else
+            { GTOurArmy[GTUnittypeToInt(c_ZU_Corruptor)] = 0; }
+
+        counter = AIKnownUnitCount(player, player, c_ZU_Hydralisk);
+        if (counter > 0)
+            { GTOurArmy[GTUnittypeToInt(c_ZU_Hydralisk)] = counter; }
+        else
+            { GTOurArmy[GTUnittypeToInt(c_ZU_Hydralisk)] = 0; }
+
+        counter = AIKnownUnitCount(player, player, c_ZU_Infestor);
+        if (counter > 0)
+            { GTOurArmy[GTUnittypeToInt(c_ZU_Infestor)] = counter; }
+        else
+            { GTOurArmy[GTUnittypeToInt(c_ZU_Infestor)] = 0; }
+
+        counter = AIKnownUnitCount(player, player, c_ZU_Mutalisk);
+        if (counter > 0)
+            { GTOurArmy[GTUnittypeToInt(c_ZU_Mutalisk)] = counter; }
+        else
+            { GTOurArmy[GTUnittypeToInt(c_ZU_Mutalisk)] = 0; }
+
+        // counter = AIKnownUnitCount(player, player, c_ZU_Queen);
+        // if (counter > 0)
+            // { GTOurArmy[GTUnittypeToInt(c_ZU_Queen)] = counter; }
+        // else
+            // { GTOurArmy[GTUnittypeToInt(c_ZU_Queen)] = 0; }
+
+        counter = AIKnownUnitCount(player, player, c_ZU_Roach);
+        if (counter > 0)
+            { GTOurArmy[GTUnittypeToInt(c_ZU_Roach)] = counter; }
+        else
+            { GTOurArmy[GTUnittypeToInt(c_ZU_Roach)] = 0; }
+
+        counter = AIKnownUnitCount(player, player, c_ZU_BroodLord);
+        if (counter > 0)
+            { GTOurArmy[GTUnittypeToInt(c_ZU_BroodLord)] = counter; }
+        else
+            { GTOurArmy[GTUnittypeToInt(c_ZU_BroodLord)] = 0; }
+
+        counter = AIKnownUnitCount(player, player, c_ZU_Ultralisk);
+        if (counter > 0)
+            { GTOurArmy[GTUnittypeToInt(c_ZU_Ultralisk)] = counter; }
+        else
+            { GTOurArmy[GTUnittypeToInt(c_ZU_Ultralisk)] = 0; }
+
+        counter = AIKnownUnitCount(player, player, c_ZU_Zergling);
+        if (counter > 0)
+            { GTOurArmy[GTUnittypeToInt(c_ZU_Zergling)] = counter; }
+        else
+            { GTOurArmy[GTUnittypeToInt(c_ZU_Zergling)] = 0; }
+    }
+}
+fixed GT_Test_Calculate_Army_Strength(int player, int OurAtkWave)
+{
+	int index = 0;
+	string Race;
+    fixed EA_beforeFight;
+    fixed OA_beforeFight;
+    fixed EA_afterFight;
+    fixed OA_afterFight;
+    fixed winResult;
+
+    //reset Variables
+    g_fightResult.UnitsKilled = 0;
+    g_fightResult.UnitsLost = 0;
+
+    //first refresh Army Values !
+    if (OurAtkWave == c_noWave) {
+    	GTRefreshOArmy(player);       // Our Army
+    }
+    else {
+    	GTRefreshOArmyFromWave(player,OurAtkWave);
+    }
+    // refresh Enemy Army
+    GTRefreshEArmy(player);       // Enemy Army
+
+    //save army size !
+    EA_beforeFight = GTGetUnitCountEArmy();
+    OA_beforeFight = GTGetUnitCountOArmy();
+
+	// remove every thing not needed from enemy Army
+	GTBuffValue_EA = GTBuffArmy(player,GTEnemyID(player));
+    // remove every thing not needed from enemy Army
+	GTBuffValue_OA = GTBuffArmy(player,player);
+
+	// set Mineral Armies for global use !
+    GTMineralArmyValue_OA = GTGetMineralCountOArmy(player);
+    GTMineralArmyValue_EA = GTGetMineralCountEArmy(player);
+
+    // remove countered units
+    while (index < g_UnitsToCounter)
+    {
+        GTTryToKillEnemyUnit(player, index);
+        GTTryToKillOurUnit(player, index);
+        index = index + 1;
+    }
+	// remove some units
+	setUnitCountInArmyTo(true, c_PU_Phoenix, 0);		// from ourArmy
+	setUnitCountInArmyTo(false, c_PU_Phoenix, 0);		// from enemyArmy
+
+	// remove queens which couldnt be counterd !
+	if (PlayerRace(GTEnemyID(player)) == "Zerg") {
+		GTEnemyArmy[GTUnittypeToInt(c_ZU_Queen)] = 0;
+	}
+	if (PlayerRace(player) == "Zerg") {
+		GTOurArmy[GTUnittypeToInt(c_ZU_Queen)] = 0;
+	}
+
+    //get Army size
+    EA_afterFight = GTGetUnitCountEArmy();
+    OA_afterFight = GTGetUnitCountOArmy();
+
+
+    //calculate predicted winchance
+    if (EA_afterFight <= 0.5 && OA_beforeFight != 0)
+    {
+        winResult = 1 + (OA_afterFight / OA_beforeFight);
+    }
+     if ( OA_afterFight <= 1 && EA_beforeFight != 0)
+    {
+        winResult = 1 - (EA_afterFight / EA_beforeFight);
+    }
+//    else
+//    {
+//		if (g_postAI[player] && OA_beforeFight != 0 && EA_beforeFight != 0) {
+//			if (EA_afterFight > 0.5 && OA_afterFight > 1) {
+//		//		DebugAIObs(IntToString(player) + "_CP"); // Counter Problem !
+//				index = 0;
+//				Race = PlayerRace(player);
+//				while (index < g_UnitsToCounter) {
+//					if (GTOurArmy[index] > 0) {
+//		//				DebugAIObs(GTIntToUnittype(index, Race) + "=" + FixedToString(GTOurArmy[index],2));
+//					}
+//					index = index + 1;
+//				}
+//				DebugAI("vs");
+//				index = 0;
+//				Race = PlayerRace(GTEnemyID(player));
+//				while (index < g_UnitsToCounter) {
+//					if (GTEnemyArmy[index] > 0) {
+//			//			DebugAIObs(GTIntToUnittype(index, Race) + "=" + FixedToString(GTEnemyArmy[index],2));
+//					}
+//					index = index + 1;
+//				}
+//			}
+//		}
+		if (EA_afterFight > 0.5 && OA_afterFight > 1) {
+			winResult = 0.5;
+		}
+		else {
+			winResult = 1;
+		}
+
+    // For Debug
+    // DebugAI("---Player " + IntToString(player) + " ---" );
+    // DebugAI("EA : " + FixedToString(EA_beforeFight,2));
+    // DebugAI("OA : " + FixedToString(OA_beforeFight,2));
+    // DebugAI("--- After Fight ---" );
+    // DebugAI("EA : " + FixedToString(EA_afterFight,2));
+    // DebugAI("OA : " + FixedToString(OA_afterFight,2));
+    // DebugAI("--- Fight Unit Lose ---" );
+    // DebugAI("EUK: " + FixedToString(g_fightResult.UnitsKilled,2));
+    // DebugAI("UL : " + FixedToString(g_fightResult.UnitsLost,2));
+    // DebugAI("Winchance: " + FixedToString(winResult,2));
+	return winResult;
+}
+
+// Our Armys expected Mineral Value
+// AtkWave can be c_noWave, then all available units are used to calculate Army Value
+fixed GTOurArmyValue(int player, int OurAtkWave)
+{
+	fixed winChance ;
+	fixed returnArmyValue;
+
+    // only execute once in a loop!
+    if (GFuncIsDelay(player,"GTOurArmyValue" + IntToString(OurAtkWave), 1)) {
+        return GTGetFuncResultFixed(player, "GTOurArmyValue" + IntToString(OurAtkWave));
+    }
+
+	// This will do a refresh Army scan !
+	winChance = GT_Test_Calculate_Army_Strength(player,OurAtkWave);
+	// Buff the army !
+	winChance = winChance * GTBuffValue_OA; //GTBuffArmy(player,player);
+
+	if (winChance > 1) {
+		if (g_postAI[player]) {
+	//		DebugAIObs(IntToString(player) + "_Fixed OA: " + FixedToString(GTMineralArmyValue_OA*winChance*1.1 ,2));
+		}
+		returnArmyValue = GTMineralArmyValue_OA*winChance*1.1;
+    }
+    else if (winChance < 1) {
+		if (g_postAI[player]) {
+	//		DebugAIObs(IntToString(player) + "_Fixed OA: " + FixedToString(GTMineralArmyValue_OA*winChance*0.9, 2));
+		}
+		returnArmyValue = GTMineralArmyValue_OA*winChance*0.9;
+    }
+    else {
+		if (g_postAI[player]) {
+	//		DebugAIObs(IntToString(player) + "_Fixed OA: " + FixedToString(GTMineralArmyValue_OA,2));
+		}
+		returnArmyValue = GTMineralArmyValue_OA;
+    }
+	GFuncSetDelay(player, "GTOurArmyValue" + IntToString(OurAtkWave));       					// calculate only once every loop
+	GTSetFuncResultFixed(player, "GTOurArmyValue" + IntToString(OurAtkWave), returnArmyValue);  // save result !
+	g_AVSLastPlayerCalced = player;																// save last calculated player
+	return returnArmyValue;
+}
+
+fixed GTEnemyArmyValueWithoutStructureDefenceValue(int player)
+{
+	if (g_AVSLastPlayerCalced != player) { // force full recalulation !
+		//DebugAI(IntToString(player) + "_full refresh!");
+		GTOurArmyValue(player, c_noWave);
+	}
+	else {
+		GTRefreshEArmy(player);       // Enemy Army Recalculate !
+	}
+	if (g_postAI[player]) {
+			//DebugAIObs(IntToString(player) + "_Size EA: " + FixedToString(GTBuffArmy(player,GTEnemyID(player)),2) + " * " + FixedToString(GTMineralArmyValue_EA,0) + " + " + FixedToString(GTEnemyStructureDefenceValue(player),0));
+		//	DebugAIObs(IntToString(player) + "_Size EA: " + FixedToString(GTBuffValue_EA,2) + " * " + FixedToString(GTMineralArmyValue_EA,0) + " + " + FixedToString(GTEnemyStructureDefenceValue(player),0));
+		}
+	return (GTBuffValue_EA*GTMineralArmyValue_EA);
+}
+
+fixed GTEnemyArmyValue(int player) {
+	return (GTEnemyArmyValueWithoutStructureDefenceValue(player) + GTEnemyStructureDefenceValue(player));
+}
+
+// Next Step is
+// * Mineral Count of Groups
+// * Units first skills its thread ! Void / banshees / Mutas try to kill AA-Units first !
+// * supportunits which are buffing threturn GTMineralArmyValue_EA;my with winchance
+
+
+
+
+
+

@@ -1,0 +1,1118 @@
+
+static int GT_WorkersMineral = 18;
+static int GT_WorkersVespene = 3;
+
+//-------------------------
+//Mineral & Supply
+//-------------------------
+
+void GTCreateWorkers (int player) {
+	string worker = GTWorker(player);
+	int towns = GTTowns(player);
+	int base;
+	int i;
+	int l;
+	int GT_WorkersMax;
+
+	if (PlayerDifficulty(player) >= c_skirVeryHard){
+		GT_WorkersMax = 70;
+	}
+	else{
+		GT_WorkersMax = 60;
+	}
+	//For ZergAI, to reduce produce Drone when Enemy Army is larger.
+	if (GTEArmyWithOutStructureDefence(player) > GTOArmy(player) + 5 && PlayerRace(player) == "Zerg"  ) {
+		if (GTCountI(player, c_ZU_Drone) > towns) {
+				return;
+		}
+	}	
+
+	//Calculate the minimun workers that must have
+    if (towns <= 3){
+    	base = GTOBase(player);
+    }
+    else{
+    	base = GTCount(player, GTBase(player));
+    }
+    i = base*GT_WorkersMineral  + GTNumGas(player)*GT_WorkersVespene;
+	if (i>GT_WorkersMax){
+		i=GT_WorkersMax;
+	}
+	GTTrain (player, c_makePriorityExpand, towns, worker, i);
+	return;
+}
+
+void GTSupply (int player, int diff2) {
+	string supply = GTSupplyGenerator(player);
+	string p_race = PlayerRace(player);
+	int used = PlayerGetPropertyInt( player, c_playerPropSuppliesUsed );
+	int available = PlayerGetPropertyInt( player, c_playerPropSuppliesMade );
+	int diff = GTOProduction(player);
+	
+    //Race Specific
+	if (available - diff > used || AITechCount( player, supply, c_techCountIncompleteOnly ) > 0 ){
+		return;
+	}
+	if (diff <= 8){
+		if(p_race == "Zerg"){
+			AITrain (player, 10, 0, supply, 1);
+			return;
+		}
+	   else if(p_race == "Terr"){
+            if(GTCount(player, c_TB_CommandCenter_Alias) == 1){
+                GTBuildP (player,  supply,  GTNearM(player,  0));
+                return;
+            }
+            if(GTCount(player, c_TB_CommandCenter_Alias) > 1){
+                GTBuildP (player,  supply,  GTNearM(player,  1));
+                return;
+		   }
+	   }
+	   else{
+		   AIBuild (player, 5, 0, supply, 1, c_makePower  );
+		   return;
+	   }
+	}
+	else if (diff < 24 ){
+		if(p_race == "Zerg"){
+			AITrain (player, 10, 0, supply, 2);
+			return;
+		}
+		else if(p_race == "Terr"){
+			if (GTCount(player, c_TB_CommandCenter_Alias) == 1){
+				GTBuildP (player,  supply,  GTNearM(player,  1)  );
+				AIBuild (player, 10, 0, supply, 1, c_makeWall );
+				return;
+			}
+			else{
+				GTBuildP (player,  supply,  GTDO1(player, 1)  );
+				AIBuild (player, 10, c_townMain, supply, 1, c_makeWall);
+				return;
+			}
+		}
+		else{
+			AIBuild (player, 5, 0, supply, 2, c_makePower  );
+			return;
+		}
+	}
+	else{
+		if(p_race == "Zerg"){
+			AITrain (player, 10, 0, supply, 3);
+			return;
+		}
+		else if(p_race == "Terr"){
+			if (GTCount(player, c_TB_CommandCenter_Alias) == 1){
+				GTBuildP (player,  supply,  GTNearM(player,  1)  );
+		    	AIBuild (player, 10, 0, supply, 3, c_makeWall );
+		    	return;
+		    }
+		    else{
+		    	GTBuildP (player,  supply,  GTDO1(player, 1)  );
+		    	AIBuild (player, 10, c_townMain, supply, 2, c_makeWall);
+		    	return;
+		    }
+		}
+		else{
+			AIBuild (player, 5, 0, supply, 3, c_makePower  );
+			return;
+		}
+	}
+	return;
+}
+
+//-------------------------
+//Expand Management
+//-------------------------
+
+void GTExpand(int player){
+	string p_race = PlayerRace(player);
+	int towns = GTTowns(player);
+	string building = GTBase(player);
+	if (AIGetUserInt(player, 10) == 1){
+		return;
+	}
+//	if (GTNumWorker(player) < 2*GTMineralsTown(player) && towns > 1){
+//		return;
+//	}
+//    if (GTCountI(player, GTBase(player)) > 0){
+//       return;
+//    }
+    if(GTTowns(player) >= 4 && AIGetMineralAmountLeft(player, 0) > 500){
+    	return;
+    }
+	if(GTTowns(player) >= 5 && AIGetMineralAmountLeft(player, 1) > 1000){
+		return;
+	}
+	if (AIHasRes(player, 340 , 0) && p_race != "Zerg"){
+		return;
+	}
+   	if (AIHasRes(player, 260 , 0) && p_race == "Zerg"){
+   		return;
+   	}
+    AIDefaultExpansion (player, building, 99999, 99999, c_expandDefault);
+}
+
+void GTExpand2(int player) {
+	if (AIGetUserInt(player, 10) == 1){
+			return;
+	}
+	AIDefaultExpansion (player, GTBase(player), 99999, 99999, c_expandDefault);
+    return;
+}
+void GTExpand3(int player) {
+
+	if (PlayerRace(player) == "Terr" && !AIHasRes(player, 290, 0)){
+		return;
+	}
+	if (PlayerRace(player) == "Prot" && !AIHasRes(player, 290, 0)){
+		return;
+	}
+	if (PlayerRace(player) == "Zerg" && !AIHasRes(player, 200, 0)){
+		return;
+	}
+	AIDefaultExpansion (player, GTBase(player), 99999, 99999, c_expandDefault);
+    return;
+}
+
+void GTAutoBDefend(int player, int town){
+	string Race = PlayerRace(player);
+	string buildD;
+	string requireO;
+	string requireD;
+	string obs;
+	int BD;
+	int aird = GTEAirG(player)/6;
+	if (GTOBase(player) == 1){
+		return;
+	}
+	// Race specific
+	if (Race == "Zerg"){
+		buildD = c_ZB_SporeCrawler;
+		requireD = c_ZB_EvolutionChamber;
+		requireO = c_ZB_Lair_Alias;
+		obs = c_ZU_Overseer;
+	}
+	else if (Race == "Terr"){
+		buildD = c_TB_MissileTurret;
+		requireD = c_TB_EngineeringBay;
+		requireO = c_TB_StarportTechLab;
+		obs = c_TU_Raven;
+	}
+	else{
+		buildD = c_PB_PhotonCannon;
+		requireD = c_PB_Forge;
+		requireO = c_PB_RoboticsFacility;
+		obs = c_PU_Observer;
+	}
+
+	if (aird > 0  && Race != "Prot"){
+		//DebugAI("Air = " + IntToString(aird));
+		if (!GTFinishIA(player, requireD, 1)) {
+			GTBuildT(player, 2, 0, requireD, 1, c_nearResource);
+		}
+		else {
+			BD = MinI(aird, 3);
+			GTBuild ( player, 2, town, buildD, BD, c_makeResourceDefense);
+		}
+	}
+	else if (aird > 0 && Race != "Prot"){
+		//DebugAI("Air = " + IntToString(aird));
+		if (!GTFinishIA(player, requireD, 1)) {
+			GTBuildT(player, 2, 0, requireD, 1, c_nearResource);
+		}
+		else {
+			BD = GTCountAATowerInTown(player, town);
+			// DebugAI(IntToString(aird) + "," + IntToString(BD));
+			if (BD < MinI(aird, 2)) {
+				// execute every 5 loops and only save more than 5 worker !
+				if (!GFuncIsDelay(player, "AATowerBuild", 6) && (GTCountWorkerInTown(player, town) > 5)) {
+					// DebugAI("Build Tower");
+					GTBuildP(player, buildD, GTGetNextTownTowerDefencePoint(player, town));
+					GFuncSetDelay(player, "AATowerBuild");
+				}
+			}
+		}
+	}
+
+	if (AISawCloakedUnit(player)) {
+		if (!GTFinishIA(player, requireO, 1)){
+			GTBuildT(player, 2, 0, requireO, 1, c_nearResource);
+		}
+	    if ( GTFinishA(player, requireO, 1) ){
+	    	GTTrainA(player, 10, town, obs, 2, requireO, 1);
+	    }
+	    if (!GTFinishA(player, requireO, 1)){
+	    	GTBuild ( player, 10, town, buildD, 1, c_nearDoor);
+	    }
+  	    if (GTETrans(player) > 0){
+  	    	GTBuild ( player, 2, town, buildD, 2, c_makeResourceDefense);
+  	    }
+	}
+	if (GTFinishA(player, requireD, 1) &&  Race == "Prot"){
+		 GTBuildR(player, 1, town, buildD, 5, c_makeDefense, 700 + 300*town, 0);
+	}
+	if (GTEAir(player) > 0 ){
+		if (Race == "Terr") {
+			GTBuildT(player, 2, 0, c_TB_Starport, 1, 0);
+			GTTrainA (player, 2, 0, c_TU_Viking, GTEAirAM(player)/2, c_TB_Starport, 1);
+			if (GTEAirAM(player) > 20 ){
+				GTBuildT(player, 2, 0, c_TB_Starport, 2, 0);
+			}
+		}
+		else if (Race == "Prot"){
+			GTBuildT(player, 2, 0, c_PB_Stargate, 1, 0);
+			GTTrainA (player, 2, 0, c_PU_Phoenix, GTEAirL(player)/2, c_PB_Stargate, 1);
+			GTTrainA (player, 4, 0, c_PU_VoidRay, GTEAirAM(player)/3, c_PB_Stargate, 1);
+			if (GTEAir(player) > 20 ){
+				GTBuildT(player, 2, 0, c_PB_Stargate, 2, 0);
+			}
+		}
+		else if (Race == "Zerg"){
+			GTBuildT(player, 2, 0, c_ZB_Spire_Alias, 1, 0);
+	//		GTTrainA (player, 2, 0, c_ZU_Corruptor, GTEAir(player)/2, c_ZB_Spire_Alias, 1);
+		}
+	}
+}
+//---------------------------
+//Defend Town Function
+//--------------------------
+
+void GTCancelbuild(int player, int town) {
+	order ord;
+	unit u;
+	int index = 0;
+	int buildingsMax;
+	unitgroup myBuildings;
+	unitgroup groupAlly;
+	unitgroup groupEnemy;
+	aifilter lifeLostFilter = AIFilter(player);
+
+	if (GFuncIsDelay(player, "GTCancelbuild", 1)) {
+		return;
+	}
+
+	// prepare LifeLostFiler
+	AISetFilterLifeLost(lifeLostFilter, 10, c_noMax);
+
+
+	myBuildings = UnitGroup(null, player, null, UnitFilterStr("Structure,UnderConstruction"), 0);
+	myBuildings = AIGetFilterGroup(lifeLostFilter, myBuildings);
+	buildingsMax = UnitGroupCount(myBuildings, c_unitCountAlive);
+	if (buildingsMax == 0){
+		return;
+	}
+
+	while (index < buildingsMax) {
+		index += 1;
+
+		u = UnitGroupUnit ( myBuildings, index );
+
+		// Only cast when low HP
+		if (UnitGetPropertyInt(u, c_unitPropLife, c_unitPropCurrent) > UnitGetPropertyInt(u, c_unitPropLifeMax, c_unitPropCurrent)*0.15){
+			continue;
+		}
+		groupEnemy = UnitGroupAlliance(player, c_unitAllianceEnemy, RegionCircle(UnitGetPosition(u), 15), null, 0);
+		groupEnemy = UnitGroupFilterThreat(groupEnemy, u, null, 0);
+		// Don't cast if there is no Dangerous Enemy in Range.
+		if (AIUnitGroupStrength(groupEnemy) == 0){
+			continue;
+		}
+		groupAlly= UnitGroupAlliance(player, c_unitAllianceAlly, RegionCircle(UnitGetPosition(u), 15), UnitFilterStr("-;Structure"), 0);
+		// Don't cast if our army is stronger
+		if (AIUnitGroupStrength(groupAlly) > AIUnitGroupStrength(groupEnemy)){
+			continue;
+		}
+		ord = AICreateOrder(player, "BuildInProgress", 0);
+		if (!UnitOrderIsValid(u, ord)){
+			continue;
+		}
+		AICast(u, ord, c_noMarker, c_castHold);
+		//DebugAI("Building aborted!");
+	}
+	GFuncSetDelay(player, "GTCancelbuild");
+	return;
+}
+
+void GTDefendEBuiding(int player, int town){
+	unit u;
+	order ord;
+	fixed R;
+	unitgroup groupB;
+	if (town == 0){
+		R = 20;
+	}
+	else{
+		R = 15;
+	}
+	groupB = UnitGroupAlliance(player, c_unitAllianceEnemy, RegionCircle(AIGetTownLocation(player, town), R), UnitFilterStr ("Structure"), 0);
+    if (UnitGroupCount(groupB, 1) == 0){
+    	return;
+    }
+    u = GTUnitDR(player, UnitGetPosition(UnitGroupUnit(groupB, 1)));
+    ord = AICreateOrder(player, c_AB_Attack, 0);
+    OrderSetTargetUnit(ord, UnitGroupNearestUnit ( groupB , UnitGetPosition (u) ));
+    if (!UnitOrderIsValid(u, ord)){
+    	return;
+    }
+    AICast(u, ord, c_noMarker, c_castHold);
+    return;
+}
+
+void GTSetMainTown(int player, int town){
+	unitgroup groupAlly;
+	unitgroup groupEnemy;
+	fixed R;
+
+	if (AIGetMainTown(player) == town){
+		return;
+	}
+
+	if (town == 1 && AIGetBuildingCountInTown(player, 1, GTBase(player), c_techCountInProgressOnly) > 0){
+		AISetMainTown(player, town);
+		return;
+	}
+	if (town == 0){
+		R = 15;
+	}
+	else if ( town == 1){
+		R = 20;
+	}
+	else{
+		R = 30;
+	}
+	groupEnemy = UnitGroupAlliance(player, c_unitAllianceEnemy, RegionCircle(AIGetTownLocation(player, town), R), null, 0);
+	// Don't cast if there is no Dangerous Enemy in Range.
+	if (AIUnitGroupStrength(groupEnemy) < 10){
+		return;
+	}
+//	groupAlly= UnitGroupAlliance(player, c_unitAllianceAlly, RegionCircle(AIGetTownLocation(player, town), 30), UnitFilter(0, 0, (1 << c_targetFilterWorker), (1 << c_targetFilterStructure)), 0);
+//	// Don't cast if our army is stronger
+//	if (AIUnitGroupStrength(groupAlly) > AIUnitGroupStrength(groupEnemy)){
+//		return;
+//	}
+
+	AISetMainTown(player, town);
+	return;
+}
+
+void GTDefendvsDrop( int player, int town) {
+	point x = GTPredictDrop(player, town);
+	if (x != null) {
+		// AIWaveMerge(player, c_waveAttack, c_waveDefend);
+		if (!GTWaveIsInAttackState(player) && !GTThreadInTowns(player, 0, 2)) {
+			//DebugAI("send wave");
+			AIWaveSetType(AIWaveGet(player, c_waveMain) , c_waveStateDefend, AIWaveTargetPoint(x));
+			AIWaveSetType(AIWaveGet(player, c_waveDefend) , c_waveStateDefend, AIWaveTargetPoint(x));
+		}
+	}
+}
+
+void GTDefendTown( int player, int town){
+	unitgroup groupAlly;
+	unitgroup groupEnemy;
+	unitgroup groupEBuilding;
+
+    if (!PointPathingIsConnected(AIGetTownLocation(player, 0), AIGetTownLocation(player, town)) ){
+    	return;
+    }
+
+    GTSetMainTown(player, town);
+    GTDefendEBuiding(player, town);
+	GTDefendvsDrop(player , town);
+    if (town > 0){
+    	GTCancelbuild(player, town);
+    }
+
+    return;
+}
+
+void GTAutoBExpand(int player, int i){
+	string Race = PlayerRace(player);
+	int BK = MaxI(0, MinI((GTEArmy(player) - GTOArmy(player) + 1/ 6), 2));
+	int countMainBuilding = GTCount(player, c_PB_Nexus);
+
+	GTDefendTown(player, i);
+	GTAutoBDefend(player, i);
+
+	if (Race == "Prot"){
+		if (AIGetUserInt(player, 10) == 0){
+			GTBuild ( player, 10, i, c_PB_Nexus, 1, c_makeCenter);
+		}
+		else if (AIHasRes(player, 450, 0)){
+			GTBuild ( player, 2, i, c_PB_Nexus, 1, c_makeCenter);
+		}
+		// Build First Pylon
+		if (GTFinishIT(player, 1, c_PB_Nexus, 1)){
+			GTBuildP2(player, c_PB_Pylon, 1, GTDI(player, 1));
+		}
+		// Build Defend if E is stronger;
+		if (i == 1 && GTFinishT(player, 1, c_PB_Pylon, 1) && GTOArmy(player) < GTEArmy(player) ){
+			GTBuildPA(player, c_PB_Forge, 1, GTDI(player, 1));
+		}
+		// Build Cannon if there is Pylon nearby
+		if (GTFinishA(player, c_PB_Forge, 1)){
+			if (AINearbyUnits(player, c_PB_Pylon, GTDI1(player, 1), 10, 1) && GTOArmy(player) < GTEArmy(player)){
+				GTBuildPA ( player,  c_PB_PhotonCannon, BK , GTDI1(player, 1) );
+			}
+		// Build another Pylon if there are no Pylon nearby.
+			else{
+				GTBuild (player, 4, 1, c_PB_Pylon, 2, c_nearCloseDefense );
+			}
+		}
+		// Build 2 more Gas
+		if (GTFinishT(player, i, c_PB_Nexus , 1 ) ){
+			GTBuildR ( player, 2, i, c_PB_Assimilator, 1, c_onVespeneGas, 125, 0 );
+			GTBuildR ( player, 2, i, c_PB_Assimilator, 2, c_onVespeneGas, 200, 0 );
+		}
+		if (GTFinishIT(player, i, c_PB_Nexus, 1)){
+			// Build Pylon and Cannon for other Defend
+			if ( GTOArmy(player) < GTEArmy(player) ) {
+				GTBuildR(player, 2, i, c_PB_PhotonCannon, 2, 0, 500, c_makeResourceDefense);
+			}
+			if (AIHasRes(player, 200, 0)){
+				GTBuildP2(player, c_PB_Pylon, 1, GTDI(player, i));
+			}
+	 	    GTBuildR(player, 2, i, c_PB_Pylon, 2, c_makeResourceDefense, 300, 0);
+	 	    GTBuildR(player, 2, i, c_PB_Pylon, 3, c_makePower, 600, 0);
+	 	    GTBuildR(player, 2, i, c_PB_Pylon, 4, c_makePower, 800, 0);
+	 	    // Build other Contruction Building if has more money.
+
+			if (GTCountI2(player, c_PB_Gateway) < (countMainBuilding * 4) && GTCountI2(player, c_PB_Gateway) < 10) {
+				GTBuildR ( player, 2, i, c_PB_Gateway, 1,  c_nearFarDefense , 400 + 150*i, 0);
+				GTBuildR ( player, 2, i, c_PB_Gateway, 2,  c_nearFarDefense , 400 + 225*i, 0);
+			}
+			if (GTCountI2(player, c_PB_RoboticsFacility) < (countMainBuilding * 2 - GTCountI2(player, c_PB_Gateway)*0.25) && GTCountI2(player, c_PB_RoboticsFacility) < 4) {
+				GTBuildR ( player, 2, i, c_PB_RoboticsFacility, 1,  c_nearCloseDefense, 400 + 150*i, 300 + 100*i);
+			}
+			if (GTCountI2(player, c_PB_Stargate) < (countMainBuilding * 2 - GTCountI2(player, c_PB_Gateway)*0.25) && GTCountI2(player, c_PB_Stargate) < 4) {
+				GTBuildR ( player, 2, i, c_PB_Stargate , 1, c_nearCloseDefense, 400 + 150*i, 300 + 150*i);
+			}
+		}
+		return;
+	}
+	else if (Race == "Terr"){
+		if (AIGetUserInt(player, 10) == 0){
+			GTBuildT ( player, 10, i, c_TB_CommandCenter_Alias, 1, c_makeCenter);
+		}
+		else if (AIHasRes(player, 450, 0)){
+			GTBuildT ( player, 2, i, c_TB_CommandCenter_Alias, 1, c_makeCenter);
+		}
+		if (GTFinishA (player, c_TB_CommandCenter_Alias, 4)){
+			GTBuildT ( player, 5, 0,  c_TB_PlanetaryFortress , AITechCount(player, c_TB_CommandCenter_Alias, c_techCountCompleteOnly) - 2, 0 );
+		}
+		// Remove Old Bunker and Build new Bunker if Enemy is stronger
+		if(GTOArmy(player) + 2 < GTEArmy(player) && GTFinishIT(player, 1, c_TB_CommandCenter_Alias, 1)){
+			GTBuildPA ( player,  c_TB_Bunker, 1 , GTDI1(player, 1) );
+			GTBuildPAI (player,  c_TB_Bunker, BK , GTDI1(player, 1), c_TB_Bunker, 1 );
+			if (DistanceBetweenPoints(GTDI1(player,1), GTDO(player, 0)) > 10) {
+				GTSalvage(player, GTDO(player, 0));
+			}
+		}
+
+		if (GTOArmy(player) > GTEArmy(player) + 5) {
+			GTSalvage(player, null);
+		}
+
+		if (GTFinishT(player, i, c_TB_CommandCenter_Alias , 3)){
+			// Build Gas
+			//GTBuildR ( player, 2, i, c_TB_Refinery, 1, c_onVespeneGas, 125, 0 );
+			//GTBuildR ( player, 2, i, c_TB_Refinery, 2, c_onVespeneGas, 200, 0 );
+			// Build another Construction Building
+			GTBuildR ( player, 2, i, c_TB_Barracks, 1,  c_nearCloseDefense , 400 + 150*i , 0);
+			GTBuildR ( player, 2, i, c_TB_Barracks, 2,  c_nearCloseDefense , 400 + 300*i , 0);
+			GTBuildR ( player, 2, i, c_TB_Factory, 1,  c_nearCloseDefense, 400 + 150*i, 300 + 100*i);
+			GTBuildR ( player, 2, i, c_TB_Starport , 1, c_nearCloseDefense, 400 + 150*i, 300 + 150*i);
+
+			if (  GTFinishT(player, i, c_TB_Barracks, 2) ){
+				GTBuild ( player, 6, i, c_TB_BarracksTechLab, 1, 0 );
+				GTBuild ( player, 6, i, c_TB_BarracksReactor, 1, 0 );
+			}
+			if (  GTFinishT(player, i, c_TB_Starport, 1) ){
+				GTBuild ( player, 6, i, c_TB_StarportTechLab, 1, 0 );
+			}
+			if (  GTFinishT(player, i, c_TB_Factory, 1) ){
+				GTBuild ( player, 6, i, c_TB_FactoryTechLab, 1, 0 );
+			}
+		}
+    	return;
+	}
+	else{
+		if (AIGetUserInt(player, 10) == 0){
+			GTBuild ( player, 4, i, c_ZB_Hatchery_Alias, 1, c_makeCenter);
+		}
+		else if (AIHasRes(player, 450, 0)){
+			GTBuild ( player, 2, i, c_ZB_Hatchery_Alias, 1, c_makeCenter);
+		}
+		if (GTFinishT(player, i, c_ZB_Hatchery_Alias , 1 ) ){
+			GTBuildA (player, 2, i, c_ZB_Extractor, 2, c_onVespeneGas, c_ZB_Lair_Alias, 1);
+			if (GTFinishA(player, c_ZU_Queen, 2)){
+				GTBuildPA ( player,  c_ZB_SpineCrawler, 1, GTDO1(player, 1));
+			}
+			// Train Queen and Build Creep.
+
+		    GTTrainQueen(player, i);
+		    if (AINearbyUnits(player, c_ZU_Queen, AIGetTownLocation(player, i), 10, 1) ){
+		    	GTQueenBuild(player, i);
+
+		    }
+		    GTBuildA ( player, 2, i, c_ZB_Extractor, 2, c_onVespeneGas, c_ZB_Lair_Alias, 1 );
+		    if (PlayerDifficulty(player) > c_skirHard ){
+		    	GTBuildR ( player, 2, i, c_ZB_Hatchery_Alias, 2,  c_nearFarDefense , 600 + 300*i, 0);
+		    }
+		    if (AIGetMainTown(player) == i &&  i >= 2  && GTOArmy(player) < GTEArmy(player)){
+		    	GTBuild ( player, 2, i ,  c_ZB_SpineCrawler, 2, 0);
+
+
+		    }
+		}
+		return;
+	}
+
+}
+
+//-------------------------
+// Research Management
+//-------------------------
+
+void GTAutoUpgrade (int player){
+	string Race = PlayerRace(player);
+
+
+	if (Race == "Terr"){
+		if (GTFinishA(player, c_TR_GhostCloak, 1)){
+			GTArmSilo(player);
+		}
+		// Infantry Upgrade
+		if (GTTerranSoldier(player) >= 16 && GTFinishIA(player, c_TB_CommandCenter_Alias, 2 ) ) {
+			GTBuildT(player, 4, 0, c_TB_EngineeringBay, 1, c_nearResource);
+		}
+		if (GTTerranSoldier(player) >= 26 && GTFinishIA(player, c_TB_CommandCenter_Alias, 2 ) ) {
+			GTBuildT(player, 2, 0, c_TB_EngineeringBay, 2, c_nearResource);
+			GTBuildT(player, 4, 0, c_TB_Armory, 1, c_nearResource);
+		}
+		if (GTFinishA(player, c_TB_EngineeringBay, 1) && GTTerranSoldier(player) >= 16){
+			GTResearchI(player, 3, 0, c_TR_InfantryArmor1, c_TR_InfantryWeapons1, 1);
+			GTResearch(player, 3, 0, c_TR_InfantryWeapons1);
+		}
+		if (GTFinishA(player, c_TB_Armory, 1) && GTFinishA(player, c_TB_EngineeringBay, 1) && GTTerranSoldier(player) >= 16 ) {
+			GTResearch(player, 3, 0, c_TR_InfantryArmor2);
+			GTResearch(player, 3, 0, c_TR_InfantryWeapons2);
+
+				GTResearch(player, 3, 0, c_TR_InfantryArmor3);
+				GTResearch(player, 3, 0, c_TR_InfantryWeapons3);
+
+		}
+
+		// Mech Upgrade
+		if (GTTerranMachine(player) >= 15) {
+			GTBuildT(player, 2, c_townMain, c_TB_Armory, 1, c_nearResource);
+		}
+		if (GTTerranMachine(player) >= 25){
+			GTBuildT(player, 2, c_townMain, c_TB_Armory, 2, c_nearResource);
+		}
+		if (GTFinishA(player, c_TB_Armory, 1) && GTTerranMech(player) >= 15) {
+			GTResearch(player, 3, 0, c_TR_VehicleWeapons1);
+			GTResearch(player, 3, 0, c_TR_VehiclePlating1);
+
+				GTResearch(player, 3, 0, c_TR_VehicleWeapons2);
+				GTResearch(player, 3, 0, c_TR_VehiclePlating2);
+
+
+
+				GTResearch(player, 3, 0, c_TR_VehicleWeapons3);
+				GTResearch(player, 3, 0, c_TR_VehiclePlating3);
+
+
+		}
+
+		// Air Upgrade
+		if (GTFinishA(player, c_TB_Armory, 1) && GTTerranAir(player) >= 12) {
+			GTResearch(player, 3, 0, c_TR_ShipWeapons1);
+			GTResearch(player, 3, 0, c_TR_ShipPlating1);
+
+				GTResearch(player, 3, 0, c_TR_ShipWeapons2);
+				GTResearch(player, 3, 0, c_TR_ShipPlating2);
+
+
+
+				GTResearch(player, 3, 0, c_TR_ShipWeapons3);
+				GTResearch(player, 3, 0, c_TR_ShipPlating3);
+
+		}
+		return;
+	}
+	else if (Race == "Zerg"){
+	// Ground Upgrade
+		if (GTZergGround(player) >= 16 && GTFinishIA(player, c_ZB_Hatchery_Alias, 2 )){
+			GTBuildT(player, 2, 0, c_ZB_EvolutionChamber, 1, c_nearResource);
+		}
+		if (GTZergGround(player) >= 26 && GTFinishIA(player, c_ZB_Hatchery_Alias, 2) && g_transform[player] <= 1 ){
+			GTBuildT(player, 2, 0, c_ZB_EvolutionChamber, 2, c_nearResource);
+		}
+
+
+		if (GTFinishA(player, c_ZB_EvolutionChamber, 1) && GTZergGround(player) >= 16){
+			GTResearch(player, 3, 0, c_ZR_GroundCarapace1);
+		}
+        if (GTFinishA(player, c_ZB_Lair_Alias, 1 ) && GTFinishA(player, c_ZB_EvolutionChamber, 1) && GTZergGround(player) >= 16){
+        	GTResearch(player, 3, 0, c_ZR_GroundCarapace2);
+        }
+        if (GTFinishA(player, c_ZB_Hive, 1 ) && GTFinishA(player, c_ZB_EvolutionChamber, 1) && GTZergGround(player) >= 16){
+        	GTResearch(player, 3, 0, c_ZR_GroundCarapace3);
+        }
+        if (g_transform[player] <= 1){
+        // Melee
+			if (GTFinishA(player, c_ZB_EvolutionChamber, 1) && GTZergMelee(player) >= 16){
+				GTResearch(player, 3, 0, c_ZR_MeleeAttacks1);
+			}
+			if (GTFinishA(player, c_ZB_Lair_Alias, 1 ) && GTFinishA(player, c_ZB_EvolutionChamber, 1) && GTZergMelee(player) >= 16){
+				GTResearch(player, 3, 0, c_ZR_MeleeAttacks2);
+			}
+			if (GTFinishA(player, c_ZB_Hive, 1 ) && GTFinishA(player, c_ZB_EvolutionChamber, 1) && GTZergMelee(player) >= 16){
+				GTResearch(player, 3, 0, c_ZR_MeleeAttacks3);
+			}
+        // Missle
+			if (GTFinishA(player, c_ZB_EvolutionChamber, 1) && GTZergMissile(player) >= 16){
+				GTResearch(player, 3, 0, c_ZR_MissileAttacks1);
+			}
+			if (GTFinishA(player, c_ZB_Lair_Alias, 1 ) && GTFinishA(player, c_ZB_EvolutionChamber, 1) && GTZergMissile(player) >= 16) {
+				GTResearch(player, 3, 0, c_ZR_MissileAttacks2);
+			}
+			if (GTFinishA(player, c_ZB_Hive, 1 ) && GTFinishA(player, c_ZB_EvolutionChamber, 1) && GTZergMissile(player) >= 16){
+				GTResearch(player, 3, 0, c_ZR_MissileAttacks3);
+			}
+        }
+        if (g_transform[player] <= 1){
+        // Air
+			if (GTZergAir(player) >= 12 && GTFinishIA(player, c_ZB_Lair_Alias, 1 )) {
+				GTBuildT(player, 2, c_townMain, c_ZB_Spire_Alias, 1, c_nearResource);
+			}
+			if (GTFinishA(player, c_ZB_Spire_Alias, 1) && GTZergAir(player) >= 12) {
+				GTResearch(player, 3, 0, c_ZR_FlyerAttacks1);
+
+			}
+			if (GTFinishA(player, c_ZB_Spire_Alias, 1) && GTFinishIA(player, c_ZB_Hive, 1) && GTZergAir(player) >= 12) {
+				GTResearch(player, 3, 0, c_ZR_FlyerAttacks2);
+
+
+				  GTResearch(player, 3, 0, c_ZR_FlyerAttacks3);
+				  GTResearchI(player, 3, 0, c_ZR_FlyerCarapace3, c_ZR_FlyerAttacks3, 1);
+
+			}
+        }
+        return;
+	}
+	else{
+
+ 	   // Ground Upgrade
+ 	   if (GTProtossGround(player) >= 16 && GTFinishIA(player, c_PB_Nexus, 2 )){
+ 		   GTBuildT(player, 2, 0, c_PB_Forge, 1, c_nearResource);
+ 	   }
+ 	   if (GTProtossGround(player) >= 26  && GTFinishIA(player, c_PB_Nexus, 2 ) ){
+ 		   GTBuildT(player, 2, 0, c_PB_Forge, 2, c_nearResource );
+ 		   GTBuildT(player, 4, 0, c_PB_TwilightCouncil, 1, c_nearResource);
+ 	   }
+       if (GTFinishA(player, c_PB_Forge, 1) && GTProtossGround(player) >= 16){
+    	   GTResearch(player, 3, 0, c_PR_GroundWeapons1);
+    	   GTResearchI(player, 3, 0, c_PR_GroundArmor1, c_PR_GroundWeapons1, 1);
+       }
+       if (GTFinishA(player, c_PB_TwilightCouncil, 1) && GTFinishA(player, c_PB_Forge, 1) && GTProtossGround(player) >= 16){
+
+           GTResearch(player, 3, 0, c_PR_GroundWeapons2);
+           GTResearch(player, 3, 0, c_PR_GroundArmor2);
+
+           	   GTResearch(player, 3, 0, c_PR_GroundWeapons3);
+          	   GTResearch(player, 3, 0, c_PR_GroundArmor3);
+
+       }
+
+      // Air Upgrade
+       if (GTProtossAir(player) >= 12 && GTFinishIA(player, c_PB_Nexus, 2 ) ){
+    	   GTBuildT(player, 2, 0, c_PB_CyberneticsCore, 1, c_nearResource);
+       }
+       if (GTProtossAir(player) >= 16 && GTFinishIA(player, c_PB_Nexus, 2 )  ){
+    	   GTBuildT(player, 2, 0, c_PB_CyberneticsCore, 2, c_nearResource);
+           GTBuildT(player, 2, 0, c_PB_FleetBeacon, 1, c_nearResource);
+       }
+       if (GTFinishA(player, c_PB_CyberneticsCore, 1) && GTProtossAir(player) >= 12){
+    	   GTResearch(player, 3, 0, c_PR_AirWeapons1);
+           GTResearch(player, 3, 0, c_PR_AirArmor1);
+       }
+       if (GTFinishA(player, c_PB_FleetBeacon, 1) && GTFinishA(player, c_PB_CyberneticsCore, 1) && GTProtossAir(player) >= 12){
+    	   GTResearch(player, 3, 0, c_PR_AirWeapons2);
+           GTResearch(player, 3, 0, c_PR_AirArmor2);
+
+           		GTResearch(player, 3, 0, c_PR_AirWeapons3);
+           		GTResearch(player, 3, 0, c_PR_AirArmor3);
+
+       }
+       // Shield Upgrade
+       if ( Race != "Terr"){
+    	   if (GTOArmy(player) >= 30 && GTCount(player,c_PB_TwilightCouncil) == 0){
+    		   GTBuildT(player, 2, c_townMain, c_PB_TwilightCouncil, 1, c_nearResource);
+    	   }
+    	   if (GTFinishA(player, c_PB_Forge, 1) && GTOArmy(player) >= 22){
+    		   GTResearch(player, 3, 0, c_PR_Shields1);
+    	   }
+		   if (GTFinishA(player, c_PB_TwilightCouncil, 1) && GTOArmy(player) >= 22){
+
+			 GTResearch(player, 3, 0, c_PR_Shields2);
+		  	 GTResearch(player, 3, 0, c_PR_Shields3);
+		   }
+       }
+	   return;
+	}
+	return;
+}
+//----------------------------
+// Completion when late game.
+//----------------------------
+void GTProtComplete (int player){
+	if (AIHasRes(player, 310, 210)){
+		GTBuildTA (player, 2, 0, c_PB_RoboticsBay, 1, c_nearResource, c_PB_RoboticsFacility, 1) ;
+	}
+	if (AIHasRes(player, 310, 310)){
+		GTBuildTA (player, 2, 0, c_PB_FleetBeacon, 1, c_nearResource, c_PB_Stargate, 1) ;
+	}
+	GTTrainA ( player, 10, c_townMain, c_PU_Mothership , 1, c_PB_FleetBeacon, 1) ;
+    GTTrainI ( player, 5, c_townMain, c_PU_Carrier , 6, c_PU_Mothership, 1) ;
+    GTTrainA ( player, 4, c_townMain, c_PU_Colossus , 6, c_PB_RoboticsBay, 1) ;
+}
+
+void GTTerrComplete (int player){
+	if (AIHasRes(player, 310, 310)){
+		GTBuildTA (player, 2, 0, c_TB_FusionCore, 1, c_nearResource, c_TB_StarportTechLab, 1) ;
+	}
+	if (AIHasRes(player, 310, 210)){
+		GTBuildTA (player, 2, 0, c_TB_Armory, 1, c_nearResource, c_TB_FactoryTechLab, 1) ;
+	}
+    GTTrainA ( player, 10, c_townMain, c_TU_Battlecruiser , 6, c_TB_FusionCore, 1) ;
+    GTTrainA ( player, 10, c_townMain, c_TU_Thor , 6, c_TB_Armory, 1) ;
+}
+
+void GTZergComplete (int player){
+	if (AIHasRes(player, 350, 350)){
+		GTBuildTA (player, 2, 0, c_ZB_Hive, 1, c_nearResource, c_ZB_InfestationPit, 1) ;
+		GTBuildTA (player, 2, 0, c_ZB_InfestationPit, 1, c_nearResource, c_ZB_Lair_Alias, 1) ;
+	}
+	if (AIHasRes(player, 310, 210)){
+		GTBuildTA (player, 2, 0, c_ZB_UltraliskCavern, 1, c_nearResource, c_ZB_Hive, 1) ;
+		GTBuildTA (player, 2, 0, c_ZB_GreaterSpire, 1, c_nearResource, c_ZB_Hive, 1) ;
+	}
+		GTTrainA ( player, 10, c_townMain, c_ZU_Ultralisk , 4, c_ZB_UltraliskCavern, 1) ;
+		GTTrainA ( player, 4, c_townMain, c_ZU_BroodLord , 3, c_ZB_GreaterSpire, 1) ;
+}
+
+
+void GTAutoResearch (int player)
+{ string Race = PlayerRace(player);
+
+  if (Race == "Terr") {
+	  GTTerrComplete(player);
+      if (GTFinishA(player, c_TB_EngineeringBay, 1) && GTFinishA(player, c_TR_InfantryWeapons1, 1) && GTFinishA(player, c_TR_InfantryArmor1, 1)){
+    	  if (GTOArmy(player) + 8 < GTEArmy (player) ){
+    		  GTResearch(player, 3, c_townMain, c_TR_BunkerSpace );
+    		  GTResearchA(player, 3, c_townMain, c_TR_BuildingArmor, c_TR_BunkerSpace, 1 );
+    	  }
+    	  if (GTEAir(player) > 6){
+    		  GTResearch(player, 3, c_townMain, c_TR_MissileTurretRange);
+    	  }
+      }
+      if (GTFinishA(player, c_TB_BarracksTechLab, 1)){
+    	  GTResearchI(player, 3, c_townMain, c_TR_MarineShield, c_TU_Marine, 8 );
+    	  GTResearchA(player, 3, c_townMain, c_TR_MarineStimPack, c_TU_Marine, 14 );
+    	  GTResearchI(player, 3, c_townMain, c_TR_MarauderSlow, c_TU_Marauder, 4 );
+    	  GTResearchI(player, 3, c_townMain, c_TR_ReaperSpeed, c_TU_Reaper, 3 );
+      }
+      if (GTFinishA(player, c_TB_FactoryTechLab, 1)){
+    	  GTResearchI(player, 3, c_townMain, c_TR_SiegeTankSiege, c_TU_SiegeTank, 1);
+          GTResearchI(player, 3, c_townMain, c_TR_HellionDamage, c_TU_Hellion, 4 );
+          GTResearchI(player, 3, c_townMain, c_TR_ThorCannons, c_TU_Thor, 1 );
+      }
+      if (GTFinishA(player, c_TB_StarportTechLab, 1)){
+    	  GTResearchI(player, 3, c_townMain, c_TR_BansheeCloak, c_TU_Banshee, 2 );
+          GTResearchI(player, 3, c_townMain, c_TR_MedivacEnergy, c_TU_Medivac, 2 );
+          GTResearchI(player, 3, c_townMain, c_TR_RavenMissiles, c_TU_Raven, 1 );
+          GTResearchA(player, 3, c_townMain, c_TR_RavenTimed, c_TR_RavenMissiles, 1 );
+      }
+      if (GTFinishA(player, c_TB_GhostAcademy,1)){
+    	  GTResearchI (player, 3, c_townMain, c_TR_GhostEnergy, c_TU_Ghost, 1 );
+          GTResearchA(player, 3, c_townMain, c_TR_GhostCloak, c_TR_GhostEnergy, 1 );
+      }
+      if (GTFinishA(player, c_TB_FusionCore, 1)){
+    	  GTResearchI(player, 3, c_townMain, c_TR_BattlecruiserYamato, c_TU_Battlecruiser, 2 );
+    	  GTResearchA(player, 3,  c_townMain, c_TR_BattlecruiserEnergy, c_TR_BattlecruiserYamato, 1 );
+      }
+      return;
+  }
+  if (Race == "Prot") {
+	  GTProtComplete(player);
+      if (GTFinishA(player, c_PB_CyberneticsCore,1)){
+    	  GTResearch(player, 3, c_townMain, c_PR_WarpGateResearch );
+    	  GTResearchI(player, 3, c_townMain, c_PR_SentryHallucination, c_PU_Sentry, 3 );
+      }
+
+      if (GTFinishA(player, c_PB_TwilightCouncil, 1)){
+    	  GTResearch(player, 3, c_townMain, c_PR_ZealotCharge);
+    	  GTResearchA(player, 3, c_townMain, c_PR_StalkerBlink, c_PR_ZealotCharge, 1 );
+      }
+      if (GTFinishA(player, c_PB_TemplarArchives, 1)){
+    	  GTResearch(player, 3, c_townMain, c_PR_HighTemplarPsiStorm );
+    	  if (GTFinishIA(player, c_PR_HighTemplarPsiStorm, 1) && !GTFinishA(player, c_PR_HighTemplarEnergy, 1)){
+    		  TechTreeUpgradeAddLevel(player, c_PR_HighTemplarEnergy, 1);
+    	  }
+      }
+      if (GTFinishA(player, c_PB_RoboticsBay, 1)){
+    	  GTResearchI(player, 3, c_townMain, c_PR_ColossusRange, c_PU_Colossus, 1 );
+    	  if (GTFinishA(player, c_PR_ColossusRange, 1)){
+    		  GTResearchI(player, 3, c_townMain, c_PR_ObserverSpeed, c_PU_Observer, 2 );
+    		  GTResearchI(player, 3, c_townMain, c_PR_WarpPrismSpeed, c_PU_WarpPrism, 2 );
+    	  }
+      }
+      if (GTFinishA(player, c_PB_FleetBeacon, 1)){
+            GTResearchI(player, 3, c_townMain, c_PR_CarrierLaunch, c_PU_Carrier, 1 );
+      }
+      return;
+  }
+  if (Race == "Zerg") {
+	  GTZergComplete(player);
+      if (GTFinishA(player, c_ZB_SpawningPool,1)){
+    	  GTResearchI(player, 3, c_townMain, c_ZR_ZerglingSpeed, c_ZU_Zergling, 10 );
+
+    	  if (GTFinishA(player, c_ZB_Hive, 1)){
+    		  GTResearchI(player, 3, c_townMain, c_ZR_ZerglingHaste, c_ZB_UltraliskCavern, 1 );
+    	  }
+      }
+      if (GTFinishA(player, c_ZB_RoachWarren,1)){
+    	  if (GTFinishA(player, c_ZB_Lair, 1)){
+    		  GTResearchI(player, 3, c_townMain, c_ZR_RoachUnderground, c_ZU_Roach, 6 );
+              GTResearchI(player, 3, c_townMain, c_ZR_RoachSpeed, c_ZU_Roach, 6 );
+              GTResearchI(player, 3, c_townMain, c_ZR_Burrow,  c_ZU_Roach, 1 );
+    	  }
+      }
+      if (GTFinishA(player, c_ZB_BanelingNest,1) && GTFinishA(player, c_ZB_Lair_Alias, 1)){
+    	  GTResearch(player, 3, c_townMain, c_ZR_BanelingSpeed);
+      }
+      if (GTFinishA(player, c_ZB_HydraliskDen_Alias, 1)){
+    	  GTResearchI(player, 3, c_townMain, c_ZR_HydraliskRange, c_ZU_Hydralisk, 4 );
+      }
+      if (GTFinishA(player, c_ZB_InfestationPit, 1)){
+    	  GTResearchI(player, 3, c_townMain, c_ZR_InfestorParasite, c_ZU_Infestor, 1 );
+    	  if (GTFinishIA(player, c_ZR_InfestorParasite, 1) && !GTFinishA(player, c_ZR_InfestorEnergy, 1)){
+    		  TechTreeUpgradeAddLevel(player, c_ZR_InfestorEnergy, 1);
+    	  }
+      }
+      if (GTFinishA(player, c_ZB_Lair_Alias, 1)){
+    	  GTResearch(player, 3, c_townMain, c_ZR_OverseerSpeed);
+          GTResearchI(player, 3, c_townMain, c_ZR_OverlordTransport, c_ZB_Hive, 1 );
+      }
+ 	  if (GTFinishA(player, c_ZB_UltraliskCavern, 1)){
+          GTResearchI(player, 3, c_townMain, c_ZR_UltraliskArmor, c_ZU_Ultralisk, 1 );
+      }
+      return;
+  }
+  return;
+}
+
+void GTResearchZZ (int player){
+    string Race = PlayerRace(player);
+    if (Race == "Zerg"){
+        GTZergComplete(player);
+
+        if (GTFinishA(player, c_ZB_RoachWarren,1)){
+            if (GTFinishA(player, c_ZB_Lair, 1)){
+                GTResearchI(player, 3, c_townMain, c_ZR_RoachUnderground, c_ZU_Roach, 6 );
+                GTResearchI(player, 3, c_townMain, c_ZR_RoachSpeed, c_ZU_Roach, 6 );
+                GTResearchI(player, 3, c_townMain, c_ZR_Burrow,  c_ZU_Roach, 1 );
+            }
+        }
+        if (GTFinishA(player, c_ZB_BanelingNest,1) && GTFinishA(player, c_ZB_Lair_Alias, 1)){
+            GTResearch(player, 3, c_townMain, c_ZR_BanelingSpeed);
+        }
+        if (GTFinishA(player, c_ZB_HydraliskDen_Alias, 1)){
+            GTResearchI(player, 3, c_townMain, c_ZR_HydraliskRange, c_ZU_Hydralisk, 4 );
+        }
+        if (GTFinishA(player, c_ZB_Lair_Alias, 1)){
+            GTResearch(player, 3, c_townMain, c_ZR_OverseerSpeed);
+            GTResearchI(player, 3, c_townMain, c_ZR_OverlordTransport, c_ZB_Hive, 1 );
+        }
+        if (GTFinishA(player, c_ZB_UltraliskCavern, 1)){
+            GTResearchI(player, 3, c_townMain, c_ZR_UltraliskArmor, c_ZU_Ultralisk, 1 );
+        }
+        return;
+    }
+    return;
+}
+//BuildOrderStep
+
+bool GTBuildStep( int player, int slot){
+	string section = "GTBO" + "-" + GTShortRace(PlayerRace(player)) + "v" + GTShortRace(GTEnemyRace(player)) + "-Build" + IntToString(slot);
+	int step = GTableGetInt(player, "OrderStep" );
+	int towns = GTTowns(player);
+	string code = BankValueGetAsString(GTBank, section, "s" +IntToString(step));
+	int i;
+	string type = StringWord(code, 1);
+	string what  =	StringWord(code, 2);
+	int count = StringToInt(StringWord(code, 3));
+	int worker = StringToInt(StringWord(code, 4));
+	int supply = StringToInt(StringWord(code, 5));
+
+	if (step >= BankValueGetAsInt(GTBank, section, "step")){
+
+		return false;
+	}
+
+	if (g_showbuild){
+		DialogControlSetPropertyAsText(GRecordShowInfo, c_triggerControlPropertyText, PlayerGroupActive(), StringToText("["+ IntToString(step+ 1)+ "] W" + IntToString(worker)
+				   + "/" + IntToString(supply)
+				   + " - " + what + " (" + IntToString(count) + ")"));
+	}
+	if (type != "c"){
+		if (GTFinishIA(player, what, GifI(type == "t", count - GTableGetUnitDead(player, what), count)) && GTFinishIA(player, GTWorker(player), GifI(PlayerRace(player) == "Zerg" && type == "b",worker-1,worker) )){
+			GTableSetInt(player, "OrderStep", step + 1);
+			if (DialogIsVisible(GStepBoard, player) && g_showbuild){
+				DialogControlSelectItem(GStepList, PlayerGroupActive(), GTableGetInt(2, "OrderStep") + 1);
+			}
+			return true;
+		}
+	}
+	else{
+		if (!GTFinishIA(player, what, 1)){
+			GTableSetInt(player, "OrderStep", step + 1);
+			return true;
+		}
+	}
+	GTrain(player, GTWorker(player), worker);
+	if (!GTFinishIA(player , GTWorker(player), worker)){
+		return true;
+	}
+
+
+	if (PlayerGetPropertyInt( player, c_playerPropSuppliesMade ) - PlayerGetPropertyInt( player, c_playerPropSuppliesUsed) == 0 && PlayerGetPropertyInt( player, c_playerPropSuppliesMade) >= 28){
+		GTSupply(player, 0);
+	//	GTCreateWorkers(player);
+	}
+
+	if (type == "b"){ // Build
+		if (what == c_ZB_Extractor && (StringWord( BankValueGetAsString(GTBank, section, "s" +IntToString(step + 1)), 1) == "c" || StringWord( BankValueGetAsString(GTBank, section, "s" +IntToString(step + 2)), 1) == "c" )){
+			if (AIHasRes(player, 65, 0)){
+				GBuild(player, what, count);
+			}
+		}
+		 if (what == c_TB_CommandCenter || what == c_PB_Nexus || what == c_ZB_Hatchery ){
+			GTExpand3( player);
+		}
+		// 2 Gas for each base
+		else if (what == c_ZB_Extractor || what == c_TB_Refinery || what == c_PB_Assimilator ){
+			GTBuildT(player, 2, (count - 1)/2, what, count, c_onVespeneGas);
+		}
+		// The first Bunker, Cannon build near the choke point, other, near the base
+		else if (what == c_ZB_SpineCrawler || what == c_TB_Bunker || what == c_PB_PhotonCannon ){
+			if (towns == 1 && PlayerRace(player) != "Zerg"){
+				GTBuildT(player, 2, 0, what, count, c_nearChokePoint);
+			}
+			else{
+				GTBuildT(player, 2, GTCount(player, GTBase(player)) - 1, what, count, c_nearCloseDefense);
+			}
+		}
+		// Divdide air tower for each base
+		else if (what == c_ZB_SporeCrawler || what == c_TB_MissileTurret ){
+			GTBuildT(player, 2, ModI(count, towns), what, count, c_nearCloseDefense);
+		}
+		else if (what == c_PB_Pylon){
+			if (count == 1){
+				GTBuild(player, 2, 0, c_PB_Pylon, 1, c_nearChokePoint );
+			}
+			else if (towns > 1){
+				GTBuild(player, 2, towns - 1, what, 1, 0);
+				if (GTFinishIT(player, towns - 1, what, 1)){
+					GTBuildT(player, 2, 0, what, count , 0);
+				}
+			}
+			else{
+				GTBuildT(player, 2, 0, what, count , 0);
+			}
+		}
+		else {
+			GBuild(player, what, count);
+		}
+	}
+	else if (type == "t"){ //Train
+		if (what == c_ZU_Queen){
+			i = 0;
+			while (i < count){
+				GTTrainQueen(player, i);
+				i = i + 1;
+			}
+		}
+		else{
+			GTrain(player, what, count);
+		}
+	}
+	else if (type == "c"){
+		GTZergCancelGas(player);
+	}
+	else {
+		GResearch(player, what);
+	}
+	return true;
+}
+
+void GTBuildPractice( int player){
+	int slot = DataTableGetInt(true, c_SaveSlot);
+	string match = "GTBO" + "-" + GTShortRace(PlayerRace(1)) + "v" + GTShortRace(GERace(1));
+	string section = match + "-Build" + IntToString(slot);
+	int check;
+	int checkW;
+	int step = GTableGetInt(player, "PracticeStep" );
+    string code = BankValueGetAsString(GTBank, section, "s" +IntToString( step - 1));
+    string type = StringWord(code, 1);
+	string what  =	StringWord(code, 2);
+
+	int count = StringToInt(StringWord(code, 3));
+	int worker = StringToInt(StringWord(code, 4));
+	string supply = StringWord(code, 5);
+	if (step > BankValueGetAsInt(GTBank, section, "step")){
+		g_practice = false;
+		ObjectiveDestroyAll(PlayerGroupActive());
+		DebugAI("You have completed Build Order.");
+		return;
+	}
+	if (type == "r"){
+		check = TechTreeUpgradeCount(player, what, c_techCountInProgressOrBetter);
+	}
+	else{
+		if (what == c_TB_SupplyDepot_Alias ){
+			check = TechTreeUnitCountEx(player, c_TB_SupplyDepot, c_TB_SupplyDepotLowered, c_techCountInProgressOrBetter);
+		}
+		else{
+			check =  TechTreeUnitCount(player, what, c_techCountInProgressOrBetter);
+		}
+	}
+	checkW = TechTreeUnitCount(player, GTWorker(player), c_techCountInProgressOrBetter) + GifI(PlayerRace(player) == "Zerg" && type == "b", 1, 0);
+		if ( check >= count){
+			if (checkW >= worker){
+				ObjectiveSetState(step, c_objectiveStateCompleted);
+				GTableSetInt(player, "PracticeStep", step + 1);
+				if( BankKeyExists(GTBank, section, "s" + IntToString( step + 6))){
+					ObjectiveDestroy(step);
+					step = step + 7;
+					code = BankValueGetAsString(GTBank, section, "s" +IntToString( step - 1));
+						type = StringWord(code, 1);
+						what  =	StringWord(code, 2);
+						count = StringToInt(StringWord(code, 3));
+						worker = StringToInt(StringWord(code, 4));
+						supply = StringWord(code, 5);
+					ObjectiveCreate( StringToText("[" + GifS( step >= 10, "", "0")+ IntToString(step)+ "] W" + IntToString(worker)
+										+ "/" + supply +" - " + what + " "+ IntToString(count)),
+										 StringToText("[" + GifS( step >= 10, "", "0")+ IntToString(step)+ "]Worker " + IntToString(worker)
+										+ "/" + supply +" - " + what + " "+ IntToString(count)),
+										 c_objectiveStateActive,  true);
+
+				}
+			}
+			else if (ObjectiveGetState(step) != c_objectiveStateFailed){
+				ObjectiveSetState(step, c_objectiveStateFailed);
+			}
+		}
+}

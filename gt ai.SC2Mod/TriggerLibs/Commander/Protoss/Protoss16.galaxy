@@ -1,0 +1,189 @@
+//==================================================================================================
+//  Zealot Rush
+//==================================================================================================
+
+
+//--------------------------------------------------------------------------------------------------
+//  ProtossOpenGnd0
+//--------------------------------------------------------------------------------------------------
+void Protoss16 (int player) {
+	 int towns = GTTowns (player);
+	 int tech_level = 0;
+	 int i = 1;
+
+	 GTName(player, "Gaia");
+	 
+     GTShowTimer(player);
+	 GTPreventScout(player);
+	 	 GTMicro(player);
+
+	 //---------------------------------------------
+	 // Change Commander Condition
+	 //---------------------------------------------
+
+	 	  if (GTime() > AIGetUserInt(player, 8) + 600 && GTOArmy(player) < GTEArmy(player) - 20)
+	 	       		 { AISetUserInt(player, 8, FixedToInt(GTime()));
+	 	       	 	   AISetMainState(player, e_mainState_Counter, e_mainSubState_Unset);
+	 	       	 	 }
+
+	 //-----------------------------------------------
+	 //Opening
+	 //------------------------------------------
+
+  if (!GTFinishIA(player, c_PB_CyberneticsCore, 1))
+	       	 {
+	       	        if (GTFinishIA(player, c_PU_Probe, 11) && (!GTFinishIA(player, c_PU_Probe, 12) || GTFinishIA(player, c_PU_Probe, 13)) && !GTFinishA(player, c_PB_Gateway, 1))
+	       		    { GTChronoBoost(player, 0, c_PB_Nexus ,"TimeWarpProduction"); }
+	       	        else
+	       	        { GTChronoBoost(player, 0, c_PB_Gateway ,"TimeWarpProduction"); }
+	       	 		GTTrain(player, 2, 0, c_PU_Probe, 9);
+                                                              GTBuildI(player, 2, 0, c_PB_Pylon, 1, c_makePower, c_PU_Probe, 9);
+	       	 	    GTTrainI(player, 2, 0, c_PU_Probe, 10, c_PB_Pylon, 1);
+	       	 	    GTTrainA(player, 2, 0, c_PU_Probe, 12, c_PB_Pylon, 1);
+	       	 	    GTTrainI(player, 2, 0, c_PU_Probe, 17, c_PB_Gateway, 1);
+	       	 	    GTBuildI(player, 2, 0, c_PB_Gateway, 1, c_nearChokePoint, c_PU_Probe, 10);
+	       	 		GTBuildI(player, 2, 0, c_PB_Assimilator, 1, c_onVespeneGas, c_PU_Probe, 13);
+	       	 	    GTBuildI(player, 2, 0, c_PB_Pylon, 2, c_makePower, c_PU_Probe, 14);
+		
+	       	 	    GTBuildA(player, 2, 0, c_PB_CyberneticsCore, 1, c_nearCloseFactory, c_PB_Gateway, 1);
+	       	 		
+	       	      return;
+	       	 }
+	 //-------------------------------------
+	 //  Run ChronoBoost
+	 //-----------------------------------
+
+	 tech_level = GTGetTech(player, c_PB_CyberneticsCore, c_PB_TwilightCouncil, c_PB_RoboticsFacility, c_PB_Stargate ,      c_PB_RoboticsBay , c_PB_FleetBeacon,    c_PB_TwilightCouncil ,  c_PB_TwilightCouncil  );
+
+//------------------------------------
+// Economy Management
+//---------------------------------------
+	
+	 GTTrain(player, 2, 0, c_PU_Probe, 22);
+	 GTBuildI(player, 2, 0, c_PB_Pylon, 3, c_makePower , c_PB_Gateway, 2);
+                     if (GTFinishA(player, c_PB_Pylon, 3))
+	 {GTCreateWorkers (player); }
+    if (GTFinishIA(player, c_PR_GroundWeapons1, 1) || GTFinishIA(player, c_PR_ZealotCharge, 1) || GTFinishIA(player, c_PB_TwilightCouncil, 1))
+     { GTSupply (player, 6 + tech_level); }
+                       	 if (PointPathingPassable(GTAP1(player)) && GTCanAttack3(player, 0) && GTFinishIA(player,  c_PB_Nexus, 2) && GTFinishA(player, c_PU_Zealot, 1) )
+			  { GTBuildP2(player, c_PB_Pylon, 1, GTAP1(player));
+			  } 
+	  // Expand
+        GTExpand(player);
+        
+
+	  //----------------------------
+	  // Unit Production
+	  //---------------------------
+
+	       if ( GTEnemyRace(player) == "Terr")
+	       {       GTTrain (player, 2, c_townMain, c_PU_Zealot,  1);
+	                GTTrainI (player, 2, c_townMain, c_PU_Stalker,  1, c_PB_Gateway, 2);
+	                GTTrainI (player, 2, c_townMain, c_PU_Stalker,  2, c_PB_TwilightCouncil, 1);
+		 GTTrainI (player, 2, c_townMain, c_PU_Stalker,  8, c_PB_RoboticsFacility, 1);
+	               GTTrainA (player, 2, c_townMain, c_PU_Zealot,  16, c_PB_Pylon, 3);
+	               GTTrainA (player, 2, c_townMain, c_PU_Zealot,  16, c_PB_Gateway, 3);	
+	                      GTTrainI (player, 2, c_townMain, c_PU_Sentry,  4, c_PB_Gateway, 3);
+	               GTTrainA (player, 2, c_townMain, c_PU_Sentry,  2 , c_PR_WarpGateResearch, 1);
+	
+	        }
+                           else
+	            {       GTTrain (player, 2, c_townMain, c_PU_Zealot,  1);
+	                GTTrainA (player, 2, c_townMain, c_PU_Sentry  ,1, c_PB_CyberneticsCore, 1);
+	                GTTrainI (player, 2, c_townMain, c_PU_Stalker,  2, c_PU_Zealot, 7);
+		 GTTrainI (player, 2, c_townMain, c_PU_Stalker,  8, c_PB_RoboticsFacility, 1);
+	               GTTrainI (player, 2, c_townMain, c_PU_Zealot,  16, c_PR_WarpGateResearch, 1);
+	                      GTTrainI (player, 2, c_townMain, c_PU_Sentry,  4, c_PB_Nexus, 2);
+	               GTTrainA (player, 2, c_townMain, c_PU_Sentry,  2 , c_PR_WarpGateResearch, 1);
+
+	
+	        }
+		   if (GTFinishIA(player, c_PB_Nexus, 2))
+	       
+                   {
+	            	  GTBasicTrain(player);
+                   }
+
+
+	  		   if (GTFinishA(player, c_PB_RoboticsFacility, 1))
+	  		   {GTTrainA ( player, 2, c_townMain, c_PU_Immortal , 2,  c_PR_WarpGateResearch, 1 ); }
+
+
+
+
+
+  
+	  //--------------------------------------
+	  // Build Management
+	  //--------------------------------------
+	  		 	  	         GTAutoBDefend(player, 0);
+	  		 	  		     GTDefendTown(player, 0);
+                                                                          
+				 
+ 				if (GTEnemyRace(player) == "Terr" )
+				{   GTBuildI (player, 2, 0, c_PB_Assimilator, 2, c_onVespeneGas, c_PB_Gateway, 2);  		
+				     GTBuildTI(player, 2, 0, c_PB_TwilightCouncil, 1, c_nearFarFactory,  c_PB_Gateway, 2);
+	  		 	     GTResearchI ( player, 3, 0, c_PR_WarpGateResearch, c_PU_Stalker, 1);
+				     GTResearchI ( player, 3, 0, c_PR_ZealotCharge, c_PB_Pylon, 3);
+			                        GTResearchI ( player, 3, 0, c_PR_SentryHallucination, c_PU_Sentry, 2);
+				  GTBuildT(player, 2, 0, c_PB_Gateway, 2, c_nearFarFactory);
+				GTBuildTI(player, 2, 0, c_PB_Gateway, 3, c_nearFarFactory, c_PU_Sentry, 1);
+	  		 	   GTBuildTI(player, 2, 0, c_PB_Gateway, 4, c_nearFarFactory, c_PR_ZealotCharge, 1);
+	  		                     GTBuildTI (player, 2, 0,  c_PB_RoboticsFacility, 1, c_nearResource, c_PB_Nexus, 2) ;
+	  		 	   }
+				else
+				{   	
+				         GTBuildT(player, 2, 0, c_PB_Forge  , 1, c_nearFarFactory);
+	  		 	     GTResearchI ( player, 3, 0, c_PR_WarpGateResearch, c_PU_Sentry, 1);
+				    GTResearchA ( player, 3, 0,    c_PR_GroundWeapons1, c_PB_Forge, 1);
+				
+			                        GTResearchI ( player, 3, 0, c_PR_SentryHallucination, c_PU_Sentry, 2);
+				  GTBuildTI(player, 2, 0, c_PB_Gateway, 2, c_nearFarFactory, c_PB_Forge, 1);
+				GTBuildTI(player, 2, 0, c_PB_Gateway, 4, c_nearFarFactory, c_PR_WarpGateResearch, 1);
+				  GTBuildI (player, 2, 0, c_PB_Assimilator, 2, c_onVespeneGas, c_PB_Nexus, 2);  	
+                                                                             GTBuildTI(player, 2, 0, c_PB_TwilightCouncil, 1, c_nearFarFactory,  c_PB_Nexus, 2);
+	  		                     GTBuildTI (player, 2, 0,  c_PB_RoboticsFacility, 1, c_nearResource, c_PB_TwilightCouncil, 1) ;
+	  		 	   }
+				    
+	  		
+	  		 		  
+
+	  		         if (GTFinishA(player, c_PB_Nexus, 2))
+	  		       { GTAutoResearch(player); }
+
+
+
+
+
+
+		//--------------------------------------------
+		//   Expansion Town
+		//------------------------------------------
+		 while ( i <= 16 )
+		 	  	  {
+	      	 if (AIGetTownState(player, i ) == c_townStateEstablished) {
+            GTAutoBExpand(player, i);
+	      	 }
+			i = i + 1;
+		}
+   //----------------------------------------
+	 // Strategy
+     //-----------------------------------------
+	  		                    GTDefend(player);
+
+	  		                    if (towns == 2)
+	  		                    { GTRock(player); }
+	  		                     if ( GTCanAttack3(player, 0)    )
+	  		    			    { GTAttack(player);
+
+	  		    			    }
+
+	  		    			    else if (GTNeedRetreat(player))
+	  		    			    { GTRetreat(player);}
+	  		                //   GTDivert2(player, c_PU_VoidRay);
+
+
+
+// Run
+
+}

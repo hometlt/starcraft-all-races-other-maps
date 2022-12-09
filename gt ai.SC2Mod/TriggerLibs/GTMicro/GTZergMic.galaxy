@@ -1,0 +1,242 @@
+
+include "TriggerLibs/Green Tea Main/GTZInformation"
+include "TriggerLibs/Green Tea Main/GTZPoint"
+//--------------------------------------------------------------------------------------------------
+//  *** SCV ***
+//--------------------------------------------------------------------------------------------------
+
+
+
+void AIThinkOverlord (int player, unit aiUnit, unitgroup scanGroup) {
+
+	order ord;
+	if (!g_micro){
+		DebugAI("Load 'unitdata.xml'.");
+		DebugAI("Enough AI Micro");
+		g_micro = true;
+    }
+	GTRunForLife(player, aiUnit, scanGroup);
+	if (AIEvalTacticalData(aiUnit, null)) {
+	        return;
+	    }
+	 ord = AICreateOrder(player, c_AB_GenerateCreep, 0);
+	 if (UnitOrderIsValid(aiUnit, ord)) {
+		 AICast(aiUnit, ord, c_noMarker, c_castHold);
+	     return;
+	 }
+
+	 return;
+}
+   void AIThinkCreepTumor (int player, unit aiUnit, unitgroup scanGroup) {
+
+       order ord;
+       point p;
+       unit u = aiUnit;
+       point e = PlayerStartLocation(GTEnemyID(player));
+       int d = RandomInt(5, 9);
+
+       ord = AICreateOrder(player, c_AB_CreepTumorBuild, 0);
+       if (!UnitOrderIsValid(aiUnit, ord)) {
+           return;
+       }
+
+
+       if ( !AINearbyUnits(player, c_ZB_CreepTumorBurrowed, AIWaveTargetGatherOPoint(player, AIGetClosestTown(player, UnitGetPosition(u))), 4, 1)){
+    	   p = GTPointAlongLine(UnitGetPosition(u), AIWaveTargetGatherOPoint(player, AIGetClosestTown(player, UnitGetPosition(u))), IntToFixed(d));
+
+    	   if(!AIPlacementNearbyFindTest(player, p, 0, c_ZB_CreepTumor)){
+    	 	    p = PointWithOffsetPolar(UnitGetPosition(u),  IntToFixed(d), AngleBetweenPoints( UnitGetPosition(u), AIWaveTargetGatherOPoint(player, AIGetClosestTown(player, UnitGetPosition(u)))) + RandomInt(-3, 3)*10);
+
+    	   }
+       }
+       else {
+     	    p = GTPointAlongLine(UnitGetPosition(u), e, IntToFixed(d));
+  		    if(!AIPlacementNearbyFindTest(player, p, 0, c_ZB_CreepTumor)){
+    	 	    p = PointWithOffsetPolar(UnitGetPosition(u),  IntToFixed(d), AngleBetweenPoints( UnitGetPosition(u), e) + RandomInt(-3, 3)*10);
+    	 	//   DebugAI("xa vach");
+
+  		    }
+       }
+
+       if(!AIPlacementNearbyFindTest(player, p, 0, c_ZB_CreepTumor)){
+    	   return;
+       }
+         OrderSetTargetPlacement(ord, p, u, c_ZB_CreepTumor);
+         if (UnitOrderIsValid(u, ord)) {  AICast(u, ord, c_noMarker, c_castHold); }
+
+       return;
+   }
+
+
+
+
+void AIThinkRoach(int player, unit aiUnit, unitgroup scanGroup) {
+	order ord1 = AICreateOrder(player, c_AB_BurrowRoachDown, 0);
+
+	if (AIUnitIsInCombat(aiUnit) && UnitGetPropertyInt(aiUnit,  c_unitPropVitalityPercent, c_unitPropCurrent) < 35 && UnitOrderIsValid(aiUnit, ord1)){
+	  //AICast(aiUnit, ord1, c_noMarker, c_castRetreat);
+		AICast(aiUnit, ord1, c_noMarker, c_castHold);
+		return;
+	}
+	if (!AIUnitIsInCombat(aiUnit) && UnitGetPropertyInt(aiUnit,  c_unitPropVitalityPercent, c_unitPropCurrent) < 100 && UnitOrderIsValid(aiUnit, ord1) ){
+		//AICast(aiUnit, ord1, c_noMarker, c_castRetreat);
+		AICast(aiUnit, ord1, c_noMarker, c_castHold);
+		return;
+	}
+
+//	GTHitRunGround(player, aiUnit, scanGroup);
+    return;
+}
+
+void AIThinkRoachBurrowed(int player, unit aiUnit, unitgroup scanGroup) {
+	order ord2 = AICreateOrder(player, c_AB_BurrowRoachUp, 0);
+	unitgroup enemy;
+
+	enemy = UnitGroupFilterRegion(scanGroup, RegionCircle(UnitGetPosition(aiUnit), 10), 0);
+	enemy = UnitGroupFilterThreat(scanGroup, aiUnit, null, 0);
+
+	if ((UnitGroupCount(enemy, c_unitCountAlive) > 0 && UnitGetPropertyInt(aiUnit,  c_unitPropVitalityPercent, c_unitPropCurrent) > 65 && UnitOrderIsValid(aiUnit, ord2)) ||
+	    (UnitGetPropertyInt(aiUnit,  c_unitPropVitalityPercent, c_unitPropCurrent) == 100 && UnitOrderIsValid(aiUnit, ord2)) ){
+		AICast(aiUnit, ord2, c_noMarker, c_castHold);
+		return;
+	}
+	GTRunForLife(player, aiUnit, scanGroup);
+}
+
+void AIThinkInfestorBurrowed(int player, unit aiUnit, unitgroup scanGroup) {
+	order ord2 = AICreateOrder(player, c_AB_BurrowInfestorUp, 0);
+	unitgroup enemy;
+
+	enemy = UnitGroupFilterRegion(scanGroup, RegionCircle(UnitGetPosition(aiUnit), 10), 0);
+//	enemy = UnitGroupFilterThreat(scanGroup, aiUnit, null, 0);
+
+	if ((UnitGroupCount(enemy, c_unitCountAlive) > 0 && UnitGetPropertyInt(aiUnit,  c_unitPropEnergy, c_unitPropCurrent) > 75 && UnitOrderIsValid(aiUnit, ord2)) ||
+	    UnitGroupCount(enemy, c_unitCountAlive) == 0 ){
+		AICast(aiUnit, ord2, c_noMarker, c_castHold);
+		return;
+	}
+	GTRunForLife(player, aiUnit, scanGroup);
+}
+void AIThinkSwarmHostMP(int player, unit aiUnit, unitgroup scanGroup) {
+	order ord2 = AICreateOrder(player, "MorphToSwarmHostBurrowedMP", 0);
+	unitgroup enemy;
+
+	enemy = UnitGroupFilterRegion(scanGroup, RegionCircle(UnitGetPosition(aiUnit), 14), 0);
+//	enemy = UnitGroupFilterThreat(scanGroup, aiUnit, null, 0);
+	enemy = UnitGroupFilterPlane(scanGroup, c_planeGround, 0);
+
+	if (UnitGroupCount(enemy, c_unitCountAlive) > 0 ){
+
+		AICast(aiUnit, ord2, c_noMarker, c_castHold);
+		return;
+	}
+}
+void AIThinkSwarmHostBurrowedMP(int player, unit aiUnit, unitgroup scanGroup) {
+	order ord2 = AICreateOrder(player, "MorphToSwarmHostMP", 0);
+	order ord1 = AICreateOrder(player, "SwarmHostSpawnLocusts", 0);
+	unitgroup enemy;
+
+	enemy = UnitGroupFilterRegion(scanGroup, RegionCircle(UnitGetPosition(aiUnit), 14), 0);
+	enemy = UnitGroupFilterPlane(scanGroup, c_planeGround, 0);
+
+	if (UnitGroupCount(enemy, c_unitCountAlive) == 0  ){
+		AICast(aiUnit, ord2, c_noMarker, c_castHold);
+		return;
+	}
+	if(UnitOrderIsValid(aiUnit, ord1)){
+		AICast(aiUnit, ord1, c_noMarker, c_castHold);
+		return;
+	}
+
+}
+
+//
+//void AIThinkHydralisk(int player, unit aiUnit, unitgroup scanGroup) {
+//	   GTHitRunGround(player, aiUnit, scanGroup);
+//	     return;
+//}
+void AIThinkBroodLord(int player, unit aiUnit, unitgroup scanGroup) {
+    GTHitRunGround(player, aiUnit, scanGroup);
+
+    return;
+}
+//void AIThinkMutalisk(int player, unit aiUnit, unitgroup scanGroup) {
+//	  if (AIEvalTacticalData(aiUnit, null)) {
+//	        return;
+//	    }
+//
+//}
+//void AIThinkZergling(int player, unit aiUnit, unitgroup scanGroup) {
+//    if ( AIEvalTacticalData(aiUnit, null)){
+//    	return;
+//    }
+//
+//// TriggerAddEventUnitDamaged(GTUnitDamage, UnitRefFromUnit(aiUnit), c_unitDamageTypeSplash, c_unitDamageFatal, null );
+//    return;
+//}
+//
+//void AIThinkNydusCanal(int player, unit aiUnit, unitgroup scanGroup) {
+//    order ord;
+//    if ( AIEvalTacticalData(aiUnit, null)){
+//    	return;
+//    }
+//    ord = AICreateOrder(player, "NydusCanalTransport", 1);
+//    if (UnitOrderIsValid(aiUnit, ord)){
+//    	AICast(aiUnit, ord, c_noMarker, c_castHold);
+//    	return;
+//    }
+//// TriggerAddEventUnitDamaged(GTUnitDamage, UnitRefFromUnit(aiUnit), c_unitDamageTypeSplash, c_unitDamageFatal, null );
+//    return;
+//}
+//unit GTNydusTransport (int player, unit aiUnit, unitgroup Tgroup) {
+//    int TCount;
+//    unit unitToCheck;
+//    bool wantsToBeInBunker;
+//    order unitOrder;
+//
+//    //  When loading, check to see if there is space in the bunker at all.
+//    //
+//
+////    if (UnitCargoValue(aiUnit, c_unitCargoSpaceFree) == 0) {
+////    	return null;
+////    }
+//
+//    TCount = UnitGroupCount(Tgroup, c_unitCountAlive);
+//    while (TCount > 0) {
+//        unitToCheck = UnitGroupUnit(Tgroup, TCount);
+//        TCount = TCount - 1;
+//
+//        //  Make sure the unit is alive.
+//        //
+//        if (!UnitIsAlive(unitToCheck)) {
+//            continue;
+//        }
+//        if (AIIsScriptControlled(unitToCheck)) {
+//            continue;
+//        }
+//        if (UnitTestPlane(unitToCheck, c_planeAir)) {
+//            continue;
+//        }
+//
+//        //  When loading, make sure the unit is not allready in a transport.
+//        //
+//        if (UnitTestState(unitToCheck, c_unitStateInsideTransport)) {
+//        	continue;
+//        }
+//        return unitToCheck;
+//    }
+//    return null;
+//}
+//void AIThinkNydusNetwork(int player, unit aiUnit, unitgroup scanGroup) {
+//    order ord;
+//    ord = AICreateOrder(player, "NydusCanalTransport", 0);
+//
+////    if ( AIEvalTacticalData(aiUnit, null)){
+////    	return;
+////    }
+//    OrderSetTargetUnit(ord, UnitGroupNearestUnit(UnitGroup(c_ZU_Zergling, player, RegionPlayableMap(),  null, 0 ), UnitGetPosition(aiUnit)));
+//    if (UnitOrderIsValid(aiUnit, ord)){
+//        AICast(aiUnit, ord, c_noMarker, c_castHold);
+//    }
+//  return;
+//}

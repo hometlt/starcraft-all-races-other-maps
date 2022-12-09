@@ -1,0 +1,44 @@
+ void GTCounterUnit( int player, string Eunit, int Enum, string Obuild, int Onum, string Ounit, fixed ratio){
+   if (GTCountE(player, Eunit) < Enum){
+	 		 return;
+   }
+   if (!GTFinishIA (player, Obuild, Onum)){
+	   GTBuildT(player, 2, 0, Obuild, Onum, c_nearResource);
+	   return;
+   }
+   if (GTFinishA(player, Obuild, 1)){
+	   //GTrain(player, Ounit, GCounterFull(player, Ounit));
+       GTrain(player, Ounit, FixedToInt(GTCountEI(player, Eunit) * ratio) );
+	   return;
+   }
+   return;
+}
+
+ void GTCounterUnit2( int player, string Ebuild, string Eunit, int Enum, string Obuild, int Onum, string Ounit, fixed ratio){
+    if (GTCountE(player, Eunit) < Enum && GTCountE(player, Ebuild) == 0){
+        return;
+    }
+    if (!GTFinishIA (player, Obuild, Onum)){
+        GTBuildT(player, 2, 0, Obuild, Onum, c_nearResource);
+        return;
+    }
+    if (GTFinishA(player, Obuild, 1)){
+        GTrain(player, Ounit, FixedToInt(GTCountEI(player, Eunit) * ratio) );
+        //GTrain(player, Ounit, GCounterFull(player, Ounit));
+    }
+ }
+
+
+ void GTCounterBuild( int player, string Ebuild,  string Obuild ){
+	 if (GTCountE(player, Ebuild) == 0 ){
+		 return;
+	 }
+	 if (!GTFinishIA (player, Obuild, 1)) {
+		 GTBuildT(player, 2, 0, Obuild, 1, c_nearResource);
+		 return;
+	 }
+ }
+
+
+
+

@@ -1,0 +1,220 @@
+//==================================================================================================
+//  Zealot Rush
+//==================================================================================================
+
+
+//--------------------------------------------------------------------------------------------------
+//  ProtossMid0 ( 4 gate )
+//--------------------------------------------------------------------------------------------------
+void Protoss9 (int player) {
+	 int towns = GTTowns (player);
+	 int tech_level = 3;
+	 int i = 1;
+	 order ord;
+	 
+	 GTName(player, "Nyx");
+     GTShowTimer(player);
+	 GTPreventScout(player);
+	 GTMicro(player);
+
+
+//-----------------------------------------------
+//Opening
+//------------------------------------------
+
+		if (!GTFinishIA(player, c_PB_Pylon, 2 )){
+		  	if (GTFinishIA(player, c_PU_Probe, 11) && (!GTFinishIA(player, c_PU_Probe, 12) || GTFinishIA(player, c_PU_Probe, 13)) && !GTFinishA(player, c_PB_Gateway, 1)){
+		  		GTChronoBoost(player, 0, c_PB_Nexus ,"TimeWarpProduction");
+			}
+			else{
+				GTChronoBoost(player, 0, c_PB_Gateway ,"TimeWarpProduction");
+			}
+		  	GTrain(player, c_PU_Probe, 9);
+		  	GBuildS(player, c_PB_Pylon, 1, 9);
+		  	GBuildA(player, c_PB_Forge, 1, c_PB_Pylon, 1);
+		  	GTrainI(player, c_PU_Probe, 10, c_PB_Pylon, 1);
+		  	GTrainA(player, c_PU_Probe, 13, c_PB_Pylon, 1);
+		  	if (GTFinishA(player, c_PB_Pylon, 1)){
+
+
+		  		if ( !UnitOrderHasAbil(GTableGetUnit(player, c_GT_Scout), c_AB_Move) && AIPathingCostMap(UnitGetPosition(GTableGetUnit(player,  c_GT_Scout)), PlayerStartLocation(GTEnemyID(player))) > 20){
+		  			ord = AICreateOrder(player, c_AB_Move, 0);
+		  			OrderSetTargetPoint(ord, PlayerStartLocation(GTEnemyID(player)));
+		  			AICast(GTableGetUnit(player, c_GT_Scout) , ord, c_noMarker, c_castHold);
+		  		}
+		  	}
+		  	if (GTableGetUnit(player, c_GT_Scout) != null){
+		  		if( AIPathingCostMap(UnitGetPosition(GTableGetUnit(player,  c_GT_Scout)), PlayerStartLocation(GTEnemyID(player))) < RandomInt(22, 28)){
+		  			if (GTableGetPoint(player, c_GT_PointE1) == null){
+		  				GTableSetPoint(player, c_GT_PointE1, UnitGetPosition(GTableGetUnit(player,  c_GT_Scout)));
+		  			}
+		  			AISetFlag(player, e_flagsScouting, true);
+		  			AIOfferNewScout(player, GTableGetUnit(player, c_GT_Scout));
+		  		}
+		  	}
+		  	if (GTableGetPoint(player, c_GT_PointE1) != null && GTFinishIA(player, c_PB_Forge, 1)){
+		  		GTBuildPA2(player, c_PB_Pylon, 2, GTableGetPoint(player, c_GT_PointE1));
+		  	}
+
+		    return;
+		}
+
+
+	 tech_level = GTGetTech(player, c_PB_CyberneticsCore,  c_PB_RoboticsFacility ,  c_PB_RoboticsBay ,  c_PB_Stargate, c_PB_FleetBeacon, c_PB_FleetBeacon ,  c_PB_FleetBeacon,  c_PB_FleetBeacon  );
+     // Stop scouting if medium or above
+	 if (GTFinishIA(player, c_PB_Pylon, 2) && PlayerDifficulty(player) > c_skirEasy){
+		 AISetFlag(player, e_flagsScouting, false);
+     }
+	 if (DistanceBetweenPoints(UnitGetPosition(GTableGetUnit(player, c_GT_Scout)), GTableGetPoint(player, c_GT_PointE1)) > 25){
+		ord = AICreateOrder(player, c_AB_Move, 0);
+		OrderSetTargetPoint(ord, GTableGetPoint(player, c_GT_PointE1));
+		AICast(GTableGetUnit(player, c_GT_Scout) , ord, c_noMarker, c_castHold);
+	 }
+
+	 //------------------------------------
+	 // Economy Management
+	 //---------------------------------------
+	 	
+	 	 GTSupply (player, 6 + tech_level);
+	 	 GTrain(player, c_PU_Probe, 15);
+	 	 if (GTFinishIA(player, c_PB_PhotonCannon, 2) || GTFinishIA(player, c_PB_Gateway, 1)){
+			GTCreateWorkers (player);
+	 	 }
+
+
+     // Cannon Rush Success
+	 if (UnitGroupCount(AIFindUnits(player, c_PB_Pylon, GTableGetPoint(player, c_GT_PointE1), 5, 0), 0) > 0){
+		 if (GTFinishA(player, c_PB_Pylon, 2)){
+			 GTBuildPA2(player, c_PB_PhotonCannon, 3, GTPointAlongLine(GTableGetPoint(player, c_GT_PointE1),  PlayerStartLocation(GTEnemyID(player)), RandomInt(0,4)));
+			 if( GTFinishIA (player, c_PB_PhotonCannon, 2)){
+				 if (AIPlacementNearbyFindTest(player, GTPointAlongLine(GTableGetPoint(player, c_GT_PointE1),  PlayerStartLocation(GTEnemyID(player)), 5), 3, c_PB_Pylon)){
+					 GTBuildPA2(player, c_PB_Pylon, 3, GTPointAlongLine(GTableGetPoint(player, c_GT_PointE1),  PlayerStartLocation(GTEnemyID(player)), 5));
+				 }
+				 else {
+					 GTBuildPA2(player, c_PB_Gateway, 1, GTableGetPoint(player, c_GT_PointE1));
+					 GTBuildPA2(player, c_PB_Pylon, 3, GTPointAlongLine(GTableGetPoint(player, c_GT_PointE1),  PlayerStartLocation(GTEnemyID(player)), RandomInt(3,7)));
+				 }
+
+			 }
+			 if( GTFinishA (player, c_PB_Pylon, 3)){
+				 GTBuildPA2(player, c_PB_PhotonCannon, 5, GTPointAlongLine(GTableGetPoint(player, c_GT_PointE1),  PlayerStartLocation(GTEnemyID(player)), 8));
+			 }
+			 if( GTFinishIA (player, c_PB_PhotonCannon, 5)){
+				 GTBuildPA2(player, c_PB_Pylon, 4, GTPointAlongLine(GTableGetPoint(player, c_GT_PointE1),  PlayerStartLocation(GTEnemyID(player)), 11));
+				 GTBuildPA2(player, c_PB_Gateway, 1, GTPointAlongLine(GTableGetPoint(player, c_GT_PointE1),  PlayerStartLocation(GTEnemyID(player)), 5));
+			 }
+			 if( GTFinishA (player, c_PB_Pylon, 4)){
+				 GTBuildPA2(player, c_PB_PhotonCannon, 7, GTPointAlongLine(GTableGetPoint(player, c_GT_PointE1),  PlayerStartLocation(GTEnemyID(player)), 14));
+			 }
+			 if( GTFinishIA (player, c_PB_PhotonCannon, 7)){
+				 GTBuildPA2(player, c_PB_Pylon, 5, GTPointAlongLine(GTableGetPoint(player, c_GT_PointE1),  PlayerStartLocation(GTEnemyID(player)), 17));
+			 }
+			 if( GTFinishA (player, c_PB_Pylon, 5)){
+				 GTBuildPA2(player, c_PB_PhotonCannon, 10, GTPointAlongLine(GTableGetPoint(player, c_GT_PointE1),  PlayerStartLocation(GTEnemyID(player)), 20));
+			 }
+		 }
+
+		 GTrainA(player, c_PU_Zealot, 12, c_PB_Gateway, 1);
+		 GTrainA(player, c_PU_Stalker, 12, c_PB_Gateway, 2);
+		 GBuildI(player, c_PB_CyberneticsCore, 1, c_PB_Gateway, 1);
+		 GBuildI(player, c_PB_Gateway, 2, c_PB_CyberneticsCore, 1);
+		 GBuildI(player, c_PB_Assimilator, 2, c_PB_CyberneticsCore, 1);
+		 if (GTFinishIA(player, c_PB_Gateway, 2)){
+			 GTExpand(player);
+		 }
+		 if (AIHasRes(player, 600, 0)){
+			 GBuild(player, c_PB_Gateway, 2);
+		 }
+		 GBuildI(player, c_PB_Stargate, 1, c_PB_Nexus, 2);
+		 GBuildA(player, c_PU_VoidRay, 3, c_PB_Stargate, 1);
+		 GResearch ( player, c_PR_WarpGateResearch);
+		 if (GTFinishIA(player, c_PB_Stargate, 1)){
+			 GTAutoResearch(player);
+		 }
+	 }
+	 else { // Cannon Rush Fail
+
+	 if (GTFinishIA(player, c_PB_CyberneticsCore, 1)){
+		 GTExpand(player);
+	 }
+
+//-------------------------------------------------
+// Unit Production
+//------------------------------------------------
+
+
+	GTrainA (player, c_PU_Zealot, 1, c_PB_Gateway, 1 );
+	GTrainI (player, c_PU_Sentry, 1, c_PR_WarpGateResearch, 1 );
+    GTrain (player, c_PU_Zealot,  GTCount(player, c_PU_Stalker) + GTCount(player, c_PU_Sentry) );
+	if (GTFinishIA(player, c_PB_Nexus, 2)){
+		GTBasicTrain(player);
+	}
+	if (GTEGroA(player) > 8){
+		GTrain(player, c_PU_Immortal, GTEGroA(player)/4);
+	}
+
+	GTrainI( player, c_PU_Stalker, 3, c_PU_Sentry, 1);
+    GTrainA( player, c_PU_Stalker, 9, c_PR_WarpGateResearch, 1);
+
+    GTrain( player, c_PU_Sentry, 1 + GTCount(player, c_PU_Stalker)/ 2 );
+
+    GTTrainA(player, 4, c_townMain, c_PU_Colossus, 4, c_PB_RoboticsBay, 1);
+//--------------------------------------
+// Build Management
+//--------------------------------------
+    GTAutoBDefend(player, 0);
+    GTDefendTown(player, 0);
+    //Rebuild Core
+    GBuild (player, c_PB_Gateway, 1);
+    GBuildI (player, c_PB_Assimilator, 2, c_PB_Gateway, 1);
+    GBuildI (player, c_PB_CyberneticsCore, 1, c_PB_Assimilator, 1);
+
+
+	GBuildI (player, c_PB_Assimilator, 2,  c_PB_Gateway, 2);
+    GBuildI(player, c_PB_RoboticsFacility, 1, c_PU_Sentry, 1);
+    GBuildI (player, c_PB_Gateway, 2, c_PB_RoboticsFacility, 1);
+    GBuildI (player, c_PB_Gateway, 3, c_PB_Nexus, 2);
+    GBuildI(player, c_PB_RoboticsFacility, 1, c_PU_Sentry, 1);
+
+	GResearch ( player, c_PR_WarpGateResearch);
+
+	GBuildI (player, c_PB_RoboticsBay, 1, c_PB_Gateway, 3) ;
+	GResearchI (player, c_PR_ColossusRange,  c_PU_Colossus, 1);
+    if (GTFinishIA(player, c_PB_RoboticsBay, 1)){
+    	GTAutoResearch(player);
+    }
+
+}
+//--------------------------------------------
+//   Expansion Town
+//------------------------------------------
+    while ( i <= 15 ){
+    	if (AIGetTownState(player, i ) == c_townStateEstablished) {
+    		GTAutoBExpand(player, i);
+    	}
+			i = i + 1;
+	}
+
+//----------------------------------------
+// Strategy
+//-----------------------------------------
+    GTDefend(player);
+	if (towns == 2){
+		GTRock(player);
+	}
+	if  ( GTCanAttack(player) ){
+		GTAttack(player);
+        AIWaveMerge(player, c_waveDivert2, c_waveAttack);
+	}
+    else if (GTNeedRetreat(player)) {
+    	GTRetreat(player);
+    }
+
+//-------------------------------------
+// Run
+//---------------------------------
+	
+	return;
+}
+
+

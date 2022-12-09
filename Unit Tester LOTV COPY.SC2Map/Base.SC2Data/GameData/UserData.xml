@@ -1,0 +1,636 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Catalog>
+    <CUser id="TFaction">
+        <Instances Id="LegacyTerran">
+            <Image Image="Assets\Textures\icon-1v1-terran.dds">
+                <Field Id="Icon"/>
+            </Image>
+            <String String="Terrans Legacy">
+                <Field Id="Name"/>
+            </String>
+            <Unit Unit="LegacyMarine">
+                <Field Id="Unit"/>
+            </Unit>
+            <Unit Unit="LegacyReaper">
+                <Field Id="Unit" Index="1"/>
+            </Unit>
+            <Unit Unit="LegacyMarauder">
+                <Field Id="Unit" Index="2"/>
+            </Unit>
+            <Unit Unit="LegacyGhost">
+                <Field Id="Unit" Index="3"/>
+            </Unit>
+            <Unit Unit="LegacyHellionTank">
+                <Field Id="Unit" Index="4"/>
+            </Unit>
+            <Unit Unit="LegacyWidowMine">
+                <Field Id="Unit" Index="7"/>
+            </Unit>
+            <Unit Unit="LegacyHellion">
+                <Field Id="Unit" Index="8"/>
+            </Unit>
+            <Unit Unit="LegacyCyclone">
+                <Field Id="Unit" Index="9"/>
+            </Unit>
+            <Unit Unit="LegacySiegeTank">
+                <Field Id="Unit" Index="10"/>
+            </Unit>
+            <Unit Unit="LegacyThor">
+                <Field Id="Unit" Index="11"/>
+            </Unit>
+            <Unit Unit="LegacyVikingAssault">
+                <Field Id="Unit" Index="12"/>
+            </Unit>
+            <Unit Unit="LegacyVikingFighter">
+                <Field Id="Unit" Index="14"/>
+            </Unit>
+            <Unit Unit="LegacyLiberator">
+                <Field Id="Unit" Index="15"/>
+            </Unit>
+            <Unit Unit="LegacyBanshee">
+                <Field Id="Unit" Index="16"/>
+            </Unit>
+            <Unit Unit="LegacyMedivac">
+                <Field Id="Unit" Index="17"/>
+            </Unit>
+            <Unit Unit="LegacyRaven">
+                <Field Id="Unit" Index="18"/>
+            </Unit>
+            <Unit Unit="LegacyBattlecruiser">
+                <Field Id="Unit" Index="19"/>
+            </Unit>
+            <Unit Unit="LegacySCV">
+                <Field Id="Unit" Index="21"/>
+            </Unit>
+            <Unit Unit="TerranBuilderMP">
+                <Field Id="Builder"/>
+            </Unit>
+            <Unit Unit="MULE">
+                <Field Id="Unit" Index="5"/>
+            </Unit>
+            <Upgrade Upgrade="LegacyTerranBuildingArmor">
+                <Field Id="Upgrade"/>
+            </Upgrade>
+            <Upgrade Upgrade="LegacyHiSecAutoTracking">
+                <Field Id="Upgrade" Index="1"/>
+            </Upgrade>
+            <Upgrade Upgrade="LegacyShieldWall">
+                <Field Id="Upgrade" Index="2"/>
+            </Upgrade>
+            <Upgrade Upgrade="LegacyStimpack">
+                <Field Id="Upgrade" Index="3"/>
+            </Upgrade>
+            <Upgrade Upgrade="LegacyPunisherGrenades">
+                <Field Id="Upgrade" Index="4"/>
+            </Upgrade>
+            <Upgrade Upgrade="LegacyHighCapacityBarrels">
+                <Field Id="Upgrade" Index="5"/>
+            </Upgrade>
+            <Upgrade Upgrade="LegacyCycloneLockOnDamageUpgrade">
+                <Field Id="Upgrade" Index="6"/>
+            </Upgrade>
+            <Upgrade Upgrade="LegacyDrillClaws">
+                <Field Id="Upgrade" Index="7"/>
+            </Upgrade>
+            <Upgrade Upgrade="LegacySmartServos">
+                <Field Id="Upgrade" Index="8"/>
+            </Upgrade>
+            <Upgrade Upgrade="LegacyRavenCorvidReactor">
+                <Field Id="Upgrade" Index="9"/>
+            </Upgrade>
+            <Upgrade Upgrade="LegacyBansheeCloak">
+                <Field Id="Upgrade" Index="10"/>
+            </Upgrade>
+            <Upgrade Upgrade="LegacyBansheeSpeed">
+                <Field Id="Upgrade" Index="11"/>
+            </Upgrade>
+            <Upgrade Upgrade="LegacyPersonalCloaking">
+                <Field Id="Upgrade" Index="12"/>
+            </Upgrade>
+            <Upgrade Upgrade="LegacyEnhancedShockwaves">
+                <Field Id="Upgrade" Index="13"/>
+            </Upgrade>
+            <Upgrade Upgrade="LegacyBattlecruiserEnableSpecializations">
+                <Field Id="Upgrade" Index="14"/>
+            </Upgrade>
+            <Upgrade Upgrade="LegacyMedivacIncreaseSpeedBoost">
+                <Field Id="Upgrade" Index="15"/>
+            </Upgrade>
+            <Upgrade Upgrade="LegacyLiberatorAGRangeUpgrade">
+                <Field Id="Upgrade" Index="16"/>
+            </Upgrade>
+            <User Type="TLevelUpgrades" Instance="Terran MP Infantry Armor">
+                <Field Id="LevelledUpgrades"/>
+            </User>
+            <User Type="TLevelUpgrades" Instance="Terran MP Infantry Weapons">
+                <Field Id="LevelledUpgrades" Index="1"/>
+            </User>
+            <User Type="TLevelUpgrades" Instance="Terran MP Vehicle Weapons">
+                <Field Id="LevelledUpgrades" Index="2"/>
+            </User>
+            <User Type="TLevelUpgrades" Instance="Terran MP Vehicle Plating">
+                <Field Id="LevelledUpgrades" Index="3"/>
+            </User>
+            <User Type="TLevelUpgrades" Instance="Terran MP Ship Weapons">
+                <Field Id="LevelledUpgrades" Index="4"/>
+            </User>
+            <User Type="TLevelUpgrades" Instance="Terran MP Ship Plating">
+                <Field Id="LevelledUpgrades" Index="5"/>
+            </User>
+        </Instances>
+        <Instances Id="LegacyZerg">
+            <Image Image="Assets\Textures\icon-1v1-zerg.dds">
+                <Field Id="Icon"/>
+            </Image>
+            <String String="Zergs Legacy">
+                <Field Id="Name"/>
+            </String>
+            <Unit Unit="LegacyZergling">
+                <Field Id="Unit"/>
+            </Unit>
+            <Unit Unit="LegacyQueen">
+                <Field Id="Unit" Index="7"/>
+            </Unit>
+            <Unit Unit="LegacyBaneling">
+                <Field Id="Unit" Index="1"/>
+            </Unit>
+            <Unit Unit="LegacyRavager">
+                <Field Id="Unit" Index="8"/>
+            </Unit>
+            <Unit Unit="LegacyRoach">
+                <Field Id="Unit" Index="2"/>
+            </Unit>
+            <Unit Unit="LegacyLurkerMP">
+                <Field Id="Unit" Index="9"/>
+            </Unit>
+            <Unit Unit="LegacyInfestor">
+                <Field Id="Unit" Index="10"/>
+            </Unit>
+            <Unit Unit="LegacyHydralisk">
+                <Field Id="Unit" Index="3"/>
+            </Unit>
+            <Unit Unit="LegacyBroodling">
+                <Field Id="Unit" Index="4"/>
+            </Unit>
+            <Unit Unit="LegacyMutalisk">
+                <Field Id="Unit" Index="14"/>
+            </Unit>
+            <Unit Unit="LegacyCorruptor">
+                <Field Id="Unit" Index="15"/>
+            </Unit>
+            <Unit Unit="LegacyBroodLord">
+                <Field Id="Unit" Index="16"/>
+            </Unit>
+            <Unit Unit="LegacyViper">
+                <Field Id="Unit" Index="17"/>
+            </Unit>
+            <Unit Unit="LegacyDrone">
+                <Field Id="Unit" Index="21"/>
+            </Unit>
+            <Unit Unit="LegacyOverlord">
+                <Field Id="Unit" Index="22"/>
+            </Unit>
+            <Unit Unit="ZergBuilderMP">
+                <Field Id="Builder"/>
+            </Unit>
+            <Unit Unit="LegacySwarmHostMP">
+                <Field Id="Unit" Index="11"/>
+            </Unit>
+            <Unit Unit="LegacyOverlordTransport">
+                <Field Id="Unit" Index="18"/>
+            </Unit>
+            <Unit Unit="LegacyLocustMPFlying">
+                <Field Id="Unit" Index="5"/>
+            </Unit>
+            <Unit Unit="LegacyUltralisk">
+                <Field Id="Unit" Index="12"/>
+            </Unit>
+            <Unit Unit="LegacyOverseer">
+                <Field Id="Unit" Index="19"/>
+            </Unit>
+            <Upgrade Upgrade="LegacyBurrow">
+                <Field Id="Upgrade"/>
+            </Upgrade>
+            <Upgrade Upgrade="Legacyoverlordspeed">
+                <Field Id="Upgrade" Index="1"/>
+            </Upgrade>
+            <Upgrade Upgrade="Legacyzerglingmovementspeed">
+                <Field Id="Upgrade" Index="2"/>
+            </Upgrade>
+            <Upgrade Upgrade="Legacyzerglingattackspeed">
+                <Field Id="Upgrade" Index="3"/>
+            </Upgrade>
+            <Upgrade Upgrade="LegacyGlialReconstitution">
+                <Field Id="Upgrade" Index="4"/>
+            </Upgrade>
+            <Upgrade Upgrade="LegacyTunnelingClaws">
+                <Field Id="Upgrade" Index="5"/>
+            </Upgrade>
+            <Upgrade Upgrade="LegacyCentrificalHooks">
+                <Field Id="Upgrade" Index="6"/>
+            </Upgrade>
+            <Upgrade Upgrade="LegacyEvolveGroovedSpines">
+                <Field Id="Upgrade" Index="7"/>
+            </Upgrade>
+            <Upgrade Upgrade="LegacyHydraliskSpeedUpgrade">
+                <Field Id="Upgrade" Index="8"/>
+            </Upgrade>
+            <Upgrade Upgrade="LegacyDiggingClaws">
+                <Field Id="Upgrade" Index="9"/>
+            </Upgrade>
+            <Upgrade Upgrade="LegacyLurkerRange">
+                <Field Id="Upgrade" Index="10"/>
+            </Upgrade>
+            <Upgrade Upgrade="LegacyInfestorEnergyUpgrade">
+                <Field Id="Upgrade" Index="11"/>
+            </Upgrade>
+            <Upgrade Upgrade="LegacyNeuralParasite">
+                <Field Id="Upgrade" Index="12"/>
+            </Upgrade>
+            <Upgrade Upgrade="LegacyChitinousPlating">
+                <Field Id="Upgrade" Index="13"/>
+            </Upgrade>
+            <Upgrade Upgrade="LegacyAnabolicSynthesis">
+                <Field Id="Upgrade" Index="14"/>
+            </Upgrade>
+            <User Type="TLevelUpgrades" Instance="Zerg MP Melee Attacks">
+                <Field Id="LevelledUpgrades"/>
+            </User>
+            <User Type="TLevelUpgrades" Instance="Zerg MP Missile Attacks">
+                <Field Id="LevelledUpgrades" Index="1"/>
+            </User>
+            <User Type="TLevelUpgrades" Instance="Zerg MP Ground Carapace">
+                <Field Id="LevelledUpgrades" Index="2"/>
+            </User>
+            <User Type="TLevelUpgrades" Instance="Zerg MP Flyer Attacks">
+                <Field Id="LevelledUpgrades" Index="3"/>
+            </User>
+            <User Type="TLevelUpgrades" Instance="Zerg MP Flyer Carapace">
+                <Field Id="LevelledUpgrades" Index="4"/>
+            </User>
+        </Instances>
+        <Instances Id="LegacyProtoss">
+            <Image Image="Assets\Textures\icon-1v1-protoss.dds">
+                <Field Id="Icon"/>
+            </Image>
+            <String String="Protoss Legacy">
+                <Field Id="Name"/>
+            </String>
+            <Unit Unit="LegacyZealot">
+                <Field Id="Unit"/>
+            </Unit>
+            <Unit Unit="LegacyAdept">
+                <Field Id="Unit" Index="1"/>
+            </Unit>
+            <Unit Unit="LegacyStalker">
+                <Field Id="Unit" Index="2"/>
+            </Unit>
+            <Unit Unit="LegacySentry">
+                <Field Id="Unit" Index="3"/>
+            </Unit>
+            <Unit Unit="LegacyDarkTemplar">
+                <Field Id="Unit" Index="4"/>
+            </Unit>
+            <Unit Unit="LegacyHighTemplar">
+                <Field Id="Unit" Index="5"/>
+            </Unit>
+            <Unit Unit="LegacyArchon">
+                <Field Id="Unit" Index="7"/>
+            </Unit>
+            <Unit Unit="LegacyImmortal">
+                <Field Id="Unit" Index="8"/>
+            </Unit>
+            <Unit Unit="LegacyColossus">
+                <Field Id="Unit" Index="9"/>
+            </Unit>
+            <Unit Unit="LegacyDisruptor">
+                <Field Id="Unit" Index="10"/>
+            </Unit>
+            <Unit Unit="LegacyObserver">
+                <Field Id="Unit" Index="11"/>
+            </Unit>
+            <Unit Unit="LegacyWarpPrism">
+                <Field Id="Unit" Index="12"/>
+            </Unit>
+            <Unit Unit="LegacyPhoenix">
+                <Field Id="Unit" Index="14"/>
+            </Unit>
+            <Unit Unit="LegacyOracle">
+                <Field Id="Unit" Index="15"/>
+            </Unit>
+            <Unit Unit="LegacyVoidRay">
+                <Field Id="Unit" Index="16"/>
+            </Unit>
+            <Unit Unit="LegacyTempest">
+                <Field Id="Unit" Index="17"/>
+            </Unit>
+            <Unit Unit="LegacyCarrier">
+                <Field Id="Unit" Index="18"/>
+            </Unit>
+            <Unit Unit="LegacyMothership">
+                <Field Id="Unit" Index="19"/>
+            </Unit>
+            <Unit Unit="LegacyProbe">
+                <Field Id="Unit" Index="21"/>
+            </Unit>
+            <Unit Unit="ProtossBuilderMP">
+                <Field Id="Builder"/>
+            </Unit>
+            <Upgrade Upgrade="LegacyCharge">
+                <Field Id="Upgrade"/>
+            </Upgrade>
+            <Upgrade Upgrade="LegacyBlinkTech">
+                <Field Id="Upgrade" Index="1"/>
+            </Upgrade>
+            <Upgrade Upgrade="LegacyAdeptPiercingAttack">
+                <Field Id="Upgrade" Index="2"/>
+            </Upgrade>
+            <Upgrade Upgrade="LegacyWarpGateResearch">
+                <Field Id="Upgrade" Index="3"/>
+            </Upgrade>
+            <Upgrade Upgrade="LegacyPsiStormTech">
+                <Field Id="Upgrade" Index="4"/>
+            </Upgrade>
+            <Upgrade Upgrade="LegacyDarkTemplarBlinkUpgrade">
+                <Field Id="Upgrade" Index="5"/>
+            </Upgrade>
+            <Upgrade Upgrade="LegacyObserverGraviticBooster">
+                <Field Id="Upgrade" Index="6"/>
+            </Upgrade>
+            <Upgrade Upgrade="LegacyGraviticDrive">
+                <Field Id="Upgrade" Index="7"/>
+            </Upgrade>
+            <Upgrade Upgrade="LegacyExtendedThermalLance">
+                <Field Id="Upgrade" Index="8"/>
+            </Upgrade>
+            <Upgrade Upgrade="LegacyPhoenixRangeUpgrade">
+                <Field Id="Upgrade" Index="9"/>
+            </Upgrade>
+            <Upgrade Upgrade="LegacyVoidRaySpeedUpgrade">
+                <Field Id="Upgrade" Index="10"/>
+            </Upgrade>
+            <Upgrade Upgrade="LegacyTempestGroundAttackUpgrade">
+                <Field Id="Upgrade" Index="11"/>
+            </Upgrade>
+            <User Type="TLevelUpgrades" Instance="Protoss MP Ground Weapons">
+                <Field Id="LevelledUpgrades"/>
+            </User>
+            <User Type="TLevelUpgrades" Instance="Protoss MP Ground Armor">
+                <Field Id="LevelledUpgrades" Index="1"/>
+            </User>
+            <User Type="TLevelUpgrades" Instance="Protoss MP Shields">
+                <Field Id="LevelledUpgrades" Index="2"/>
+            </User>
+            <User Type="TLevelUpgrades" Instance="Protoss MP Air Armor">
+                <Field Id="LevelledUpgrades" Index="3"/>
+            </User>
+            <User Type="TLevelUpgrades" Instance="Protoss MP Air Weapons">
+                <Field Id="LevelledUpgrades" Index="4"/>
+            </User>
+        </Instances>
+    </CUser>
+    <CUser id="TLevelUpgrades">
+        <Instances Id="Terran MP Infantry Weapons">
+            <Upgrade Upgrade="LegacyTerranInfantryWeaponsLevel1">
+                <Field Id="Upgrade"/>
+            </Upgrade>
+            <Upgrade Upgrade="LegacyTerranInfantryWeaponsLevel2">
+                <Field Id="Upgrade" Index="1"/>
+            </Upgrade>
+            <Upgrade Upgrade="LegacyTerranInfantryWeaponsLevel3">
+                <Field Id="Upgrade" Index="2"/>
+            </Upgrade>
+        </Instances>
+        <Instances Id="Terran MP Infantry Armor">
+            <Upgrade Upgrade="LegacyTerranInfantryArmorsLevel1">
+                <Field Id="Upgrade"/>
+            </Upgrade>
+            <Upgrade Upgrade="LegacyTerranInfantryArmorsLevel2">
+                <Field Id="Upgrade" Index="1"/>
+            </Upgrade>
+            <Upgrade Upgrade="LegacyTerranInfantryArmorsLevel3">
+                <Field Id="Upgrade" Index="2"/>
+            </Upgrade>
+        </Instances>
+        <Instances Id="Terran MP Ship Plating">
+            <Upgrade Upgrade="LegacyTerranShipArmorsLevel1">
+                <Field Id="Upgrade"/>
+            </Upgrade>
+            <Upgrade Upgrade="LegacyTerranShipArmorsLevel2">
+                <Field Id="Upgrade" Index="1"/>
+            </Upgrade>
+            <Upgrade Upgrade="LegacyTerranShipArmorsLevel3">
+                <Field Id="Upgrade" Index="2"/>
+            </Upgrade>
+        </Instances>
+        <Instances Id="Terran MP Ship Weapons">
+            <Upgrade Upgrade="LegacyTerranShipWeaponsLevel1">
+                <Field Id="Upgrade"/>
+            </Upgrade>
+            <Upgrade Upgrade="LegacyTerranShipWeaponsLevel2">
+                <Field Id="Upgrade" Index="1"/>
+            </Upgrade>
+            <Upgrade Upgrade="LegacyTerranShipWeaponsLevel3">
+                <Field Id="Upgrade" Index="2"/>
+            </Upgrade>
+        </Instances>
+        <Instances Id="Terran MP Vehicle Plating">
+            <Upgrade Upgrade="LegacyTerranVehicleArmorsLevel1">
+                <Field Id="Upgrade"/>
+            </Upgrade>
+            <Upgrade Upgrade="LegacyTerranVehicleArmorsLevel2">
+                <Field Id="Upgrade" Index="1"/>
+            </Upgrade>
+            <Upgrade Upgrade="LegacyTerranVehicleArmorsLevel3">
+                <Field Id="Upgrade" Index="2"/>
+            </Upgrade>
+        </Instances>
+        <Instances Id="Terran MP Vehicle Weapons">
+            <Upgrade Upgrade="LegacyTerranVehicleWeaponsLevel1">
+                <Field Id="Upgrade"/>
+            </Upgrade>
+            <Upgrade Upgrade="LegacyTerranVehicleWeaponsLevel2">
+                <Field Id="Upgrade" Index="1"/>
+            </Upgrade>
+            <Upgrade Upgrade="LegacyTerranVehicleWeaponsLevel3">
+                <Field Id="Upgrade" Index="2"/>
+            </Upgrade>
+        </Instances>
+        <Instances Id="Terran MP Infantry Weapons">
+            <Upgrade Upgrade="LegacyTerranInfantryWeaponsLevel1">
+                <Field Id="Upgrade"/>
+            </Upgrade>
+            <Upgrade Upgrade="LegacyTerranInfantryWeaponsLevel2">
+                <Field Id="Upgrade" Index="1"/>
+            </Upgrade>
+            <Upgrade Upgrade="LegacyTerranInfantryWeaponsLevel3">
+                <Field Id="Upgrade" Index="2"/>
+            </Upgrade>
+        </Instances>
+        <Instances Id="Terran MP Infantry Armor">
+            <Upgrade Upgrade="LegacyTerranInfantryArmorsLevel1">
+                <Field Id="Upgrade"/>
+            </Upgrade>
+            <Upgrade Upgrade="LegacyTerranInfantryArmorsLevel2">
+                <Field Id="Upgrade" Index="1"/>
+            </Upgrade>
+            <Upgrade Upgrade="LegacyTerranInfantryArmorsLevel3">
+                <Field Id="Upgrade" Index="2"/>
+            </Upgrade>
+        </Instances>
+        <Instances Id="Terran MP Ship Plating">
+            <Upgrade Upgrade="LegacyTerranShipArmorsLevel1">
+                <Field Id="Upgrade"/>
+            </Upgrade>
+            <Upgrade Upgrade="LegacyTerranShipArmorsLevel2">
+                <Field Id="Upgrade" Index="1"/>
+            </Upgrade>
+            <Upgrade Upgrade="LegacyTerranShipArmorsLevel3">
+                <Field Id="Upgrade" Index="2"/>
+            </Upgrade>
+        </Instances>
+        <Instances Id="Terran MP Ship Weapons">
+            <Upgrade Upgrade="LegacyTerranShipWeaponsLevel1">
+                <Field Id="Upgrade"/>
+            </Upgrade>
+            <Upgrade Upgrade="LegacyTerranShipWeaponsLevel2">
+                <Field Id="Upgrade" Index="1"/>
+            </Upgrade>
+            <Upgrade Upgrade="LegacyTerranShipWeaponsLevel3">
+                <Field Id="Upgrade" Index="2"/>
+            </Upgrade>
+        </Instances>
+        <Instances Id="Terran MP Vehicle Plating">
+            <Upgrade Upgrade="LegacyTerranVehicleArmorsLevel1">
+                <Field Id="Upgrade"/>
+            </Upgrade>
+            <Upgrade Upgrade="LegacyTerranVehicleArmorsLevel2">
+                <Field Id="Upgrade" Index="1"/>
+            </Upgrade>
+            <Upgrade Upgrade="LegacyTerranVehicleArmorsLevel3">
+                <Field Id="Upgrade" Index="2"/>
+            </Upgrade>
+        </Instances>
+        <Instances Id="Terran MP Vehicle Weapons">
+            <Upgrade Upgrade="LegacyTerranVehicleWeaponsLevel1">
+                <Field Id="Upgrade"/>
+            </Upgrade>
+            <Upgrade Upgrade="LegacyTerranVehicleWeaponsLevel2">
+                <Field Id="Upgrade" Index="1"/>
+            </Upgrade>
+            <Upgrade Upgrade="LegacyTerranVehicleWeaponsLevel3">
+                <Field Id="Upgrade" Index="2"/>
+            </Upgrade>
+        </Instances>
+        <Instances Id="Protoss MP Shields">
+            <Upgrade Upgrade="LegacyProtossShieldsLevel1">
+                <Field Id="Upgrade"/>
+            </Upgrade>
+            <Upgrade Upgrade="LegacyProtossShieldsLevel2">
+                <Field Id="Upgrade" Index="1"/>
+            </Upgrade>
+            <Upgrade Upgrade="LegacyProtossShieldsLevel3">
+                <Field Id="Upgrade" Index="2"/>
+            </Upgrade>
+        </Instances>
+        <Instances Id="Protoss MP Ground Armor">
+            <Upgrade Upgrade="LegacyProtossGroundArmorsLevel1">
+                <Field Id="Upgrade"/>
+            </Upgrade>
+            <Upgrade Upgrade="LegacyProtossGroundArmorsLevel2">
+                <Field Id="Upgrade" Index="1"/>
+            </Upgrade>
+            <Upgrade Upgrade="LegacyProtossGroundArmorsLevel3">
+                <Field Id="Upgrade" Index="2"/>
+            </Upgrade>
+        </Instances>
+        <Instances Id="Protoss MP Ground Weapons">
+            <Upgrade Upgrade="LegacyProtossGroundWeaponsLevel1">
+                <Field Id="Upgrade"/>
+            </Upgrade>
+            <Upgrade Upgrade="LegacyProtossGroundWeaponsLevel2">
+                <Field Id="Upgrade" Index="1"/>
+            </Upgrade>
+            <Upgrade Upgrade="LegacyProtossGroundWeaponsLevel3">
+                <Field Id="Upgrade" Index="2"/>
+            </Upgrade>
+        </Instances>
+        <Instances Id="Protoss MP Air Armor">
+            <Upgrade Upgrade="LegacyProtossAirArmorsLevel1">
+                <Field Id="Upgrade"/>
+            </Upgrade>
+            <Upgrade Upgrade="LegacyProtossAirArmorsLevel2">
+                <Field Id="Upgrade" Index="1"/>
+            </Upgrade>
+            <Upgrade Upgrade="LegacyProtossAirArmorsLevel3">
+                <Field Id="Upgrade" Index="2"/>
+            </Upgrade>
+        </Instances>
+        <Instances Id="Protoss MP Air Weapons">
+            <Upgrade Upgrade="LegacyProtossAirWeaponsLevel1">
+                <Field Id="Upgrade"/>
+            </Upgrade>
+            <Upgrade Upgrade="LegacyProtossAirWeaponsLevel2">
+                <Field Id="Upgrade" Index="1"/>
+            </Upgrade>
+            <Upgrade Upgrade="LegacyProtossAirWeaponsLevel3">
+                <Field Id="Upgrade" Index="2"/>
+            </Upgrade>
+        </Instances>
+        <Instances Id="Zerg MP Melee Attacks">
+            <Upgrade Upgrade="LegacyZergMeleeWeaponsLevel1">
+                <Field Id="Upgrade"/>
+            </Upgrade>
+            <Upgrade Upgrade="LegacyZergMeleeWeaponsLevel2">
+                <Field Id="Upgrade" Index="1"/>
+            </Upgrade>
+            <Upgrade Upgrade="LegacyZergMeleeWeaponsLevel3">
+                <Field Id="Upgrade" Index="2"/>
+            </Upgrade>
+        </Instances>
+        <Instances Id="Zerg MP Missile Attacks">
+            <Upgrade Upgrade="LegacyZergMissileWeaponsLevel1">
+                <Field Id="Upgrade"/>
+            </Upgrade>
+            <Upgrade Upgrade="LegacyZergMissileWeaponsLevel2">
+                <Field Id="Upgrade" Index="1"/>
+            </Upgrade>
+            <Upgrade Upgrade="LegacyZergMissileWeaponsLevel3">
+                <Field Id="Upgrade" Index="2"/>
+            </Upgrade>
+        </Instances>
+        <Instances Id="Zerg MP Ground Carapace">
+            <Upgrade Upgrade="LegacyZergGroundArmorsLevel1">
+                <Field Id="Upgrade"/>
+            </Upgrade>
+            <Upgrade Upgrade="LegacyZergGroundArmorsLevel2">
+                <Field Id="Upgrade" Index="1"/>
+            </Upgrade>
+            <Upgrade Upgrade="LegacyZergGroundArmorsLevel3">
+                <Field Id="Upgrade" Index="2"/>
+            </Upgrade>
+        </Instances>
+        <Instances Id="Zerg MP Flyer Carapace">
+            <Upgrade Upgrade="LegacyZergFlyerArmorsLevel1">
+                <Field Id="Upgrade"/>
+            </Upgrade>
+            <Upgrade Upgrade="LegacyZergFlyerArmorsLevel2">
+                <Field Id="Upgrade" Index="1"/>
+            </Upgrade>
+            <Upgrade Upgrade="LegacyZergFlyerArmorsLevel3">
+                <Field Id="Upgrade" Index="2"/>
+            </Upgrade>
+        </Instances>
+        <Instances Id="Zerg MP Flyer Attacks">
+            <Upgrade Upgrade="LegacyZergFlyerWeaponsLevel1">
+                <Field Id="Upgrade"/>
+            </Upgrade>
+            <Upgrade Upgrade="LegacyZergFlyerWeaponsLevel2">
+                <Field Id="Upgrade" Index="1"/>
+            </Upgrade>
+            <Upgrade Upgrade="LegacyZergFlyerWeaponsLevel3">
+                <Field Id="Upgrade" Index="2"/>
+            </Upgrade>
+        </Instances>
+    </CUser>
+</Catalog>
