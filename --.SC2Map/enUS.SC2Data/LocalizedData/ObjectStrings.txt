@@ -1,2 +1,0 @@
-﻿Objective/EditorSuffix/AC_BelshirEscort_Bonus01=
-User/Name/MissionEvents=MissionEvents
